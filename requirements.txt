@@ -1,0 +1,8 @@
+pandas
+numpy
+xarray
+zarr
+gcsfs
+cftime
+nc-time-axis
+matplotlib
