@@ -1,0 +1,689 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>El Nino Pacific Conditions Dashboard</title>
+  <style>
+    :root {
+      --ink: #1d252c;
+      --muted: #5e6b74;
+      --line: #d8dee2;
+      --panel: #ffffff;
+      --page: #f4f1ea;
+      --accent: #b33f2d;
+      --accent-2: #276b78;
+      --accent-3: #7f642c;
+      --shadow: 0 14px 34px rgba(29, 37, 44, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--page);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: 0;
+    }
+
+    button,
+    select {
+      font: inherit;
+    }
+
+    .shell {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: minmax(260px, 330px) minmax(0, 1fr);
+    }
+
+    aside {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 28px 24px;
+      background: #182026;
+      color: #f7f5ef;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+      border-right: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 2rem;
+      line-height: 1.08;
+      font-weight: 760;
+    }
+
+    .intro {
+      margin: 0;
+      color: #cbd3d6;
+      line-height: 1.48;
+      font-size: 0.98rem;
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .stat {
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 12px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.06);
+      min-height: 86px;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 1.45rem;
+      line-height: 1.1;
+      color: #ffffff;
+    }
+
+    .stat span {
+      display: block;
+      margin-top: 6px;
+      color: #cbd3d6;
+      font-size: 0.82rem;
+      line-height: 1.25;
+    }
+
+    .controls {
+      display: grid;
+      gap: 10px;
+    }
+
+    .control-label {
+      color: #dce3e5;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+    }
+
+    .toggle-row,
+    .tab-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .toggle-row {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .tab-list button,
+    .toggle-row button {
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 8px;
+      color: #f7f5ef;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 10px 11px;
+      cursor: pointer;
+      text-align: left;
+      line-height: 1.15;
+      min-height: 42px;
+    }
+
+    .toggle-row button {
+      text-align: center;
+    }
+
+    .tab-list button[aria-selected="true"],
+    .toggle-row button[aria-pressed="true"] {
+      background: #f7f5ef;
+      color: #182026;
+      border-color: #f7f5ef;
+    }
+
+    main {
+      min-width: 0;
+      padding: 28px;
+      display: grid;
+      gap: 22px;
+      align-content: start;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 16px;
+    }
+
+    .toolbar h2 {
+      margin: 0;
+      font-size: 1.35rem;
+      line-height: 1.2;
+    }
+
+    .toolbar p {
+      margin: 5px 0 0;
+      color: var(--muted);
+      line-height: 1.35;
+      max-width: 760px;
+    }
+
+    .view-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .icon-button {
+      width: 42px;
+      height: 42px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--ink);
+      cursor: pointer;
+      display: inline-grid;
+      place-items: center;
+    }
+
+    .icon-button:hover,
+    .graph-card:hover {
+      border-color: #9ba7ad;
+    }
+
+    .focus-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(240px, 310px);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .visual-stage {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      min-height: 470px;
+      display: grid;
+      grid-template-rows: minmax(0, 1fr) auto;
+    }
+
+    .figure-wrap {
+      min-height: 420px;
+      display: grid;
+      place-items: center;
+      background: #fbfaf6;
+      padding: 14px;
+      overflow: auto;
+    }
+
+    .figure-wrap img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .figure-wrap.zoomed img {
+      max-width: none;
+      width: min(1400px, 145vw);
+    }
+
+    .caption {
+      border-top: 1px solid var(--line);
+      display: grid;
+      gap: 6px;
+      padding: 16px 18px;
+      background: #ffffff;
+    }
+
+    .caption strong {
+      font-size: 1rem;
+    }
+
+    .caption span {
+      color: var(--muted);
+      line-height: 1.42;
+    }
+
+    .insight-panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+      display: grid;
+      gap: 15px;
+    }
+
+    .insight-panel h3 {
+      margin: 0;
+      font-size: 1rem;
+    }
+
+    .insight-panel p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .metric {
+      display: grid;
+      gap: 7px;
+    }
+
+    .metric-bar {
+      height: 10px;
+      border-radius: 999px;
+      background: #e6eaed;
+      overflow: hidden;
+    }
+
+    .metric-bar span {
+      display: block;
+      height: 100%;
+      width: var(--value);
+      background: var(--color);
+    }
+
+    .metric-label {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 0.86rem;
+    }
+
+    .grid-view {
+      display: none;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .grid-view.active {
+      display: grid;
+    }
+
+    .focus-layout.hidden {
+      display: none;
+    }
+
+    .graph-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      overflow: hidden;
+      cursor: pointer;
+      display: grid;
+      grid-template-rows: 220px auto;
+      min-height: 360px;
+    }
+
+    .graph-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background: #fbfaf6;
+      padding: 8px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .graph-card div {
+      padding: 13px 14px 15px;
+      display: grid;
+      gap: 6px;
+    }
+
+    .graph-card h3 {
+      margin: 0;
+      font-size: 0.98rem;
+    }
+
+    .graph-card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.38;
+      font-size: 0.9rem;
+    }
+
+    .source-row {
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.35;
+    }
+
+    @media (max-width: 980px) {
+      .shell {
+        display: block;
+      }
+
+      aside {
+        position: relative;
+        height: auto;
+      }
+
+      .focus-layout,
+      .grid-view.active {
+        grid-template-columns: 1fr;
+      }
+
+      .figure-wrap {
+        min-height: 300px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      main,
+      aside {
+        padding: 20px;
+      }
+
+      h1 {
+        font-size: 1.65rem;
+      }
+
+      .stat-grid,
+      .toggle-row {
+        grid-template-columns: 1fr;
+      }
+
+      .toolbar {
+        align-items: stretch;
+      }
+
+      .view-actions {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside>
+      <div>
+        <h1>El Nino Pacific Conditions</h1>
+        <p class="intro">One interactive dashboard combining the five project graphs into a linked story about sea-surface warming, radiation, rainfall, clouds, and the final synthesis view.</p>
+      </div>
+
+      <div class="stat-grid" aria-label="Project summary">
+        <div class="stat">
+          <strong>5</strong>
+          <span>graphs combined</span>
+        </div>
+        <div class="stat">
+          <strong>1951-2014</strong>
+          <span>main CMIP6 historical window</span>
+        </div>
+        <div class="stat">
+          <strong>0.5C</strong>
+          <span>Nino 3.4 El Nino threshold</span>
+        </div>
+        <div class="stat">
+          <strong>120E-80W</strong>
+          <span>Pacific focus region</span>
+        </div>
+      </div>
+
+      <div class="controls">
+        <span class="control-label">View</span>
+        <div class="toggle-row" role="group" aria-label="Layout">
+          <button id="focusBtn" type="button" aria-pressed="true">Focus</button>
+          <button id="gridBtn" type="button" aria-pressed="false">Compare</button>
+        </div>
+      </div>
+
+      <nav class="controls" aria-label="Graph selector">
+        <span class="control-label">Graphs</span>
+        <div class="tab-list" id="tabList" role="tablist"></div>
+      </nav>
+    </aside>
+
+    <main>
+      <section class="toolbar" aria-live="polite">
+        <div>
+          <h2 id="activeTitle"></h2>
+          <p id="activeSubtitle"></p>
+        </div>
+        <div class="view-actions">
+          <button class="icon-button" id="prevBtn" type="button" aria-label="Previous graph" title="Previous graph">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <button class="icon-button" id="zoomBtn" type="button" aria-label="Toggle zoom" title="Toggle zoom">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <button class="icon-button" id="nextBtn" type="button" aria-label="Next graph" title="Next graph">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+      </section>
+
+      <section class="focus-layout" id="focusLayout">
+        <article class="visual-stage">
+          <div class="figure-wrap" id="figureWrap">
+            <img id="activeImage" alt="">
+          </div>
+          <div class="caption">
+            <strong id="activeQuestion"></strong>
+            <span id="activeCaption"></span>
+          </div>
+        </article>
+
+        <aside class="insight-panel" aria-label="Selected graph details">
+          <h3>How this piece fits</h3>
+          <p id="activeInsight"></p>
+          <div class="metric">
+            <div class="metric-label">
+              <span>Ocean trigger</span>
+              <span id="oceanScore"></span>
+            </div>
+            <div class="metric-bar"><span id="oceanBar"></span></div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">
+              <span>Atmosphere response</span>
+              <span id="weatherScore"></span>
+            </div>
+            <div class="metric-bar"><span id="weatherBar"></span></div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">
+              <span>Time pattern</span>
+              <span id="timeScore"></span>
+            </div>
+            <div class="metric-bar"><span id="timeBar"></span></div>
+          </div>
+          <p class="source-row" id="activeSource"></p>
+        </aside>
+      </section>
+
+      <section class="grid-view" id="gridView" aria-label="All graphs comparison"></section>
+    </main>
+  </div>
+
+  <script>
+    const graphs = [
+      {
+        id: "sst",
+        tab: "1. SST",
+        title: "Sea-surface temperature anomaly",
+        subtitle: "Average DJF ocean warming pattern during CESM2 El Nino winters.",
+        question: "Where does the Pacific warm during El Nino winters?",
+        caption: "The Nino 3.4 box anchors the classification and shows the strongest central-to-eastern tropical Pacific warming.",
+        insight: "This is the ocean trigger view. It establishes the warm-water pattern used to connect El Nino to weather changes in the other graphs.",
+        src: "imgs/dashboard/sst_anomaly.png",
+        source: "From imgs/thomas_deitel_el_nino_tropical_pacific_sst_anomaly.pdf",
+        scores: { ocean: 100, weather: 35, time: 42 },
+        color: "#b33f2d"
+      },
+      {
+        id: "rsut",
+        tab: "2. Radiation",
+        title: "Outgoing shortwave anomaly over time",
+        subtitle: "A Hovmoller view of equatorial Pacific top-of-atmosphere shortwave radiation.",
+        question: "When and where does the atmosphere clear or brighten?",
+        caption: "The time-longitude view shows repeated El Nino bands and highlights the strong 1997-98 event.",
+        insight: "This graph adds the time dimension. It helps explain that El Nino is not one static map, but a recurring Pacific-wide pattern.",
+        src: "imgs/dashboard/rsut_hovmoller.png",
+        source: "From imgs/Gilad_hovmoller_rsut_equatorial_pacific.pdf",
+        scores: { ocean: 55, weather: 78, time: 100 },
+        color: "#276b78"
+      },
+      {
+        id: "precip",
+        tab: "3. Rainfall",
+        title: "Precipitation change",
+        subtitle: "El Nino-like months minus neutral months across the Pacific.",
+        question: "Where does rainfall shift during El Nino-like months?",
+        caption: "The map emphasizes the east-west rainfall redistribution associated with the warm Pacific phase.",
+        insight: "This is one of the clearest weather responses. It turns the ocean warming signal into a rainfall pattern people can interpret directly.",
+        src: "imgs/sancho_syquia_precipitation.png",
+        source: "From imgs/sancho_syquia_precipitation.png",
+        scores: { ocean: 58, weather: 100, time: 35 },
+        color: "#7f642c"
+      },
+      {
+        id: "cloud",
+        tab: "4. Clouds",
+        title: "Cloud cover change",
+        subtitle: "El Nino-like months minus neutral months across the Pacific.",
+        question: "Where does cloud cover change during El Nino-like months?",
+        caption: "Cloud cover complements rainfall by showing atmospheric circulation changes even where precipitation shifts are smaller.",
+        insight: "This view links the rainfall story to atmospheric structure. It also explains why radiation anomalies can line up with cloudy or clear regions.",
+        src: "imgs/sancho_syquia_cloud_cover.png",
+        source: "From imgs/sancho_syquia_cloud_cover.png",
+        scores: { ocean: 50, weather: 96, time: 35 },
+        color: "#6b5aa6"
+      },
+      {
+        id: "synthesis",
+        tab: "5. Synthesis",
+        title: "Combined project view",
+        subtitle: "The final static synthesis graph from the pulled project assets.",
+        question: "How does the final graph summarize the El Nino story?",
+        caption: "Use this with the other four panels to connect ocean warming, atmospheric radiation, rainfall, and cloud-cover changes.",
+        insight: "This graph is kept as the synthesis slot so the dashboard has one place for the team's final combined narrative.",
+        src: "imgs/Viz6 - Matthew Paoletta.png",
+        source: "From imgs/Viz6 - Matthew Paoletta.png",
+        scores: { ocean: 82, weather: 82, time: 65 },
+        color: "#2c7a4b"
+      }
+    ];
+
+    const tabList = document.querySelector("#tabList");
+    const gridView = document.querySelector("#gridView");
+    const focusLayout = document.querySelector("#focusLayout");
+    const focusBtn = document.querySelector("#focusBtn");
+    const gridBtn = document.querySelector("#gridBtn");
+    const figureWrap = document.querySelector("#figureWrap");
+    const zoomBtn = document.querySelector("#zoomBtn");
+    const prevBtn = document.querySelector("#prevBtn");
+    const nextBtn = document.querySelector("#nextBtn");
+    let activeIndex = 0;
+
+    function setMetric(name, value, color) {
+      document.querySelector(`#${name}Score`).textContent = `${value}%`;
+      const bar = document.querySelector(`#${name}Bar`);
+      bar.style.setProperty("--value", `${value}%`);
+      bar.style.setProperty("--color", color);
+    }
+
+    function renderTabs() {
+      tabList.innerHTML = "";
+      graphs.forEach((graph, index) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.id = `tab-${graph.id}`;
+        button.role = "tab";
+        button.textContent = graph.tab;
+        button.setAttribute("aria-selected", String(index === activeIndex));
+        button.addEventListener("click", () => setActive(index));
+        tabList.appendChild(button);
+      });
+    }
+
+    function renderGrid() {
+      gridView.innerHTML = "";
+      graphs.forEach((graph, index) => {
+        const card = document.createElement("article");
+        card.className = "graph-card";
+        card.tabIndex = 0;
+        card.innerHTML = `
+          <img src="${graph.src}" alt="${graph.title}">
+          <div>
+            <h3>${graph.title}</h3>
+            <p>${graph.caption}</p>
+          </div>
+        `;
+        card.addEventListener("click", () => {
+          setMode("focus");
+          setActive(index);
+        });
+        card.addEventListener("keydown", (event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            setMode("focus");
+            setActive(index);
+          }
+        });
+        gridView.appendChild(card);
+      });
+    }
+
+    function setActive(index) {
+      activeIndex = (index + graphs.length) % graphs.length;
+      const graph = graphs[activeIndex];
+      document.querySelector("#activeTitle").textContent = graph.title;
+      document.querySelector("#activeSubtitle").textContent = graph.subtitle;
+      document.querySelector("#activeQuestion").textContent = graph.question;
+      document.querySelector("#activeCaption").textContent = graph.caption;
+      document.querySelector("#activeInsight").textContent = graph.insight;
+      document.querySelector("#activeSource").textContent = graph.source;
+      const image = document.querySelector("#activeImage");
+      image.src = graph.src;
+      image.alt = graph.title;
+      setMetric("ocean", graph.scores.ocean, graph.color);
+      setMetric("weather", graph.scores.weather, graph.color);
+      setMetric("time", graph.scores.time, graph.color);
+      [...tabList.children].forEach((button, i) => {
+        button.setAttribute("aria-selected", String(i === activeIndex));
+      });
+    }
+
+    function setMode(mode) {
+      const compare = mode === "grid";
+      gridView.classList.toggle("active", compare);
+      focusLayout.classList.toggle("hidden", compare);
+      gridBtn.setAttribute("aria-pressed", String(compare));
+      focusBtn.setAttribute("aria-pressed", String(!compare));
+    }
+
+    focusBtn.addEventListener("click", () => setMode("focus"));
+    gridBtn.addEventListener("click", () => setMode("grid"));
+    prevBtn.addEventListener("click", () => setActive(activeIndex - 1));
+    nextBtn.addEventListener("click", () => setActive(activeIndex + 1));
+    zoomBtn.addEventListener("click", () => figureWrap.classList.toggle("zoomed"));
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "ArrowLeft") setActive(activeIndex - 1);
+      if (event.key === "ArrowRight") setActive(activeIndex + 1);
+      if (event.key.toLowerCase() === "g") setMode("grid");
+      if (event.key.toLowerCase() === "f") setMode("focus");
+    });
+
+    renderTabs();
+    renderGrid();
+    setActive(0);
+  </script>
+</body>
+</html>

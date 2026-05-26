@@ -5,6 +5,15 @@ Static graph for the final project question: How does El Nino affect ocean weath
 Generated output:
 
 - `imgs/thomas_deitel_el_nino_tropical_pacific_sst_anomaly.pdf`
+- `index.html` combines the five project graphs into one interactive dashboard.
+
+View the interactive dashboard:
+
+```bash
+python3 -m http.server 8000
+```
+
+Then open `http://127.0.0.1:8000/index.html`.
 
 Reproduce the graph:
 
