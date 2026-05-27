@@ -39,9 +39,12 @@
       gap: 18px;
     }
 
-    .back-link {
+    .home-link {
       width: fit-content;
-      color: var(--dark);
+      border-radius: 8px;
+      background: var(--dark);
+      color: #ffffff;
+      padding: 10px 13px;
       font-size: 0.92rem;
       font-weight: 700;
       text-decoration: none;
@@ -111,7 +114,7 @@
 <body>
   <main class="page">
     <div class="shell">
-      <a class="back-link" href="index.html">Back to visualization</a>
+      <a class="home-link" href="index.html">Home</a>
       <article class="writeup-card" aria-labelledby="prototypeWriteupTitle">
         <header>
           <h1 id="prototypeWriteupTitle">Prototype Write-Up</h1>
@@ -120,7 +123,7 @@
 
         <section class="writeup-section">
           <h2>What We Have Done So Far</h2>
-          <p>So far, we have built a working GitHub Pages prototype with an interactive Pacific-centered visualization of El Niño-related climate patterns. The current page already loads a shared JSON dataset generated from CESM2 historical CMIP6 data and renders it as a browser-based map. Users can switch between multiple climate layers, including a combined El Niño signal, sea surface temperature warming, rainfall shift, cloud cover, and radiation. We also added overlays for the Niño 3.4 box and western, central, and eastern Pacific regions so users can connect the map to the climate definition of El Niño. This gives us the technical foundation for the final version, where users will first make predictions about the Pacific warming pattern and then reveal the mapped data to compare their expectations with the actual signal.</p>
+          <p>So far, we have built a working GitHub Pages prototype with an interactive Pacific-centered visualization of El Niño-related climate patterns. The current page already loads a shared JSON dataset generated from CESM2 historical CMIP6 data and renders it as a browser-based map. Users can switch between multiple climate layers, including a combined El Niño signal, sea surface temperature warming, rainfall shift, cloud cover, and radiation. We also added overlays for the Niño 3.4 box and western, central, and eastern Pacific regions so users can connect the map to the climate definition of El Niño. The combined signal is our bridge to the final concept because it gives users one reveal view that can summarize how several ocean-atmosphere effects line up. In the final version, users will first make predictions about the Pacific warming pattern and then compare those expectations with the actual mapped signal.</p>
         </section>
 
         <section class="writeup-section">

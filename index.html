@@ -70,6 +70,19 @@
       font-size: 0.95rem;
     }
 
+    .sidebar-link {
+      display: block;
+      border: 1px solid #f7f4ec;
+      border-radius: 8px;
+      background: #f7f4ec;
+      color: var(--dark);
+      padding: 10px 12px;
+      text-align: center;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 760;
+    }
+
     .control-group {
       display: grid;
       gap: 9px;
@@ -420,6 +433,8 @@
         <p class="lede">A single interactive visualization connects the project’s five pieces: ocean warming, radiation, rainfall, clouds, and a combined El Nino signal.</p>
       </div>
 
+      <a class="sidebar-link" href="prototype-writeup.html">Prototype Write-Up</a>
+
       <div class="control-group">
         <span class="label">Data Layer</span>
         <div class="layer-buttons" id="layerButtons"></div>
@@ -471,7 +486,7 @@
 
       <section class="bottom-grid">
         <p class="method">
-          The map is drawn from one shared JSON data file generated from CESM2 historical CMIP6 data. Buttons change the encoded variable inside the same Pacific coordinate system; the timeline below stays linked to the Nino 3.4 index used to define El Nino-like months.
+          The map is drawn from one shared JSON data file generated from CESM2 historical CMIP6 data. Buttons change the encoded variable inside the same Pacific coordinate system; the timeline below stays linked to the Nino 3.4 index used to define El Nino-like months. This combined view is the foundation for the final reveal: users will eventually make predictions first, then compare those guesses against the mapped climate signal.
         </p>
         <aside class="region-panel">
           <h3>Regional Summary</h3>
