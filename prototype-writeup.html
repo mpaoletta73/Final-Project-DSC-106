@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Prototype Write-Up | Interactive El Nino Pacific Visualization</title>
+  <title>Prototype Write-Up | Guess the El Nino Effect</title>
   <style>
     :root {
       --ink: #172027;
@@ -115,17 +115,17 @@
       <article class="writeup-card" aria-labelledby="prototypeWriteupTitle">
         <header>
           <h1 id="prototypeWriteupTitle">Prototype Write-Up</h1>
-          <p class="lede">Initial prototype status for the interactive El Nino Pacific visualization.</p>
+          <p class="lede">Initial prototype status for Guess the El Nino Effect, an interactive prediction-and-reveal explanation of Pacific climate changes.</p>
         </header>
 
         <section class="writeup-section">
           <h2>What We Have Done So Far</h2>
-          <p>So far, we have built a working GitHub Pages prototype with an interactive Pacific-centered visualization of El Niño-related climate patterns. The page lets users switch between multiple data layers, including a combined El Niño signal, SST warming, rainfall shift, cloud cover, and radiation. We also added overlays for the Niño 3.4 box and Pacific regions so users can connect the map to the climate definition of El Niño. The visualization loads data from a shared JSON file generated from CESM2 historical CMIP6 data and updates the map when users click different layers. We have also started refining the explanatory text so the project communicates how multiple ocean-atmosphere effects relate to one another.</p>
+          <p>So far, we have built a working GitHub Pages prototype with an interactive Pacific-centered visualization of El Niño-related climate patterns. The current page already loads a shared JSON dataset generated from CESM2 historical CMIP6 data and renders it as a browser-based map. Users can switch between multiple climate layers, including a combined El Niño signal, sea surface temperature warming, rainfall shift, cloud cover, and radiation. We also added overlays for the Niño 3.4 box and western, central, and eastern Pacific regions so users can connect the map to the climate definition of El Niño. This gives us the technical foundation for the final version, where users will first make predictions about the Pacific warming pattern and then reveal the mapped data to compare their expectations with the actual signal.</p>
         </section>
 
         <section class="writeup-section">
           <h2>What Will Be Most Challenging</h2>
-          <p>The hardest part will be combining multiple weather effects into one visualization without making the map confusing. Temperature, rainfall, cloud cover, radiation, and wind use different units and visual encodings, so we need to design toggles and annotations carefully. Another challenge is making the guessing game feel meaningful instead of gimmicky; the guesses should connect directly to what the visualization reveals. It will also take work to make the combined signal understandable so users know what each layer contributes. The final design needs to stay simple enough for someone unfamiliar with El Niño while still showing enough data to make the pattern convincing.</p>
+          <p>The hardest part will be turning the current explorable map into a prediction-based interaction that feels meaningful instead of gimmicky. The questions need to ask users about effects they can actually verify when the map is revealed, such as where the Pacific warms most, how rainfall changes, and which effect is clearest. Temperature, rainfall, wind, and combined effects use different units and visual encodings, so the final layer toggles and annotations need to be designed carefully. It will also take work to find or prepare compatible wind data for the same regions and time periods used by the current CMIP6 layers. The final design needs to stay simple enough for someone unfamiliar with El Niño while still showing that the pattern is a connected Pacific-wide climate signal, not just warmer ocean water.</p>
         </section>
       </article>
     </div>
