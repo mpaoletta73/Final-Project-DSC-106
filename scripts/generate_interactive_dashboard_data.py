@@ -24,7 +24,6 @@ EXPERIMENT = "historical"
 START_YEAR = "1950"
 END_YEAR = "2014"
 OUT_PATH = Path("data/interactive_el_nino_dashboard.json")
-SST_CSV = Path("data/cesm2_el_nino_tropical_pacific_sst_anomaly_1951_2014.csv")
 
 
 def find_store(df: pd.DataFrame, variable_id: str, table_id: str) -> pd.Series:
@@ -51,11 +50,6 @@ def area_weighted_mean_latlon(da: xr.DataArray) -> xr.DataArray:
     return da.weighted(weights).mean(("lat", "lon"))
 
 
-def weighted_lat_mean(da: xr.DataArray) -> xr.DataArray:
-    weights = np.cos(np.deg2rad(da.lat))
-    return da.weighted(weights).mean("lat")
-
-
 def year_month_labels(time_coord: xr.DataArray) -> xr.DataArray:
     labels = time_coord.dt.strftime("%Y-%m").values
     return xr.DataArray(labels, coords={"time": time_coord}, dims=("time",))
@@ -71,8 +65,8 @@ def convert_units(da: xr.DataArray, variable_id: str) -> xr.DataArray:
     return da
 
 
-def pacific_view(da: xr.DataArray) -> xr.DataArray:
-    return da.sel(lon=slice(120, 280), lat=slice(-50, 50))
+def global_view(da: xr.DataArray) -> xr.DataArray:
+    return da.sel(lat=slice(-65, 65))
 
 
 def coarsen_layer(da: xr.DataArray, lat_step: int = 2, lon_step: int = 2) -> xr.DataArray:
@@ -102,16 +96,9 @@ def normalize(da: xr.DataArray) -> xr.DataArray:
     return (da / limit).clip(-1, 1)
 
 
-def build_sst_layer() -> xr.DataArray:
-    sst = pd.read_csv(SST_CSV)
-    sst = sst[["lat", "lon", "sst_anomaly_c"]]
-    da = sst.set_index(["lat", "lon"]).to_xarray()["sst_anomaly_c"]
-    return coarsen_layer(da.sel(lat=slice(-25, 25), lon=slice(120, 280)))
-
-
 def composite_difference(ds: xr.Dataset, variable_id: str, el_keys, neutral_keys) -> xr.DataArray:
     da = convert_units(ds[variable_id].sel(time=slice(START_YEAR, END_YEAR)), variable_id)
-    da = pacific_view(da)
+    da = global_view(da)
     da = da.assign_coords(year_month=year_month_labels(da.time))
     el = da.where(da.year_month.isin(el_keys), drop=True).mean("time")
     neutral = da.where(da.year_month.isin(neutral_keys), drop=True).mean("time")
@@ -146,24 +133,12 @@ def build() -> dict:
     neutral_keys = nino34_anom.where(abs(nino34_anom) < 0.5, drop=True).year_month.values
 
     print("Building map layers...")
-    sst_layer = build_sst_layer()
+    sst_layer = composite_difference(ds_tos, "tos", el_keys, neutral_keys)
     pr_layer = composite_difference(ds_pr, "pr", el_keys, neutral_keys)
     clt_layer = composite_difference(ds_clt, "clt", el_keys, neutral_keys)
 
     print("Building radiation layer...")
-    rsut = ds_rsut["rsut"].sel(
-        time=slice(START_YEAR, END_YEAR),
-        lat=slice(-5, 5),
-        lon=slice(120, 280),
-    )
-    rsut_anom = rsut.groupby("time.month") - rsut.groupby("time.month").mean("time")
-    rsut_anom = rsut_anom.assign_coords(year_month=year_month_labels(rsut_anom.time))
-    rsut_diff_lon = (
-        weighted_lat_mean(rsut_anom.where(rsut_anom.year_month.isin(el_keys), drop=True).mean("time"))
-        - weighted_lat_mean(rsut_anom.where(rsut_anom.year_month.isin(neutral_keys), drop=True).mean("time"))
-    ).load()
-    rsut_diff_lon = rsut_diff_lon.interp(lon=sst_layer.lon)
-    rsut_layer = xr.broadcast(sst_layer, rsut_diff_lon)[1].rename({"lon": "lon"})
+    rsut_layer = composite_difference(ds_rsut, "rsut", el_keys, neutral_keys)
 
     print("Building combined signal...")
     pr_on_sst = pr_layer.interp(lat=sst_layer.lat, lon=sst_layer.lon)
