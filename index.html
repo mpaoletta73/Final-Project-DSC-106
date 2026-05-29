@@ -4,6 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Interactive El Nino Pacific Visualization</title>
+  <link href="https://api.mapbox.com/mapbox-gl-js/v3.12.0/mapbox-gl.css" rel="stylesheet">
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.12.0/mapbox-gl.js"></script>
   <style>
     :root {
       --ink: #172027;
@@ -12,8 +14,8 @@
       --page: #f5f1e8;
       --panel: #ffffff;
       --dark: #172027;
-      --warm: #b6422f;
-      --cool: #276f86;
+      --warm: #c1341e;
+      --cool: #1d6fa3;
       --green: #31764d;
       --gold: #8a6a24;
       --purple: #6d5aa8;
@@ -54,6 +56,7 @@
       flex-direction: column;
       gap: 20px;
       overflow: auto;
+      border-right: 1px solid rgba(255, 255, 255, 0.06);
     }
 
     h1 {
@@ -111,6 +114,13 @@
       padding: 10px 12px;
       cursor: pointer;
       text-align: left;
+      transition: background 120ms ease, border-color 120ms ease, color 120ms ease;
+    }
+
+    .layer-buttons button:hover,
+    .mini-toggle button:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.28);
     }
 
     .layer-buttons button[aria-pressed="true"],
@@ -163,54 +173,80 @@
     }
 
     .topbar {
-      display: flex;
-      gap: 16px;
-      align-items: flex-end;
-      justify-content: space-between;
       border-bottom: 1px solid var(--line);
-      padding-bottom: 14px;
+      padding-bottom: 18px;
     }
 
     .topbar h2 {
       margin: 0;
-      font-size: 1.45rem;
+      font-size: 1.55rem;
+      font-weight: 760;
       line-height: 1.18;
     }
 
     .topbar p {
-      margin: 5px 0 0;
+      margin: 6px 0 0;
       color: var(--muted);
-      line-height: 1.38;
-      max-width: 850px;
+      line-height: 1.42;
+      max-width: 700px;
     }
 
-    .readout {
-      flex: 0 0 215px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: var(--panel);
-      padding: 11px 12px;
-      box-shadow: var(--shadow);
+    .map-readout {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      z-index: 2;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      background: rgba(23, 32, 39, 0.78);
+      color: #f7f4ec;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 10px;
+      padding: 11px 14px;
+      min-width: 195px;
+      max-width: 245px;
+      font-size: 0.86rem;
+      line-height: 1.35;
     }
 
-    .readout strong {
+    .map-readout strong {
       display: block;
-      font-size: 0.92rem;
+      font-size: 0.9rem;
+      font-weight: 650;
     }
 
-    .readout span {
+    .map-readout span {
       display: block;
       margin-top: 4px;
-      color: var(--muted);
-      font-size: 0.84rem;
+      color: rgba(247, 244, 236, 0.68);
+      font-size: 0.82rem;
       line-height: 1.3;
+    }
+
+    .map-label-strip {
+      position: absolute;
+      bottom: 14px;
+      left: 14px;
+      z-index: 2;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      background: rgba(23, 32, 39, 0.72);
+      color: #f7f4ec;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 7px;
+      padding: 6px 12px;
+      font-size: 0.78rem;
+      font-weight: 620;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      pointer-events: none;
     }
 
     .viz-panel {
       border: 1px solid var(--line);
       border-radius: 8px;
       background: var(--panel);
-      box-shadow: var(--shadow);
+      box-shadow: 0 20px 48px rgba(23, 32, 39, 0.16);
       overflow: hidden;
       display: grid;
       grid-template-rows: minmax(460px, 62vh) auto;
@@ -222,32 +258,24 @@
       min-height: 460px;
     }
 
-    canvas {
-      display: block;
+    #map {
+      position: absolute;
+      top: 0;
+      left: 0;
       width: 100%;
       height: 100%;
     }
 
-    .tooltip {
-      position: absolute;
-      pointer-events: none;
-      transform: translate(12px, 12px);
-      background: rgba(23, 32, 39, 0.94);
-      color: #ffffff;
+    .timeline {
+      display: block;
+      width: 100%;
+      height: 118px;
+      border: 1px solid var(--line);
       border-radius: 8px;
-      padding: 10px 11px;
-      min-width: 190px;
-      box-shadow: 0 10px 24px rgba(23, 32, 39, 0.22);
-      opacity: 0;
-      transition: opacity 120ms ease;
-      font-size: 0.86rem;
-      line-height: 1.35;
-      z-index: 2;
+      background: #fbfaf6;
+      cursor: crosshair;
     }
 
-    .tooltip.visible {
-      opacity: 1;
-    }
 
     .viz-footer {
       border-top: 1px solid var(--line);
@@ -265,27 +293,20 @@
     }
 
     .legend {
-      height: 12px;
+      height: 18px;
       border-radius: 999px;
       border: 1px solid #cbd3d6;
-      background: linear-gradient(90deg, var(--cool), #f7f4ec 50%, var(--warm));
+      background: linear-gradient(90deg, var(--cool), #f8f4ee 50%, var(--warm));
     }
 
     .legend-labels {
       display: flex;
       justify-content: space-between;
       gap: 12px;
-      margin-top: 5px;
+      margin-top: 6px;
       color: var(--muted);
-      font-size: 0.8rem;
-    }
-
-    .timeline {
-      height: 118px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: #fbfaf6;
-      cursor: crosshair;
+      font-size: 0.82rem;
+      font-weight: 500;
     }
 
     .bottom-grid {
@@ -388,11 +409,6 @@
       .topbar {
         display: grid;
         grid-template-columns: 1fr;
-      }
-
-      .readout {
-        width: 100%;
-        flex: initial;
       }
 
       .viz-panel,
@@ -695,7 +711,7 @@
     <section class="sidebar">
       <div>
         <h1>El Nino as One Pacific System</h1>
-        <p class="lede">A single interactive visualization connects the project’s five pieces: ocean warming, radiation, rainfall, clouds, and a combined El Nino signal.</p>
+        <p class="lede">A single interactive visualization connects the project's five pieces: ocean warming, radiation, rainfall, clouds, and a combined El Nino signal.</p>
       </div>
 
       <a class="sidebar-link" href="prototype-writeup.html">Prototype Write-Up</a>
@@ -708,8 +724,8 @@
       <div class="control-group">
         <span class="label">Overlays</span>
         <div class="mini-toggle">
-          <button id="ninoBoxBtn" type="button" aria-pressed="true">Nino 3.4 Box</button>
-          <button id="regionsBtn" type="button" aria-pressed="true">Regions</button>
+          <button id="ninoBoxBtn" type="button" aria-pressed="false">Nino 3.4 Box</button>
+          <button id="regionsBtn" type="button" aria-pressed="false">Regions</button>
         </div>
       </div>
 
@@ -718,20 +734,20 @@
 
     <main>
       <section class="topbar">
-        <div>
-          <h2 id="layerTitle">Loading data...</h2>
-          <p id="layerDescription">Reading the interactive CMIP6 dataset.</p>
-        </div>
-        <div class="readout">
-          <strong id="hoverTitle">Hover the Pacific map</strong>
-          <span id="hoverText">Move over a grid cell or the timeline to inspect the data.</span>
-        </div>
+        <h2 id="layerTitle">Loading data...</h2>
+        <p id="layerDescription">Reading the interactive CMIP6 dataset.</p>
       </section>
 
       <section class="viz-panel">
         <div class="map-wrap" id="mapWrap">
-          <canvas id="mapCanvas" aria-label="Interactive Pacific data map"></canvas>
-          <div class="tooltip" id="tooltip"></div>
+          <div id="map" aria-label="Interactive Pacific data map"></div>
+          <div class="map-readout">
+            <strong id="hoverTitle">Hover the Pacific map</strong>
+            <span id="hoverText">Move over a data cell or the timeline to inspect the data.</span>
+          </div>
+          <div class="map-label-strip" id="mapLabelStrip">
+            <span id="mapLabelText">Combined Signal</span>
+          </div>
         </div>
         <div class="viz-footer">
           <div class="legend-row">
@@ -796,11 +812,6 @@
   </div>
 
   <script>
-    const LON_MIN = 120;
-    const LON_MAX = 280;
-    const LAT_MIN = -50;
-    const LAT_MAX = 50;
-
     const layerConfig = {
       combined: {
         label: "Combined Signal",
@@ -861,77 +872,17 @@
 
     const state = {
       data: null,
+      map: null,
       layer: "combined",
-      showNinoBox: true,
-      showRegions: true,
+      showNinoBox: false,
+      showRegions: false,
       selectedTimelineIndex: null,
-      hoveredCell: null
+      lookups: {},    // key -> Map<"lon,lat" -> value>
+      gridInfo: {}    // key -> { lonStep, latStep, lonMin, lonMax, latMin, latMax }
     };
 
-    const canvas = document.querySelector("#mapCanvas");
-    const ctx = canvas.getContext("2d");
     const timelineCanvas = document.querySelector("#timelineCanvas");
     const timelineCtx = timelineCanvas.getContext("2d");
-    const tooltip = document.querySelector("#tooltip");
-
-    function dpr() {
-      return window.devicePixelRatio || 1;
-    }
-
-    function resizeCanvas(canvasEl) {
-      const ratio = dpr();
-      const rect = canvasEl.getBoundingClientRect();
-      canvasEl.width = Math.max(1, Math.floor(rect.width * ratio));
-      canvasEl.height = Math.max(1, Math.floor(rect.height * ratio));
-      const context = canvasEl.getContext("2d");
-      context.setTransform(ratio, 0, 0, ratio, 0, 0);
-      return rect;
-    }
-
-    function xScale(lon, rect) {
-      return ((lon - LON_MIN) / (LON_MAX - LON_MIN)) * rect.width;
-    }
-
-    function yScale(lat, rect) {
-      return ((LAT_MAX - lat) / (LAT_MAX - LAT_MIN)) * rect.height;
-    }
-
-    function lonFromX(x, rect) {
-      return LON_MIN + (x / rect.width) * (LON_MAX - LON_MIN);
-    }
-
-    function latFromY(y, rect) {
-      return LAT_MAX - (y / rect.height) * (LAT_MAX - LAT_MIN);
-    }
-
-    function hexToRgb(hex) {
-      const value = hex.replace("#", "");
-      return {
-        r: parseInt(value.slice(0, 2), 16),
-        g: parseInt(value.slice(2, 4), 16),
-        b: parseInt(value.slice(4, 6), 16)
-      };
-    }
-
-    function mix(a, b, t) {
-      return Math.round(a + (b - a) * t);
-    }
-
-    function divergingColor(value, range) {
-      if (value === null || Number.isNaN(value)) return "rgba(220,224,225,0.35)";
-      const [min, max] = range;
-      const clipped = Math.max(min, Math.min(max, value));
-      const mid = 0;
-      const neutral = hexToRgb("#f7f4ec");
-      const cool = hexToRgb("#276f86");
-      const warm = hexToRgb("#b6422f");
-      if (clipped < mid) {
-        const t = Math.abs(clipped / min);
-        return `rgb(${mix(neutral.r, cool.r, t)},${mix(neutral.g, cool.g, t)},${mix(neutral.b, cool.b, t)})`;
-      }
-      const t = clipped / max;
-      return `rgb(${mix(neutral.r, warm.r, t)},${mix(neutral.g, warm.g, t)},${mix(neutral.b, warm.b, t)})`;
-    }
 
     function formatLon(lon) {
       if (Math.round(lon) === 180) return "180";
@@ -943,110 +894,330 @@
       return lat < 0 ? `${Math.abs(Math.round(lat))}S` : `${Math.round(lat)}N`;
     }
 
-    function drawMap() {
-      if (!state.data) return;
-      const rect = resizeCanvas(canvas);
-      ctx.clearRect(0, 0, rect.width, rect.height);
-      ctx.fillStyle = "#fbfaf6";
-      ctx.fillRect(0, 0, rect.width, rect.height);
+    // --- Canvas raster helpers ---
 
-      drawGrid(rect);
-      drawCells(rect);
-      if (state.showRegions) drawRegions(rect);
-      if (state.showNinoBox) drawNinoBox(rect);
-      drawAxes(rect);
-    }
-
-    function drawGrid(rect) {
-      ctx.save();
-      ctx.strokeStyle = "rgba(70,82,90,0.18)";
-      ctx.lineWidth = 1;
-      for (let lon = 120; lon <= 280; lon += 20) {
-        const x = xScale(lon, rect);
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, rect.height);
-        ctx.stroke();
+    function bilinearInterp(lookup, lons, lats, lon, lat, lonStep, latStep) {
+      const lonFrac = (lon - lons[0]) / lonStep;
+      const latFrac = (lat - lats[0]) / latStep;
+      const li0 = Math.max(0, Math.min(lons.length - 2, Math.floor(lonFrac)));
+      const la0 = Math.max(0, Math.min(lats.length - 2, Math.floor(latFrac)));
+      const tx = Math.max(0, Math.min(1, lonFrac - li0));
+      const ty = Math.max(0, Math.min(1, latFrac - la0));
+      const v00 = lookup.get(`${lons[li0]},${lats[la0]}`);
+      const v10 = lookup.get(`${lons[li0 + 1]},${lats[la0]}`);
+      const v01 = lookup.get(`${lons[li0]},${lats[la0 + 1]}`);
+      const v11 = lookup.get(`${lons[li0 + 1]},${lats[la0 + 1]}`);
+      if (v00 != null && v10 != null && v01 != null && v11 != null) {
+        return v00 * (1 - tx) * (1 - ty) + v10 * tx * (1 - ty) + v01 * (1 - tx) * ty + v11 * tx * ty;
       }
-      for (let lat = -40; lat <= 40; lat += 20) {
-        const y = yScale(lat, rect);
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(rect.width, y);
-        ctx.stroke();
-      }
-      ctx.restore();
+      // Fall back to nearest neighbor when edge/missing grid points
+      const snapLi = Math.max(0, Math.min(lons.length - 1, Math.round(lonFrac)));
+      const snapLa = Math.max(0, Math.min(lats.length - 1, Math.round(latFrac)));
+      return lookup.get(`${lons[snapLi]},${lats[snapLa]}`);
     }
 
-    function drawCells(rect) {
-      const config = layerConfig[state.layer];
-      const records = state.data.layers[state.layer];
-      const cellW = rect.width / 80;
-      const cellH = rect.height / 50;
-      for (const record of records) {
-        const value = record[config.key];
-        const x = xScale(record.lon, rect) - cellW / 2;
-        const y = yScale(record.lat, rect) - cellH / 2;
-        ctx.fillStyle = divergingColor(value, config.range);
-        ctx.fillRect(x, y, cellW + 0.5, cellH + 0.5);
-      }
-    }
+    // 3-stop diverging colormap: transparent at neutral → saturated at extremes
+    const CMAP_COLD = [[140, 210, 255, 0.0], [30, 144, 255, 0.70], [0, 40, 180, 0.95]];
+    const CMAP_WARM = [[255, 230, 130, 0.0], [255, 100,   0, 0.70], [160,  0,   0, 0.95]];
 
-    function drawNinoBox(rect) {
-      const x1 = xScale(190, rect);
-      const x2 = xScale(240, rect);
-      const y1 = yScale(5, rect);
-      const y2 = yScale(-5, rect);
-      ctx.save();
-      ctx.strokeStyle = "#111820";
-      ctx.lineWidth = 2;
-      ctx.setLineDash([7, 5]);
-      ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
-      ctx.setLineDash([]);
-      ctx.fillStyle = "#111820";
-      ctx.font = "700 12px system-ui, sans-serif";
-      ctx.fillText("Nino 3.4", x1 + 8, y1 - 8);
-      ctx.restore();
-    }
-
-    function drawRegions(rect) {
-      const regions = [
-        ["West", 120, 170],
-        ["Central", 170, 220],
-        ["East", 220, 280]
+    function lerpStop(a, b, t) {
+      return [
+        Math.round(a[0] + (b[0] - a[0]) * t),
+        Math.round(a[1] + (b[1] - a[1]) * t),
+        Math.round(a[2] + (b[2] - a[2]) * t),
+        a[3] + (b[3] - a[3]) * t
       ];
-      ctx.save();
-      ctx.strokeStyle = "rgba(23,32,39,0.52)";
-      ctx.lineWidth = 1.4;
-      ctx.font = "700 11px system-ui, sans-serif";
-      ctx.fillStyle = "rgba(23,32,39,0.72)";
-      for (const [label, lon1, lon2] of regions) {
-        const x1 = xScale(lon1, rect);
-        const x2 = xScale(lon2, rect);
-        const y1 = yScale(15, rect);
-        const y2 = yScale(-15, rect);
-        ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
-        ctx.fillText(label, x1 + 8, y2 - 8);
-      }
-      ctx.restore();
     }
 
-    function drawAxes(rect) {
-      ctx.save();
-      ctx.fillStyle = "#3d4b53";
-      ctx.font = "12px system-ui, sans-serif";
-      ctx.strokeStyle = "rgba(23,32,39,0.24)";
-      ctx.lineWidth = 1;
-      for (let lon = 120; lon <= 280; lon += 40) {
-        const x = xScale(lon, rect);
-        ctx.fillText(formatLon(lon), x + 4, rect.height - 8);
+    function valueToRGBA(v, rMin, rMax) {
+      const t = v < 0 ? Math.max(-1, v / Math.abs(rMin)) : Math.min(1, v / rMax);
+      const absT = Math.abs(t);
+      const stops = t < 0 ? CMAP_COLD : CMAP_WARM;
+      const c = absT <= 0.5
+        ? lerpStop(stops[0], stops[1], absT / 0.5)
+        : lerpStop(stops[1], stops[2], (absT - 0.5) / 0.5);
+      return [c[0], c[1], c[2], c[3]];
+    }
+
+    function cosEdge(pos, total, fadeW) {
+      const d = Math.min(pos, total - 1 - pos);
+      const t = Math.min(d / fadeW, 1);
+      return (1 - Math.cos(t * Math.PI)) / 2;
+    }
+
+    function buildLayerCanvas(layerKey, data) {
+      const config = layerConfig[layerKey];
+      const records = data.layers[layerKey].filter(r => r[config.key] !== null && !Number.isNaN(r[config.key]));
+      const [rMin, rMax] = config.range;
+
+      const lons = [...new Set(records.map(r => r.lon))].sort((a, b) => a - b);
+      const lats = [...new Set(records.map(r => r.lat))].sort((a, b) => a - b);
+      const lonStep = lons.length > 1 ? lons[1] - lons[0] : 2;
+      const latStep = lats.length > 1 ? lats[1] - lats[0] : 2;
+      const lonMin = lons[0] - lonStep / 2;
+      const lonMax = lons[lons.length - 1] + lonStep / 2;
+      const latMin = lats[0] - latStep / 2;
+      const latMax = lats[lats.length - 1] + latStep / 2;
+
+      // Build lookup map
+      const lookup = new Map();
+      records.forEach(r => lookup.set(`${r.lon},${r.lat}`, r[config.key]));
+      state.lookups[layerKey] = lookup;
+      state.gridInfo[layerKey] = { lonStep, latStep, lonMin, lonMax, latMin, latMax, lonStart: lons[0], latStart: lats[0] };
+
+      const pxPerDeg = 16;
+      const fadeDegs = 15;
+      const width = Math.ceil((lonMax - lonMin) * pxPerDeg);
+      const height = Math.ceil((latMax - latMin) * pxPerDeg);
+
+      const cvs = document.createElement("canvas");
+      cvs.width = width;
+      cvs.height = height;
+      const ctx = cvs.getContext("2d");
+      const img = ctx.createImageData(width, height);
+
+      for (let py = 0; py < height; py++) {
+        const lat = latMax - py / pxPerDeg;
+        const ey = cosEdge(py, height, fadeDegs * pxPerDeg);
+
+        for (let px = 0; px < width; px++) {
+          const lon = lonMin + px / pxPerDeg;
+          const value = bilinearInterp(lookup, lons, lats, lon, lat, lonStep, latStep);
+          const idx = (py * width + px) * 4;
+
+          if (value !== undefined) {
+            const ex = cosEdge(px, width, fadeDegs * pxPerDeg);
+            const edgeFade = ex * ey;
+            const [r, g, b, valueAlpha] = valueToRGBA(value, rMin, rMax);
+            const alpha = Math.round(edgeFade * valueAlpha * 255);
+            img.data[idx] = r;
+            img.data[idx + 1] = g;
+            img.data[idx + 2] = b;
+            img.data[idx + 3] = alpha;
+          }
+        }
       }
-      for (let lat = -40; lat <= 40; lat += 20) {
-        const y = yScale(lat, rect);
-        ctx.fillText(formatLat(lat), 8, y - 5);
+
+      ctx.putImageData(img, 0, 0);
+
+      const blurred = document.createElement("canvas");
+      blurred.width = width;
+      blurred.height = height;
+      const bCtx = blurred.getContext("2d");
+      bCtx.filter = `blur(${Math.round(pxPerDeg * 2.0)}px)`;
+      bCtx.drawImage(cvs, 0, 0);
+
+      return { canvas: blurred, lonMin, lonMax, latMin, latMax };
+    }
+
+    // --- GeoJSON builders (raw 0-360 longitudes; Mapbox GL JS handles antimeridian wrapping) ---
+
+    function buildLayerGeoJSON(layerKey, data) {
+      const config = layerConfig[layerKey];
+      const records = data.layers[layerKey];
+      const wide = layerKey === "precip" || layerKey === "cloud";
+      const halfLon = wide ? 1.25 : 1.0;
+      const halfLat = wide ? 0.9425 : 1.0;
+      return {
+        type: "FeatureCollection",
+        features: records
+          .filter(r => r[config.key] !== null && !Number.isNaN(r[config.key]))
+          .map(r => ({
+            type: "Feature",
+            geometry: {
+              type: "Polygon",
+              coordinates: [[[r.lon - halfLon, r.lat - halfLat], [r.lon + halfLon, r.lat - halfLat],
+                              [r.lon + halfLon, r.lat + halfLat], [r.lon - halfLon, r.lat + halfLat],
+                              [r.lon - halfLon, r.lat - halfLat]]]
+            },
+            properties: { value: r[config.key], lon: r.lon, lat: r.lat }
+          }))
+      };
+    }
+
+    function buildNinoBoxGeoJSON() {
+      return {
+        type: "FeatureCollection",
+        features: [
+          {
+            type: "Feature",
+            geometry: { type: "Polygon", coordinates: [[[190, -5], [240, -5], [240, 5], [190, 5], [190, -5]]] },
+            properties: { label: "Nino 3.4" }
+          },
+          {
+            type: "Feature",
+            geometry: { type: "Point", coordinates: [191, 6] },
+            properties: { label: "Nino 3.4" }
+          }
+        ]
+      };
+    }
+
+    function buildRegionsGeoJSON() {
+      const defs = [
+        { label: "West",    lon1: 120, lon2: 170 },
+        { label: "Central", lon1: 170, lon2: 220 },
+        { label: "East",    lon1: 220, lon2: 280 }
+      ];
+      const features = [];
+      for (const { label, lon1, lon2 } of defs) {
+        features.push({
+          type: "Feature",
+          geometry: { type: "Polygon", coordinates: [[[lon1, -15], [lon2, -15], [lon2, 15], [lon1, 15], [lon1, -15]]] },
+          properties: { label }
+        });
+        features.push({
+          type: "Feature",
+          geometry: { type: "Point", coordinates: [lon1 + 3, -13] },
+          properties: { label }
+        });
       }
-      ctx.strokeRect(0.5, 0.5, rect.width - 1, rect.height - 1);
-      ctx.restore();
+      return { type: "FeatureCollection", features };
+    }
+
+    // --- Mapbox layer management ---
+
+    function getFirstSymbolLayerId(map) {
+      return map.getStyle().layers.find(l => l.type === "symbol")?.id;
+    }
+
+    function initMapLayers(data) {
+      const map = state.map;
+      const beforeId = getFirstSymbolLayerId(map);
+
+      for (const [key] of Object.entries(layerConfig)) {
+        const { canvas, lonMin, lonMax, latMin, latMax } = buildLayerCanvas(key, data);
+        map.addSource("src-raster-" + key, {
+          type: "canvas",
+          canvas,
+          // 0-360 longitude; Mapbox GL JS v3 supports values > 180 for antimeridian-crossing sources
+          coordinates: [[lonMin, latMax], [lonMax, latMax], [lonMax, latMin], [lonMin, latMin]],
+          animate: false
+        });
+        map.addLayer({
+          id: "layer-raster-" + key,
+          type: "raster",
+          source: "src-raster-" + key,
+          layout: { visibility: key === state.layer ? "visible" : "none" },
+          paint: {
+            "raster-opacity": 0.82,
+            "raster-fade-duration": 0,
+            "raster-resampling": "linear"
+          }
+        }, beforeId);
+      }
+
+      // Nino 3.4 box overlay
+      map.addSource("src-nino-box", { type: "geojson", data: buildNinoBoxGeoJSON() });
+      map.addLayer({
+        id: "layer-nino-box",
+        type: "line",
+        source: "src-nino-box",
+        filter: ["==", ["geometry-type"], "Polygon"],
+        layout: { visibility: state.showNinoBox ? "visible" : "none" },
+        paint: { "line-color": "rgba(255,255,255,0.30)", "line-width": 1.5, "line-dasharray": [5, 3] }
+      }, beforeId);
+      map.addLayer({
+        id: "layer-nino-box-label",
+        type: "symbol",
+        source: "src-nino-box",
+        filter: ["==", ["geometry-type"], "Point"],
+        layout: {
+          visibility: state.showNinoBox ? "visible" : "none",
+          "text-field": ["get", "label"],
+          "text-size": 12,
+          "text-font": ["DIN Offc Pro Bold", "Arial Unicode MS Bold"],
+          "text-anchor": "bottom-left"
+        },
+        paint: { "text-color": "rgba(255,255,255,0.50)", "text-halo-color": "rgba(0,0,0,0.25)", "text-halo-width": 1 }
+      });
+
+      // Region boundary overlays
+      map.addSource("src-regions", { type: "geojson", data: buildRegionsGeoJSON() });
+      map.addLayer({
+        id: "layer-regions",
+        type: "line",
+        source: "src-regions",
+        filter: ["==", ["geometry-type"], "Polygon"],
+        layout: { visibility: state.showRegions ? "visible" : "none" },
+        paint: { "line-color": "rgba(255,255,255,0.20)", "line-width": 1, "line-dasharray": [4, 4] }
+      }, beforeId);
+      map.addLayer({
+        id: "layer-region-labels",
+        type: "symbol",
+        source: "src-regions",
+        filter: ["==", ["geometry-type"], "Point"],
+        layout: {
+          visibility: state.showRegions ? "visible" : "none",
+          "text-field": ["get", "label"],
+          "text-size": 11,
+          "text-font": ["DIN Offc Pro Bold", "Arial Unicode MS Bold"],
+          "text-anchor": "top-left",
+          "text-offset": [0.3, 0.3]
+        },
+        paint: { "text-color": "rgba(255,255,255,0.45)", "text-halo-color": "rgba(0,0,0,0.25)", "text-halo-width": 1 }
+      });
+    }
+
+    function setMapLayer(key) {
+      if (!state.map || !state.map.isStyleLoaded()) return;
+      Object.keys(layerConfig).forEach(k => {
+        state.map.setLayoutProperty("layer-raster-" + k, "visibility", k === key ? "visible" : "none");
+      });
+    }
+
+    function setOverlayVisibility(layerId, visible) {
+      if (!state.map || !state.map.isStyleLoaded()) return;
+      state.map.setLayoutProperty(layerId, "visibility", visible ? "visible" : "none");
+    }
+
+    function resetReadout() {
+      document.querySelector("#hoverTitle").textContent = "Hover the Pacific map";
+      document.querySelector("#hoverText").textContent = "Move over a data cell or the timeline to inspect the data.";
+    }
+
+    function setupMapEvents() {
+      const map = state.map;
+
+      map.on("mousemove", e => {
+        const lngLat = map.unproject(e.point);
+        const lon360 = ((lngLat.lng % 360) + 360) % 360;
+        const lat = lngLat.lat;
+
+        const gi = state.gridInfo[state.layer];
+        if (!gi || lon360 < gi.lonMin - gi.lonStep || lon360 > gi.lonMax + gi.lonStep ||
+            lat < gi.latMin - gi.latStep || lat > gi.latMax + gi.latStep) {
+          resetReadout();
+          return;
+        }
+
+        const { lonStep, latStep, lonStart, latStart } = gi;
+        const snapLon = lonStart + Math.round((lon360 - lonStart) / lonStep) * lonStep;
+        const snapLat = latStart + Math.round((lat - latStart) / latStep) * latStep;
+        const value = state.lookups[state.layer].get(`${snapLon},${snapLat}`);
+
+        if (value !== undefined) {
+          const config = layerConfig[state.layer];
+          document.querySelector("#hoverTitle").textContent = formatLon(snapLon) + ", " + formatLat(snapLat);
+          document.querySelector("#hoverText").textContent = config.label + ": " + value.toFixed(3) + " " + config.units;
+        } else {
+          resetReadout();
+        }
+      });
+
+      map.getCanvas().addEventListener("mouseleave", resetReadout);
+    }
+
+    // --- Timeline (Canvas) ---
+
+    function resizeCanvas(canvasEl) {
+      const ratio = window.devicePixelRatio || 1;
+      const rect = canvasEl.getBoundingClientRect();
+      canvasEl.width = Math.max(1, Math.floor(rect.width * ratio));
+      canvasEl.height = Math.max(1, Math.floor(rect.height * ratio));
+      const context = canvasEl.getContext("2d");
+      context.setTransform(ratio, 0, 0, ratio, 0, 0);
+      return rect;
     }
 
     function drawTimeline() {
@@ -1074,7 +1245,7 @@
       data.forEach((d, i) => {
         const x = pad.left + i * barW;
         const h = Math.min(plotH / 2, Math.abs(d.nino34_anomaly_c) / maxAbs * (plotH / 2));
-        timelineCtx.fillStyle = d.phase === "el_nino" ? "#b6422f" : d.phase === "la_nina" ? "#276f86" : "#9ba6ab";
+        timelineCtx.fillStyle = d.phase === "el_nino" ? "#c1341e" : d.phase === "la_nina" ? "#1d6fa3" : "#9ba6ab";
         if (d.nino34_anomaly_c >= 0) {
           timelineCtx.fillRect(x, zeroY - h, Math.max(1, barW), h);
         } else {
@@ -1106,6 +1277,8 @@
       }
     }
 
+    // --- UI controls ---
+
     function renderControls() {
       const box = document.querySelector("#layerButtons");
       box.innerHTML = "";
@@ -1135,6 +1308,8 @@
       document.querySelector("#layerTitle").textContent = config.title;
       document.querySelector("#layerDescription").textContent = config.description;
       document.querySelector("#layerNote").textContent = config.note;
+      const labelEl = document.querySelector("#mapLabelText");
+      if (labelEl) labelEl.textContent = config.label;
       document.querySelector("#legendMin").textContent = `${config.minLabel} (${config.range[0]})`;
       document.querySelector("#legendMid").textContent = "0";
       document.querySelector("#legendMax").textContent = `${config.maxLabel} (+${config.range[1]})`;
@@ -1143,7 +1318,7 @@
         button.setAttribute("aria-pressed", String(layerKey === key));
       });
       updateRegionBars();
-      drawMap();
+      setMapLayer(key);
     }
 
     function updateRegionBars() {
@@ -1165,47 +1340,7 @@
       });
     }
 
-    function nearestCell(lon, lat) {
-      const config = layerConfig[state.layer];
-      let best = null;
-      let bestDist = Infinity;
-      for (const record of state.data.layers[state.layer]) {
-        const value = record[config.key];
-        if (value === null) continue;
-        const dist = Math.abs(record.lon - lon) + Math.abs(record.lat - lat);
-        if (dist < bestDist) {
-          bestDist = dist;
-          best = record;
-        }
-      }
-      return bestDist < 3.5 ? best : null;
-    }
-
-    canvas.addEventListener("mousemove", (event) => {
-      if (!state.data) return;
-      const rect = canvas.getBoundingClientRect();
-      const x = event.clientX - rect.left;
-      const y = event.clientY - rect.top;
-      const lon = lonFromX(x, rect);
-      const lat = latFromY(y, rect);
-      const cell = nearestCell(lon, lat);
-      const config = layerConfig[state.layer];
-      if (!cell) {
-        tooltip.classList.remove("visible");
-        return;
-      }
-      const value = cell[config.key];
-      document.querySelector("#hoverTitle").textContent = `${formatLon(cell.lon)}, ${formatLat(cell.lat)}`;
-      document.querySelector("#hoverText").textContent = `${config.label}: ${value.toFixed(3)} ${config.units}`;
-      tooltip.style.left = `${x}px`;
-      tooltip.style.top = `${y}px`;
-      tooltip.innerHTML = `<strong>${formatLon(cell.lon)}, ${formatLat(cell.lat)}</strong><br>${config.label}: ${value.toFixed(3)} ${config.units}`;
-      tooltip.classList.add("visible");
-    });
-
-    canvas.addEventListener("mouseleave", () => {
-      tooltip.classList.remove("visible");
-    });
+    // --- Event listeners ---
 
     timelineCanvas.addEventListener("mousemove", (event) => {
       if (!state.data) return;
@@ -1233,208 +1368,19 @@
     document.querySelector("#ninoBoxBtn").addEventListener("click", (event) => {
       state.showNinoBox = !state.showNinoBox;
       event.currentTarget.setAttribute("aria-pressed", String(state.showNinoBox));
-      drawMap();
+      setOverlayVisibility("layer-nino-box", state.showNinoBox);
+      setOverlayVisibility("layer-nino-box-label", state.showNinoBox);
     });
 
     document.querySelector("#regionsBtn").addEventListener("click", (event) => {
       state.showRegions = !state.showRegions;
       event.currentTarget.setAttribute("aria-pressed", String(state.showRegions));
-      drawMap();
+      setOverlayVisibility("layer-regions", state.showRegions);
+      setOverlayVisibility("layer-region-labels", state.showRegions);
     });
 
     window.addEventListener("resize", () => {
-      drawMap();
       drawTimeline();
-    });
-
-    // ── Quiz Game ─────────────────────────────────────────────────
-    const gameState = {
-      questions: [],
-      current: 0,
-      score: 0,
-      answered: false
-    };
-
-    function buildQuestions() {
-      const meta = state.data.meta;
-      const n = meta.el_nino_months;
-      const rawChoices = [
-        Math.round(n * 0.52),
-        Math.round(n * 0.74),
-        n,
-        Math.round(n * 1.45)
-      ].sort((a, b) => a - b);
-      const correctMonthIdx = rawChoices.indexOf(n);
-
-      return [
-        {
-          text: "During El Niño, which part of the Pacific Ocean shows the strongest sea-surface warming?",
-          options: [
-            "Western Pacific — near Indonesia and the Philippines",
-            "Central Pacific — near the international dateline (180°)",
-            "Eastern Pacific — off the coast of South America",
-            "Northern Pacific — above 30°N latitude"
-          ],
-          correct: 2,
-          revealLayer: "sst",
-          explanation: "The strongest SST anomalies appear in the eastern equatorial Pacific, off the coast of South America. This central-to-eastern ocean warming is the defining signature of El Niño."
-        },
-        {
-          text: "Where does rainfall increase most during El Niño compared to neutral years?",
-          options: [
-            "Western Pacific — near Indonesia and Australia",
-            "Central and eastern equatorial Pacific",
-            "Equally across the whole Pacific basin",
-            "Northern Pacific, above 30°N latitude"
-          ],
-          correct: 1,
-          revealLayer: "precip",
-          explanation: "Rainfall shifts dramatically eastward during El Niño. The central and eastern Pacific get significantly wetter, while the western Pacific — near Indonesia and Australia — typically dries out."
-        },
-        {
-          text: "How does total cloud cover change over the central-eastern equatorial Pacific during El Niño?",
-          options: [
-            "It decreases sharply — warmer water creates clearer skies",
-            "It stays roughly unchanged",
-            "It increases — warmer SSTs drive more convective clouds",
-            "It decreases near the equator but increases off-equator"
-          ],
-          correct: 2,
-          revealLayer: "cloud",
-          explanation: "Warmer sea-surface temperatures fuel deep convective clouds, substantially increasing cloud cover over the central-eastern Pacific. This cloud increase is tightly linked to the rainfall anomaly."
-        },
-        {
-          text: "During El Niño, what happens to outgoing shortwave radiation (RSUT) over the eastern equatorial Pacific?",
-          options: [
-            "It decreases — the warmer ocean absorbs more solar energy",
-            "It stays the same — radiation is unaffected by SST changes",
-            "It first increases, then sharply decreases mid-event",
-            "It increases — more clouds reflect sunlight back to space"
-          ],
-          correct: 3,
-          revealLayer: "rsut",
-          explanation: "Increased cloud cover over the eastern Pacific reflects more incoming sunlight back out to space, producing a positive RSUT anomaly. This is the direct radiative footprint of the El Niño cloud increase."
-        },
-        {
-          text: "What sea-surface temperature anomaly threshold defines an El Niño-like month in this CESM2 dataset?",
-          options: [
-            "0.1°C above the long-term average",
-            "0.5°C above the long-term average",
-            "1.5°C above the long-term average",
-            "2.0°C above the long-term average"
-          ],
-          correct: 1,
-          revealLayer: "combined",
-          explanation: `This dataset uses the standard NOAA Niño 3.4 threshold of 0.5°C (confirmed: ${meta.nino34_threshold_c}°C). A month is El Niño-like when the area-averaged SST inside the Niño 3.4 box exceeds this value.`
-        },
-        {
-          text: "From 1951 to 2014, how many months in this CESM2 simulation qualified as El Niño-like?",
-          options: rawChoices.map(v => `${v} months`),
-          correct: correctMonthIdx,
-          revealLayer: "combined",
-          explanation: `${n} of ${n + meta.neutral_months} total months qualified as El Niño-like — about ${Math.round(n / (n + meta.neutral_months) * 100)}% of the record. These are the red bars on the timeline above.`
-        }
-      ];
-    }
-
-    function enableGameStart() {
-      const btn = document.querySelector("#gameStartBtn");
-      btn.textContent = "Start Quiz";
-      btn.disabled = false;
-    }
-
-    function startGame() {
-      gameState.questions = buildQuestions();
-      gameState.current = 0;
-      gameState.score = 0;
-      gameState.answered = false;
-      document.querySelector("#gameIntro").style.display = "none";
-      document.querySelector("#gameResults").style.display = "none";
-      document.querySelector("#gameBody").style.display = "";
-      renderQuestion();
-    }
-
-    function renderQuestion() {
-      const q = gameState.questions[gameState.current];
-      const total = gameState.questions.length;
-      const pct = Math.round((gameState.current / total) * 100);
-      document.querySelector("#gameProgress").textContent = `Question ${gameState.current + 1} of ${total}`;
-      document.querySelector("#gameProgressBar").style.width = `${pct}%`;
-      document.querySelector("#gameScoreLabel").textContent = `Score: ${gameState.score}`;
-      document.querySelector("#gameQuestion").textContent = q.text;
-      const optionsEl = document.querySelector("#gameOptions");
-      optionsEl.innerHTML = "";
-      q.options.forEach((opt, i) => {
-        const btn = document.createElement("button");
-        btn.className = "game-option";
-        btn.type = "button";
-        btn.innerHTML = `<span class="opt-letter">${"ABCD"[i]}</span><span>${opt}</span>`;
-        btn.addEventListener("click", () => handleAnswer(i));
-        optionsEl.appendChild(btn);
-      });
-      document.querySelector("#gameFeedback").style.display = "none";
-      gameState.answered = false;
-    }
-
-    function handleAnswer(chosenIdx) {
-      if (gameState.answered) return;
-      gameState.answered = true;
-      const q = gameState.questions[gameState.current];
-      const isCorrect = chosenIdx === q.correct;
-      if (isCorrect) gameState.score++;
-      [...document.querySelectorAll(".game-option")].forEach((btn, i) => {
-        btn.disabled = true;
-        if (i === q.correct) btn.classList.add("opt-correct");
-        else if (i === chosenIdx) btn.classList.add("opt-wrong");
-      });
-      const verdictEl = document.querySelector("#feedbackVerdict");
-      verdictEl.textContent = isCorrect ? "✓ Correct!" : "✗ Not quite — the right answer is highlighted above.";
-      verdictEl.className = `feedback-verdict ${isCorrect ? "is-correct" : "is-wrong"}`;
-      document.querySelector("#feedbackExplanation").textContent = q.explanation;
-      const isLast = gameState.current === gameState.questions.length - 1;
-      document.querySelector("#gameNextBtn").textContent = isLast ? "See My Score →" : "Next Question →";
-      document.querySelector("#gameFeedback").style.display = "";
-      document.querySelector("#gameScoreLabel").textContent = `Score: ${gameState.score}`;
-      setLayer(q.revealLayer);
-    }
-
-    function advanceGame() {
-      if (!gameState.answered) return;
-      if (gameState.current === gameState.questions.length - 1) {
-        showResults();
-      } else {
-        gameState.current++;
-        renderQuestion();
-      }
-    }
-
-    function showResults() {
-      document.querySelector("#gameBody").style.display = "none";
-      document.querySelector("#gameResults").style.display = "";
-      const total = gameState.questions.length;
-      const score = gameState.score;
-      document.querySelector("#finalScore").textContent = `${score} / ${total}`;
-      const pct = score / total;
-      let msg;
-      if (pct === 1) msg = "Perfect score! You understand El Niño at a CESM2 level.";
-      else if (pct >= 0.67) msg = "Great job — you have a solid grasp of Pacific climate patterns. Use the layer buttons to revisit anything you missed.";
-      else if (pct >= 0.34) msg = "Good effort. Flip through the data layers above to see each effect that tripped you up.";
-      else msg = "Keep exploring — switch through the five data layers above to see each El Niño effect directly on the map.";
-      document.querySelector("#resultsMessage").textContent = msg;
-    }
-
-    document.querySelector("#gameStartBtn").addEventListener("click", startGame);
-    document.querySelector("#gameNextBtn").addEventListener("click", advanceGame);
-    document.querySelector("#gameViewMapBtn").addEventListener("click", () => {
-      document.querySelector("#mapWrap").scrollIntoView({ behavior: "smooth", block: "start" });
-    });
-    document.querySelector("#gameRetryBtn").addEventListener("click", () => {
-      gameState.current = 0;
-      gameState.score = 0;
-      gameState.answered = false;
-      document.querySelector("#gameResults").style.display = "none";
-      document.querySelector("#gameBody").style.display = "";
-      renderQuestion();
     });
 
     fetch("data/interactive_el_nino_dashboard.json")
@@ -1448,7 +1394,6 @@
         renderFacts();
         setLayer("combined");
         drawTimeline();
-        enableGameStart();
       })
       .catch((error) => {
         document.querySelector("#layerTitle").textContent = "Data failed to load";
