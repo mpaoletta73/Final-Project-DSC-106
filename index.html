@@ -276,26 +276,6 @@
       cursor: crosshair;
     }
 
-    .tooltip {
-      position: absolute;
-      pointer-events: none;
-      transform: translate(12px, 12px);
-      background: rgba(23, 32, 39, 0.94);
-      color: #ffffff;
-      border-radius: 8px;
-      padding: 10px 11px;
-      min-width: 190px;
-      box-shadow: 0 10px 24px rgba(23, 32, 39, 0.22);
-      opacity: 0;
-      transition: opacity 120ms ease;
-      font-size: 0.86rem;
-      line-height: 1.35;
-      z-index: 2;
-    }
-
-    .tooltip.visible {
-      opacity: 1;
-    }
 
     .viz-footer {
       border-top: 1px solid var(--line);
@@ -496,7 +476,6 @@
       <section class="viz-panel">
         <div class="map-wrap" id="mapWrap">
           <div id="map" aria-label="Interactive Pacific data map"></div>
-          <div class="tooltip" id="tooltip"></div>
           <div class="map-readout">
             <strong id="hoverTitle">Hover the Pacific map</strong>
             <span id="hoverText">Move over a data cell or the timeline to inspect the data.</span>
@@ -598,12 +577,13 @@
       layer: "combined",
       showNinoBox: true,
       showRegions: true,
-      selectedTimelineIndex: null
+      selectedTimelineIndex: null,
+      lookups: {},    // key -> Map<"lon,lat" -> value>
+      gridInfo: {}    // key -> { lonStep, latStep, lonMin, lonMax, latMin, latMax }
     };
 
     const timelineCanvas = document.querySelector("#timelineCanvas");
     const timelineCtx = timelineCanvas.getContext("2d");
-    const tooltip = document.querySelector("#tooltip");
 
     function formatLon(lon) {
       if (Math.round(lon) === 180) return "180";
@@ -613,6 +593,87 @@
     function formatLat(lat) {
       if (Math.round(lat) === 0) return "0";
       return lat < 0 ? `${Math.abs(Math.round(lat))}S` : `${Math.round(lat)}N`;
+    }
+
+    // --- Canvas raster helpers ---
+
+    function valueToRGB(v, rMin, rMax) {
+      const t = v < 0 ? Math.max(-1, v / Math.abs(rMin)) : Math.min(1, v / rMax);
+      // cool #1d6fa3 <-> neutral #f8f4ee <-> warm #c1341e
+      let r, g, b;
+      if (t < 0) {
+        const m = -t;
+        r = Math.round(0xf8 - (0xf8 - 0x1d) * m);
+        g = Math.round(0xf4 - (0xf4 - 0x6f) * m);
+        b = Math.round(0xee - (0xee - 0xa3) * m);
+      } else {
+        const m = t;
+        r = Math.round(0xf8 - (0xf8 - 0xc1) * m);
+        g = Math.round(0xf4 - (0xf4 - 0x34) * m);
+        b = Math.round(0xee - (0xee - 0x1e) * m);
+      }
+      return [r, g, b];
+    }
+
+    function buildLayerCanvas(layerKey, data) {
+      const config = layerConfig[layerKey];
+      const records = data.layers[layerKey].filter(r => r[config.key] !== null && !Number.isNaN(r[config.key]));
+      const [rMin, rMax] = config.range;
+
+      const lons = [...new Set(records.map(r => r.lon))].sort((a, b) => a - b);
+      const lats = [...new Set(records.map(r => r.lat))].sort((a, b) => a - b);
+      const lonStep = lons.length > 1 ? lons[1] - lons[0] : 2;
+      const latStep = lats.length > 1 ? lats[1] - lats[0] : 2;
+      const lonMin = lons[0] - lonStep / 2;
+      const lonMax = lons[lons.length - 1] + lonStep / 2;
+      const latMin = lats[0] - latStep / 2;
+      const latMax = lats[lats.length - 1] + latStep / 2;
+
+      // Build lookup map
+      const lookup = new Map();
+      records.forEach(r => lookup.set(`${r.lon},${r.lat}`, r[config.key]));
+      state.lookups[layerKey] = lookup;
+      state.gridInfo[layerKey] = { lonStep, latStep, lonMin, lonMax, latMin, latMax, lonStart: lons[0], latStart: lats[0] };
+
+      const pxPerDeg = 4;
+      const fadeDegs = 3;  // alpha fade width at each edge
+      const width = Math.ceil((lonMax - lonMin) * pxPerDeg);
+      const height = Math.ceil((latMax - latMin) * pxPerDeg);
+
+      const cvs = document.createElement("canvas");
+      cvs.width = width;
+      cvs.height = height;
+      const ctx = cvs.getContext("2d");
+      const img = ctx.createImageData(width, height);
+
+      for (let py = 0; py < height; py++) {
+        const lat = latMax - py / pxPerDeg;
+        // snap to nearest grid lat
+        const snapLatIdx = Math.max(0, Math.min(lats.length - 1, Math.round((lat - lats[0]) / latStep)));
+        const nearLat = lats[snapLatIdx];
+        const edgeFadeY = Math.min(py / (fadeDegs * pxPerDeg), 1) * Math.min((height - 1 - py) / (fadeDegs * pxPerDeg), 1);
+
+        for (let px = 0; px < width; px++) {
+          const lon = lonMin + px / pxPerDeg;
+          const snapLonIdx = Math.max(0, Math.min(lons.length - 1, Math.round((lon - lons[0]) / lonStep)));
+          const nearLon = lons[snapLonIdx];
+          const value = lookup.get(`${nearLon},${nearLat}`);
+          const idx = (py * width + px) * 4;
+
+          if (value !== undefined) {
+            const edgeFadeX = Math.min(px / (fadeDegs * pxPerDeg), 1) * Math.min((width - 1 - px) / (fadeDegs * pxPerDeg), 1);
+            const alpha = Math.round(Math.min(edgeFadeX, edgeFadeY) * 230);
+            const [r, g, b] = valueToRGB(value, rMin, rMax);
+            img.data[idx] = r;
+            img.data[idx + 1] = g;
+            img.data[idx + 2] = b;
+            img.data[idx + 3] = alpha;
+          }
+        }
+      }
+
+      ctx.putImageData(img, 0, 0);
+      return { canvas: cvs, lonMin, lonMax, latMin, latMax };
     }
 
     // --- GeoJSON builders (raw 0-360 longitudes; Mapbox GL JS handles antimeridian wrapping) ---
@@ -690,23 +751,24 @@
       const map = state.map;
       const beforeId = getFirstSymbolLayerId(map);
 
-      for (const [key, config] of Object.entries(layerConfig)) {
-        const [rMin, rMax] = config.range;
-        map.addSource("src-" + key, { type: "geojson", data: buildLayerGeoJSON(key, data) });
+      for (const [key] of Object.entries(layerConfig)) {
+        const { canvas, lonMin, lonMax, latMin, latMax } = buildLayerCanvas(key, data);
+        map.addSource("src-raster-" + key, {
+          type: "canvas",
+          canvas,
+          // 0-360 longitude; Mapbox GL JS v3 supports values > 180 for antimeridian-crossing sources
+          coordinates: [[lonMin, latMax], [lonMax, latMax], [lonMax, latMin], [lonMin, latMin]],
+          animate: false
+        });
         map.addLayer({
-          id: "layer-" + key,
-          type: "fill",
-          source: "src-" + key,
+          id: "layer-raster-" + key,
+          type: "raster",
+          source: "src-raster-" + key,
           layout: { visibility: key === state.layer ? "visible" : "none" },
           paint: {
-            "fill-color": ["interpolate", ["linear"],
-              ["coalesce", ["get", "value"], 0],
-              rMin, "#1d6fa3",
-              0,    "#f8f4ee",
-              rMax, "#c1341e"
-            ],
-            "fill-opacity": 0.85,
-            "fill-outline-color": "rgba(0,0,0,0)"
+            "raster-opacity": 0.82,
+            "raster-fade-duration": 0,
+            "raster-resampling": "linear"
           }
         }, beforeId);
       }
@@ -766,7 +828,7 @@
     function setMapLayer(key) {
       if (!state.map || !state.map.isStyleLoaded()) return;
       Object.keys(layerConfig).forEach(k => {
-        state.map.setLayoutProperty("layer-" + k, "visibility", k === key ? "visible" : "none");
+        state.map.setLayoutProperty("layer-raster-" + k, "visibility", k === key ? "visible" : "none");
       });
     }
 
@@ -775,34 +837,41 @@
       state.map.setLayoutProperty(layerId, "visibility", visible ? "visible" : "none");
     }
 
+    function resetReadout() {
+      document.querySelector("#hoverTitle").textContent = "Hover the Pacific map";
+      document.querySelector("#hoverText").textContent = "Move over a data cell or the timeline to inspect the data.";
+    }
+
     function setupMapEvents() {
       const map = state.map;
 
       map.on("mousemove", e => {
-        const features = map.queryRenderedFeatures(e.point, { layers: ["layer-" + state.layer] });
-        if (!features.length) {
-          tooltip.classList.remove("visible");
+        const lngLat = map.unproject(e.point);
+        const lon360 = ((lngLat.lng % 360) + 360) % 360;
+        const lat = lngLat.lat;
+
+        const gi = state.gridInfo[state.layer];
+        if (!gi || lon360 < gi.lonMin - gi.lonStep || lon360 > gi.lonMax + gi.lonStep ||
+            lat < gi.latMin - gi.latStep || lat > gi.latMax + gi.latStep) {
+          resetReadout();
           return;
         }
-        const props = features[0].properties;
-        const config = layerConfig[state.layer];
-        // queryRenderedFeatures returns properties as strings — cast explicitly
-        const value = Number(props.value);
-        const lon = Number(props.lon);
-        const lat = Number(props.lat);
-        const loc = formatLon(lon) + ", " + formatLat(lat);
-        const valText = config.label + ": " + value.toFixed(3) + " " + config.units;
-        document.querySelector("#hoverTitle").textContent = loc;
-        document.querySelector("#hoverText").textContent = valText;
-        tooltip.style.left = e.point.x + "px";
-        tooltip.style.top = e.point.y + "px";
-        tooltip.innerHTML = `<strong>${loc}</strong><br>${valText}`;
-        tooltip.classList.add("visible");
+
+        const { lonStep, latStep, lonStart, latStart } = gi;
+        const snapLon = lonStart + Math.round((lon360 - lonStart) / lonStep) * lonStep;
+        const snapLat = latStart + Math.round((lat - latStart) / latStep) * latStep;
+        const value = state.lookups[state.layer].get(`${snapLon},${snapLat}`);
+
+        if (value !== undefined) {
+          const config = layerConfig[state.layer];
+          document.querySelector("#hoverTitle").textContent = formatLon(snapLon) + ", " + formatLat(snapLat);
+          document.querySelector("#hoverText").textContent = config.label + ": " + value.toFixed(3) + " " + config.units;
+        } else {
+          resetReadout();
+        }
       });
 
-      map.getCanvas().addEventListener("mouseleave", () => {
-        tooltip.classList.remove("visible");
-      });
+      map.getCanvas().addEventListener("mouseleave", resetReadout);
     }
 
     // --- Timeline (Canvas) ---
