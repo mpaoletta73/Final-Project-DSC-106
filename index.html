@@ -1178,19 +1178,19 @@
     }
 
     function setMapLayer(key) {
-      if (!state.map || !state.map.isStyleLoaded()) return;
+      if (!state.map) return;
       state.builtLayers.forEach(k => {
         state.map.setLayoutProperty("layer-raster-" + k, "visibility", k === key ? "visible" : "none");
       });
     }
 
     function setOverlayVisibility(layerId, visible) {
-      if (!state.map || !state.map.isStyleLoaded()) return;
+      if (!state.map) return;
       state.map.setLayoutProperty(layerId, "visibility", visible ? "visible" : "none");
     }
 
     function updateRegionFill(layerKey) {
-      if (!state.map || !state.map.isStyleLoaded() || !state.data) return;
+      if (!state.map || !state.data) return;
       const config = layerConfig[layerKey];
       const key = config.key;
       const [rMin, rMax] = config.range;
@@ -1352,7 +1352,6 @@
         button.setAttribute("aria-pressed", String(layerKey === key));
       });
       updateRegionBars();
-      updateRegionFill(key);
 
       if (!state.map || !state.map.isStyleLoaded()) return;
 
@@ -1363,9 +1362,11 @@
           addRasterLayer(key, getFirstSymbolLayerId(state.map));
           setMapLayer(key);
           resetReadout();
+          updateRegionFill(key);
         }, 0);
       } else {
         setMapLayer(key);
+        updateRegionFill(key);
       }
     }
 
