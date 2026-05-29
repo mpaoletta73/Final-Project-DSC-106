@@ -4,6 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Interactive El Nino Pacific Visualization</title>
+  <link href="https://api.mapbox.com/mapbox-gl-js/v3.12.0/mapbox-gl.css" rel="stylesheet">
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.12.0/mapbox-gl.js"></script>
   <style>
     :root {
       --ink: #172027;
@@ -222,10 +224,22 @@
       min-height: 460px;
     }
 
-    canvas {
-      display: block;
+    #map {
+      position: absolute;
+      top: 0;
+      left: 0;
       width: 100%;
       height: 100%;
+    }
+
+    .timeline {
+      display: block;
+      width: 100%;
+      height: 118px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfaf6;
+      cursor: crosshair;
     }
 
     .tooltip {
@@ -278,14 +292,6 @@
       margin-top: 5px;
       color: var(--muted);
       font-size: 0.8rem;
-    }
-
-    .timeline {
-      height: 118px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: #fbfaf6;
-      cursor: crosshair;
     }
 
     .bottom-grid {
@@ -430,7 +436,7 @@
     <section class="sidebar">
       <div>
         <h1>El Nino as One Pacific System</h1>
-        <p class="lede">A single interactive visualization connects the project’s five pieces: ocean warming, radiation, rainfall, clouds, and a combined El Nino signal.</p>
+        <p class="lede">A single interactive visualization connects the project's five pieces: ocean warming, radiation, rainfall, clouds, and a combined El Nino signal.</p>
       </div>
 
       <a class="sidebar-link" href="prototype-writeup.html">Prototype Write-Up</a>
@@ -459,13 +465,13 @@
         </div>
         <div class="readout">
           <strong id="hoverTitle">Hover the Pacific map</strong>
-          <span id="hoverText">Move over a grid cell or the timeline to inspect the data.</span>
+          <span id="hoverText">Move over a data cell or the timeline to inspect the data.</span>
         </div>
       </section>
 
       <section class="viz-panel">
         <div class="map-wrap" id="mapWrap">
-          <canvas id="mapCanvas" aria-label="Interactive Pacific data map"></canvas>
+          <div id="map" aria-label="Interactive Pacific data map"></div>
           <div class="tooltip" id="tooltip"></div>
         </div>
         <div class="viz-footer">
@@ -497,11 +503,6 @@
   </div>
 
   <script>
-    const LON_MIN = 120;
-    const LON_MAX = 280;
-    const LAT_MIN = -50;
-    const LAT_MAX = 50;
-
     const layerConfig = {
       combined: {
         label: "Combined Signal",
@@ -562,77 +563,16 @@
 
     const state = {
       data: null,
+      map: null,
       layer: "combined",
       showNinoBox: true,
       showRegions: true,
-      selectedTimelineIndex: null,
-      hoveredCell: null
+      selectedTimelineIndex: null
     };
 
-    const canvas = document.querySelector("#mapCanvas");
-    const ctx = canvas.getContext("2d");
     const timelineCanvas = document.querySelector("#timelineCanvas");
     const timelineCtx = timelineCanvas.getContext("2d");
     const tooltip = document.querySelector("#tooltip");
-
-    function dpr() {
-      return window.devicePixelRatio || 1;
-    }
-
-    function resizeCanvas(canvasEl) {
-      const ratio = dpr();
-      const rect = canvasEl.getBoundingClientRect();
-      canvasEl.width = Math.max(1, Math.floor(rect.width * ratio));
-      canvasEl.height = Math.max(1, Math.floor(rect.height * ratio));
-      const context = canvasEl.getContext("2d");
-      context.setTransform(ratio, 0, 0, ratio, 0, 0);
-      return rect;
-    }
-
-    function xScale(lon, rect) {
-      return ((lon - LON_MIN) / (LON_MAX - LON_MIN)) * rect.width;
-    }
-
-    function yScale(lat, rect) {
-      return ((LAT_MAX - lat) / (LAT_MAX - LAT_MIN)) * rect.height;
-    }
-
-    function lonFromX(x, rect) {
-      return LON_MIN + (x / rect.width) * (LON_MAX - LON_MIN);
-    }
-
-    function latFromY(y, rect) {
-      return LAT_MAX - (y / rect.height) * (LAT_MAX - LAT_MIN);
-    }
-
-    function hexToRgb(hex) {
-      const value = hex.replace("#", "");
-      return {
-        r: parseInt(value.slice(0, 2), 16),
-        g: parseInt(value.slice(2, 4), 16),
-        b: parseInt(value.slice(4, 6), 16)
-      };
-    }
-
-    function mix(a, b, t) {
-      return Math.round(a + (b - a) * t);
-    }
-
-    function divergingColor(value, range) {
-      if (value === null || Number.isNaN(value)) return "rgba(220,224,225,0.35)";
-      const [min, max] = range;
-      const clipped = Math.max(min, Math.min(max, value));
-      const mid = 0;
-      const neutral = hexToRgb("#f7f4ec");
-      const cool = hexToRgb("#276f86");
-      const warm = hexToRgb("#b6422f");
-      if (clipped < mid) {
-        const t = Math.abs(clipped / min);
-        return `rgb(${mix(neutral.r, cool.r, t)},${mix(neutral.g, cool.g, t)},${mix(neutral.b, cool.b, t)})`;
-      }
-      const t = clipped / max;
-      return `rgb(${mix(neutral.r, warm.r, t)},${mix(neutral.g, warm.g, t)},${mix(neutral.b, warm.b, t)})`;
-    }
 
     function formatLon(lon) {
       if (Math.round(lon) === 180) return "180";
@@ -644,110 +584,206 @@
       return lat < 0 ? `${Math.abs(Math.round(lat))}S` : `${Math.round(lat)}N`;
     }
 
-    function drawMap() {
-      if (!state.data) return;
-      const rect = resizeCanvas(canvas);
-      ctx.clearRect(0, 0, rect.width, rect.height);
-      ctx.fillStyle = "#fbfaf6";
-      ctx.fillRect(0, 0, rect.width, rect.height);
+    // --- GeoJSON builders (raw 0-360 longitudes; Mapbox GL JS handles antimeridian wrapping) ---
 
-      drawGrid(rect);
-      drawCells(rect);
-      if (state.showRegions) drawRegions(rect);
-      if (state.showNinoBox) drawNinoBox(rect);
-      drawAxes(rect);
+    function buildLayerGeoJSON(layerKey, data) {
+      const config = layerConfig[layerKey];
+      const records = data.layers[layerKey];
+      const wide = layerKey === "precip" || layerKey === "cloud";
+      const halfLon = wide ? 1.25 : 1.0;
+      const halfLat = wide ? 0.9425 : 1.0;
+      return {
+        type: "FeatureCollection",
+        features: records
+          .filter(r => r[config.key] !== null && !Number.isNaN(r[config.key]))
+          .map(r => ({
+            type: "Feature",
+            geometry: {
+              type: "Polygon",
+              coordinates: [[[r.lon - halfLon, r.lat - halfLat], [r.lon + halfLon, r.lat - halfLat],
+                              [r.lon + halfLon, r.lat + halfLat], [r.lon - halfLon, r.lat + halfLat],
+                              [r.lon - halfLon, r.lat - halfLat]]]
+            },
+            properties: { value: r[config.key], lon: r.lon, lat: r.lat }
+          }))
+      };
     }
 
-    function drawGrid(rect) {
-      ctx.save();
-      ctx.strokeStyle = "rgba(70,82,90,0.18)";
-      ctx.lineWidth = 1;
-      for (let lon = 120; lon <= 280; lon += 20) {
-        const x = xScale(lon, rect);
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, rect.height);
-        ctx.stroke();
-      }
-      for (let lat = -40; lat <= 40; lat += 20) {
-        const y = yScale(lat, rect);
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(rect.width, y);
-        ctx.stroke();
-      }
-      ctx.restore();
+    function buildNinoBoxGeoJSON() {
+      return {
+        type: "FeatureCollection",
+        features: [
+          {
+            type: "Feature",
+            geometry: { type: "Polygon", coordinates: [[[190, -5], [240, -5], [240, 5], [190, 5], [190, -5]]] },
+            properties: { label: "Nino 3.4" }
+          },
+          {
+            type: "Feature",
+            geometry: { type: "Point", coordinates: [191, 6] },
+            properties: { label: "Nino 3.4" }
+          }
+        ]
+      };
     }
 
-    function drawCells(rect) {
-      const config = layerConfig[state.layer];
-      const records = state.data.layers[state.layer];
-      const cellW = rect.width / 80;
-      const cellH = rect.height / 50;
-      for (const record of records) {
-        const value = record[config.key];
-        const x = xScale(record.lon, rect) - cellW / 2;
-        const y = yScale(record.lat, rect) - cellH / 2;
-        ctx.fillStyle = divergingColor(value, config.range);
-        ctx.fillRect(x, y, cellW + 0.5, cellH + 0.5);
-      }
-    }
-
-    function drawNinoBox(rect) {
-      const x1 = xScale(190, rect);
-      const x2 = xScale(240, rect);
-      const y1 = yScale(5, rect);
-      const y2 = yScale(-5, rect);
-      ctx.save();
-      ctx.strokeStyle = "#111820";
-      ctx.lineWidth = 2;
-      ctx.setLineDash([7, 5]);
-      ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
-      ctx.setLineDash([]);
-      ctx.fillStyle = "#111820";
-      ctx.font = "700 12px system-ui, sans-serif";
-      ctx.fillText("Nino 3.4", x1 + 8, y1 - 8);
-      ctx.restore();
-    }
-
-    function drawRegions(rect) {
-      const regions = [
-        ["West", 120, 170],
-        ["Central", 170, 220],
-        ["East", 220, 280]
+    function buildRegionsGeoJSON() {
+      const defs = [
+        { label: "West",    lon1: 120, lon2: 170 },
+        { label: "Central", lon1: 170, lon2: 220 },
+        { label: "East",    lon1: 220, lon2: 280 }
       ];
-      ctx.save();
-      ctx.strokeStyle = "rgba(23,32,39,0.52)";
-      ctx.lineWidth = 1.4;
-      ctx.font = "700 11px system-ui, sans-serif";
-      ctx.fillStyle = "rgba(23,32,39,0.72)";
-      for (const [label, lon1, lon2] of regions) {
-        const x1 = xScale(lon1, rect);
-        const x2 = xScale(lon2, rect);
-        const y1 = yScale(15, rect);
-        const y2 = yScale(-15, rect);
-        ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
-        ctx.fillText(label, x1 + 8, y2 - 8);
+      const features = [];
+      for (const { label, lon1, lon2 } of defs) {
+        features.push({
+          type: "Feature",
+          geometry: { type: "Polygon", coordinates: [[[lon1, -15], [lon2, -15], [lon2, 15], [lon1, 15], [lon1, -15]]] },
+          properties: { label }
+        });
+        features.push({
+          type: "Feature",
+          geometry: { type: "Point", coordinates: [lon1 + 3, -13] },
+          properties: { label }
+        });
       }
-      ctx.restore();
+      return { type: "FeatureCollection", features };
     }
 
-    function drawAxes(rect) {
-      ctx.save();
-      ctx.fillStyle = "#3d4b53";
-      ctx.font = "12px system-ui, sans-serif";
-      ctx.strokeStyle = "rgba(23,32,39,0.24)";
-      ctx.lineWidth = 1;
-      for (let lon = 120; lon <= 280; lon += 40) {
-        const x = xScale(lon, rect);
-        ctx.fillText(formatLon(lon), x + 4, rect.height - 8);
+    // --- Mapbox layer management ---
+
+    function getFirstSymbolLayerId(map) {
+      return map.getStyle().layers.find(l => l.type === "symbol")?.id;
+    }
+
+    function initMapLayers(data) {
+      const map = state.map;
+      const beforeId = getFirstSymbolLayerId(map);
+
+      for (const [key, config] of Object.entries(layerConfig)) {
+        const [rMin, rMax] = config.range;
+        map.addSource("src-" + key, { type: "geojson", data: buildLayerGeoJSON(key, data) });
+        map.addLayer({
+          id: "layer-" + key,
+          type: "fill",
+          source: "src-" + key,
+          layout: { visibility: key === state.layer ? "visible" : "none" },
+          paint: {
+            "fill-color": ["interpolate", ["linear"],
+              ["coalesce", ["get", "value"], 0],
+              rMin, "#276f86",
+              0,    "#f7f4ec",
+              rMax, "#b6422f"
+            ],
+            "fill-opacity": 0.82,
+            "fill-outline-color": "rgba(0,0,0,0)"
+          }
+        }, beforeId);
       }
-      for (let lat = -40; lat <= 40; lat += 20) {
-        const y = yScale(lat, rect);
-        ctx.fillText(formatLat(lat), 8, y - 5);
-      }
-      ctx.strokeRect(0.5, 0.5, rect.width - 1, rect.height - 1);
-      ctx.restore();
+
+      // Nino 3.4 box overlay
+      map.addSource("src-nino-box", { type: "geojson", data: buildNinoBoxGeoJSON() });
+      map.addLayer({
+        id: "layer-nino-box",
+        type: "line",
+        source: "src-nino-box",
+        filter: ["==", ["geometry-type"], "Polygon"],
+        layout: { visibility: state.showNinoBox ? "visible" : "none" },
+        paint: { "line-color": "#111820", "line-width": 2, "line-dasharray": [4, 3] }
+      }, beforeId);
+      map.addLayer({
+        id: "layer-nino-box-label",
+        type: "symbol",
+        source: "src-nino-box",
+        filter: ["==", ["geometry-type"], "Point"],
+        layout: {
+          visibility: state.showNinoBox ? "visible" : "none",
+          "text-field": ["get", "label"],
+          "text-size": 12,
+          "text-font": ["DIN Offc Pro Bold", "Arial Unicode MS Bold"],
+          "text-anchor": "bottom-left"
+        },
+        paint: { "text-color": "#111820", "text-halo-color": "rgba(255,255,255,0.7)", "text-halo-width": 1 }
+      });
+
+      // Region boundary overlays
+      map.addSource("src-regions", { type: "geojson", data: buildRegionsGeoJSON() });
+      map.addLayer({
+        id: "layer-regions",
+        type: "line",
+        source: "src-regions",
+        filter: ["==", ["geometry-type"], "Polygon"],
+        layout: { visibility: state.showRegions ? "visible" : "none" },
+        paint: { "line-color": "rgba(23,32,39,0.52)", "line-width": 1.4 }
+      }, beforeId);
+      map.addLayer({
+        id: "layer-region-labels",
+        type: "symbol",
+        source: "src-regions",
+        filter: ["==", ["geometry-type"], "Point"],
+        layout: {
+          visibility: state.showRegions ? "visible" : "none",
+          "text-field": ["get", "label"],
+          "text-size": 11,
+          "text-font": ["DIN Offc Pro Bold", "Arial Unicode MS Bold"],
+          "text-anchor": "top-left",
+          "text-offset": [0.3, 0.3]
+        },
+        paint: { "text-color": "rgba(23,32,39,0.72)", "text-halo-color": "rgba(255,255,255,0.7)", "text-halo-width": 1 }
+      });
+    }
+
+    function setMapLayer(key) {
+      if (!state.map || !state.map.isStyleLoaded()) return;
+      Object.keys(layerConfig).forEach(k => {
+        state.map.setLayoutProperty("layer-" + k, "visibility", k === key ? "visible" : "none");
+      });
+    }
+
+    function setOverlayVisibility(layerId, visible) {
+      if (!state.map || !state.map.isStyleLoaded()) return;
+      state.map.setLayoutProperty(layerId, "visibility", visible ? "visible" : "none");
+    }
+
+    function setupMapEvents() {
+      const map = state.map;
+
+      map.on("mousemove", e => {
+        const features = map.queryRenderedFeatures(e.point, { layers: ["layer-" + state.layer] });
+        if (!features.length) {
+          tooltip.classList.remove("visible");
+          return;
+        }
+        const props = features[0].properties;
+        const config = layerConfig[state.layer];
+        // queryRenderedFeatures returns properties as strings — cast explicitly
+        const value = Number(props.value);
+        const lon = Number(props.lon);
+        const lat = Number(props.lat);
+        const loc = formatLon(lon) + ", " + formatLat(lat);
+        const valText = config.label + ": " + value.toFixed(3) + " " + config.units;
+        document.querySelector("#hoverTitle").textContent = loc;
+        document.querySelector("#hoverText").textContent = valText;
+        tooltip.style.left = e.point.x + "px";
+        tooltip.style.top = e.point.y + "px";
+        tooltip.innerHTML = `<strong>${loc}</strong><br>${valText}`;
+        tooltip.classList.add("visible");
+      });
+
+      map.getCanvas().addEventListener("mouseleave", () => {
+        tooltip.classList.remove("visible");
+      });
+    }
+
+    // --- Timeline (Canvas) ---
+
+    function resizeCanvas(canvasEl) {
+      const ratio = window.devicePixelRatio || 1;
+      const rect = canvasEl.getBoundingClientRect();
+      canvasEl.width = Math.max(1, Math.floor(rect.width * ratio));
+      canvasEl.height = Math.max(1, Math.floor(rect.height * ratio));
+      const context = canvasEl.getContext("2d");
+      context.setTransform(ratio, 0, 0, ratio, 0, 0);
+      return rect;
     }
 
     function drawTimeline() {
@@ -807,6 +843,8 @@
       }
     }
 
+    // --- UI controls ---
+
     function renderControls() {
       const box = document.querySelector("#layerButtons");
       box.innerHTML = "";
@@ -844,7 +882,7 @@
         button.setAttribute("aria-pressed", String(layerKey === key));
       });
       updateRegionBars();
-      drawMap();
+      setMapLayer(key);
     }
 
     function updateRegionBars() {
@@ -866,47 +904,7 @@
       });
     }
 
-    function nearestCell(lon, lat) {
-      const config = layerConfig[state.layer];
-      let best = null;
-      let bestDist = Infinity;
-      for (const record of state.data.layers[state.layer]) {
-        const value = record[config.key];
-        if (value === null) continue;
-        const dist = Math.abs(record.lon - lon) + Math.abs(record.lat - lat);
-        if (dist < bestDist) {
-          bestDist = dist;
-          best = record;
-        }
-      }
-      return bestDist < 3.5 ? best : null;
-    }
-
-    canvas.addEventListener("mousemove", (event) => {
-      if (!state.data) return;
-      const rect = canvas.getBoundingClientRect();
-      const x = event.clientX - rect.left;
-      const y = event.clientY - rect.top;
-      const lon = lonFromX(x, rect);
-      const lat = latFromY(y, rect);
-      const cell = nearestCell(lon, lat);
-      const config = layerConfig[state.layer];
-      if (!cell) {
-        tooltip.classList.remove("visible");
-        return;
-      }
-      const value = cell[config.key];
-      document.querySelector("#hoverTitle").textContent = `${formatLon(cell.lon)}, ${formatLat(cell.lat)}`;
-      document.querySelector("#hoverText").textContent = `${config.label}: ${value.toFixed(3)} ${config.units}`;
-      tooltip.style.left = `${x}px`;
-      tooltip.style.top = `${y}px`;
-      tooltip.innerHTML = `<strong>${formatLon(cell.lon)}, ${formatLat(cell.lat)}</strong><br>${config.label}: ${value.toFixed(3)} ${config.units}`;
-      tooltip.classList.add("visible");
-    });
-
-    canvas.addEventListener("mouseleave", () => {
-      tooltip.classList.remove("visible");
-    });
+    // --- Event listeners ---
 
     timelineCanvas.addEventListener("mousemove", (event) => {
       if (!state.data) return;
@@ -934,19 +932,22 @@
     document.querySelector("#ninoBoxBtn").addEventListener("click", (event) => {
       state.showNinoBox = !state.showNinoBox;
       event.currentTarget.setAttribute("aria-pressed", String(state.showNinoBox));
-      drawMap();
+      setOverlayVisibility("layer-nino-box", state.showNinoBox);
+      setOverlayVisibility("layer-nino-box-label", state.showNinoBox);
     });
 
     document.querySelector("#regionsBtn").addEventListener("click", (event) => {
       state.showRegions = !state.showRegions;
       event.currentTarget.setAttribute("aria-pressed", String(state.showRegions));
-      drawMap();
+      setOverlayVisibility("layer-regions", state.showRegions);
+      setOverlayVisibility("layer-region-labels", state.showRegions);
     });
 
     window.addEventListener("resize", () => {
-      drawMap();
       drawTimeline();
     });
+
+    // --- Data fetch + Mapbox init ---
 
     fetch("data/interactive_el_nino_dashboard.json")
       .then((response) => {
@@ -959,6 +960,21 @@
         renderFacts();
         setLayer("combined");
         drawTimeline();
+
+        mapboxgl.accessToken = "pk.eyJ1IjoieWFsbDc3NyIsImEiOiJjbXA3ZXIzNjIwMm5zMnNweDkwamtpM3RtIn0.udhgEgCcnM5hGKdL5Mz3Nw";
+        state.map = new mapboxgl.Map({
+          container: "map",
+          style: "mapbox://styles/yall777/cmpqinxwr003c01ssexkv41yq",
+          center: [-160, 0],
+          zoom: 2.0,
+          minZoom: 1.5,
+          maxZoom: 8
+        });
+        state.map.addControl(new mapboxgl.NavigationControl(), "top-right");
+        state.map.on("load", () => {
+          initMapLayers(data);
+          setupMapEvents();
+        });
       })
       .catch((error) => {
         document.querySelector("#layerTitle").textContent = "Data failed to load";
