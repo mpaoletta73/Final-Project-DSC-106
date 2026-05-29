@@ -14,8 +14,8 @@
       --page: #f5f1e8;
       --panel: #ffffff;
       --dark: #172027;
-      --warm: #b6422f;
-      --cool: #276f86;
+      --warm: #c1341e;
+      --cool: #1d6fa3;
       --green: #31764d;
       --gold: #8a6a24;
       --purple: #6d5aa8;
@@ -56,6 +56,7 @@
       flex-direction: column;
       gap: 20px;
       overflow: auto;
+      border-right: 1px solid rgba(255, 255, 255, 0.06);
     }
 
     h1 {
@@ -113,6 +114,13 @@
       padding: 10px 12px;
       cursor: pointer;
       text-align: left;
+      transition: background 120ms ease, border-color 120ms ease, color 120ms ease;
+    }
+
+    .layer-buttons button:hover,
+    .mini-toggle button:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.28);
     }
 
     .layer-buttons button[aria-pressed="true"],
@@ -165,54 +173,80 @@
     }
 
     .topbar {
-      display: flex;
-      gap: 16px;
-      align-items: flex-end;
-      justify-content: space-between;
       border-bottom: 1px solid var(--line);
-      padding-bottom: 14px;
+      padding-bottom: 18px;
     }
 
     .topbar h2 {
       margin: 0;
-      font-size: 1.45rem;
+      font-size: 1.55rem;
+      font-weight: 760;
       line-height: 1.18;
     }
 
     .topbar p {
-      margin: 5px 0 0;
+      margin: 6px 0 0;
       color: var(--muted);
-      line-height: 1.38;
-      max-width: 850px;
+      line-height: 1.42;
+      max-width: 700px;
     }
 
-    .readout {
-      flex: 0 0 215px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: var(--panel);
-      padding: 11px 12px;
-      box-shadow: var(--shadow);
+    .map-readout {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      z-index: 2;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      background: rgba(23, 32, 39, 0.78);
+      color: #f7f4ec;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 10px;
+      padding: 11px 14px;
+      min-width: 195px;
+      max-width: 245px;
+      font-size: 0.86rem;
+      line-height: 1.35;
     }
 
-    .readout strong {
+    .map-readout strong {
       display: block;
-      font-size: 0.92rem;
+      font-size: 0.9rem;
+      font-weight: 650;
     }
 
-    .readout span {
+    .map-readout span {
       display: block;
       margin-top: 4px;
-      color: var(--muted);
-      font-size: 0.84rem;
+      color: rgba(247, 244, 236, 0.68);
+      font-size: 0.82rem;
       line-height: 1.3;
+    }
+
+    .map-label-strip {
+      position: absolute;
+      bottom: 14px;
+      left: 14px;
+      z-index: 2;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      background: rgba(23, 32, 39, 0.72);
+      color: #f7f4ec;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 7px;
+      padding: 6px 12px;
+      font-size: 0.78rem;
+      font-weight: 620;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      pointer-events: none;
     }
 
     .viz-panel {
       border: 1px solid var(--line);
       border-radius: 8px;
       background: var(--panel);
-      box-shadow: var(--shadow);
+      box-shadow: 0 20px 48px rgba(23, 32, 39, 0.16);
       overflow: hidden;
       display: grid;
       grid-template-rows: minmax(460px, 62vh) auto;
@@ -279,19 +313,20 @@
     }
 
     .legend {
-      height: 12px;
+      height: 18px;
       border-radius: 999px;
       border: 1px solid #cbd3d6;
-      background: linear-gradient(90deg, var(--cool), #f7f4ec 50%, var(--warm));
+      background: linear-gradient(90deg, var(--cool), #f8f4ee 50%, var(--warm));
     }
 
     .legend-labels {
       display: flex;
       justify-content: space-between;
       gap: 12px;
-      margin-top: 5px;
+      margin-top: 6px;
       color: var(--muted);
-      font-size: 0.8rem;
+      font-size: 0.82rem;
+      font-weight: 500;
     }
 
     .bottom-grid {
@@ -396,11 +431,6 @@
         grid-template-columns: 1fr;
       }
 
-      .readout {
-        width: 100%;
-        flex: initial;
-      }
-
       .viz-panel,
       .timeline,
       .map-wrap {
@@ -459,20 +489,21 @@
 
     <main>
       <section class="topbar">
-        <div>
-          <h2 id="layerTitle">Loading data...</h2>
-          <p id="layerDescription">Reading the interactive CMIP6 dataset.</p>
-        </div>
-        <div class="readout">
-          <strong id="hoverTitle">Hover the Pacific map</strong>
-          <span id="hoverText">Move over a data cell or the timeline to inspect the data.</span>
-        </div>
+        <h2 id="layerTitle">Loading data...</h2>
+        <p id="layerDescription">Reading the interactive CMIP6 dataset.</p>
       </section>
 
       <section class="viz-panel">
         <div class="map-wrap" id="mapWrap">
           <div id="map" aria-label="Interactive Pacific data map"></div>
           <div class="tooltip" id="tooltip"></div>
+          <div class="map-readout">
+            <strong id="hoverTitle">Hover the Pacific map</strong>
+            <span id="hoverText">Move over a data cell or the timeline to inspect the data.</span>
+          </div>
+          <div class="map-label-strip" id="mapLabelStrip">
+            <span id="mapLabelText">Combined Signal</span>
+          </div>
         </div>
         <div class="viz-footer">
           <div class="legend-row">
@@ -670,11 +701,11 @@
           paint: {
             "fill-color": ["interpolate", ["linear"],
               ["coalesce", ["get", "value"], 0],
-              rMin, "#276f86",
-              0,    "#f7f4ec",
-              rMax, "#b6422f"
+              rMin, "#1d6fa3",
+              0,    "#f8f4ee",
+              rMax, "#c1341e"
             ],
-            "fill-opacity": 0.82,
+            "fill-opacity": 0.85,
             "fill-outline-color": "rgba(0,0,0,0)"
           }
         }, beforeId);
@@ -811,7 +842,7 @@
       data.forEach((d, i) => {
         const x = pad.left + i * barW;
         const h = Math.min(plotH / 2, Math.abs(d.nino34_anomaly_c) / maxAbs * (plotH / 2));
-        timelineCtx.fillStyle = d.phase === "el_nino" ? "#b6422f" : d.phase === "la_nina" ? "#276f86" : "#9ba6ab";
+        timelineCtx.fillStyle = d.phase === "el_nino" ? "#c1341e" : d.phase === "la_nina" ? "#1d6fa3" : "#9ba6ab";
         if (d.nino34_anomaly_c >= 0) {
           timelineCtx.fillRect(x, zeroY - h, Math.max(1, barW), h);
         } else {
@@ -874,6 +905,8 @@
       document.querySelector("#layerTitle").textContent = config.title;
       document.querySelector("#layerDescription").textContent = config.description;
       document.querySelector("#layerNote").textContent = config.note;
+      const labelEl = document.querySelector("#mapLabelText");
+      if (labelEl) labelEl.textContent = config.label;
       document.querySelector("#legendMin").textContent = `${config.minLabel} (${config.range[0]})`;
       document.querySelector("#legendMid").textContent = "0";
       document.querySelector("#legendMax").textContent = `${config.maxLabel} (+${config.range[1]})`;
@@ -970,8 +1003,15 @@
           minZoom: 1.5,
           maxZoom: 8
         });
-        state.map.addControl(new mapboxgl.NavigationControl(), "top-right");
+        state.map.addControl(new mapboxgl.NavigationControl(), "bottom-right");
         state.map.on("load", () => {
+          state.map.setFog({
+            color: "rgb(220, 228, 232)",
+            "high-color": "rgb(40, 80, 120)",
+            "horizon-blend": 0.06,
+            "space-color": "rgb(8, 10, 20)",
+            "star-intensity": 0.25
+          });
           initMapLayers(data);
           setupMapEvents();
         });
