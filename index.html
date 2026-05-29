@@ -254,7 +254,7 @@
 
     .map-wrap {
       position: relative;
-      background: #fbfaf6;
+      background: #080e1c;
       min-height: 460px;
     }
 
@@ -349,22 +349,19 @@
       border-radius: 999px;
       background: #e7ecef;
       overflow: hidden;
-      position: relative;
+      display: flex;
+      align-items: stretch;
     }
 
     .bar-track span {
-      position: absolute;
-      top: 0;
-      bottom: 0;
+      display: block;
       background: var(--warm);
-      left: 50%;
-      width: 0;
+      border-radius: 999px;
     }
 
     .bar-track span.negative {
       background: var(--cool);
-      left: auto;
-      right: 50%;
+      margin-left: auto;
     }
 
     .method {
@@ -877,8 +874,9 @@
       showNinoBox: false,
       showRegions: false,
       selectedTimelineIndex: null,
-      lookups: {},    // key -> Map<"lon,lat" -> value>
-      gridInfo: {}    // key -> { lonStep, latStep, lonMin, lonMax, latMin, latMax }
+      lookups: {},
+      gridInfo: {},
+      builtLayers: new Set()
     };
 
     const timelineCanvas = document.querySelector("#timelineCanvas");
@@ -947,7 +945,10 @@
 
     function buildLayerCanvas(layerKey, data) {
       const config = layerConfig[layerKey];
-      const records = data.layers[layerKey].filter(r => r[config.key] !== null && !Number.isNaN(r[config.key]));
+      const records = data.layers[layerKey].filter(r =>
+        r[config.key] !== null && !Number.isNaN(r[config.key]) &&
+        r.lon >= 90 && r.lon <= 290
+      );
       const [rMin, rMax] = config.range;
 
       const lons = [...new Set(records.map(r => r.lon))].sort((a, b) => a - b);
@@ -965,7 +966,7 @@
       state.lookups[layerKey] = lookup;
       state.gridInfo[layerKey] = { lonStep, latStep, lonMin, lonMax, latMin, latMax, lonStart: lons[0], latStart: lats[0] };
 
-      const pxPerDeg = 16;
+      const pxPerDeg = 12;
       const fadeDegs = 15;
       const width = Math.ceil((lonMax - lonMin) * pxPerDeg);
       const height = Math.ceil((latMax - latMin) * pxPerDeg);
@@ -1021,7 +1022,7 @@
       return {
         type: "FeatureCollection",
         features: records
-          .filter(r => r[config.key] !== null && !Number.isNaN(r[config.key]))
+          .filter(r => r[config.key] !== null && !Number.isNaN(r[config.key]) && r.lon >= 90 && r.lon <= 290)
           .map(r => ({
             type: "Feature",
             geometry: {
@@ -1053,23 +1054,25 @@
       };
     }
 
-    function buildRegionsGeoJSON() {
-      const defs = [
-        { label: "West",    lon1: 120, lon2: 170 },
-        { label: "Central", lon1: 170, lon2: 220 },
-        { label: "East",    lon1: 220, lon2: 280 }
-      ];
+    const REGION_DEFS = [
+      { label: "West",    lon1: 120, lon2: 170, regionKey: "West Pacific" },
+      { label: "Central", lon1: 170, lon2: 220, regionKey: "Central Pacific" },
+      { label: "East",    lon1: 220, lon2: 280, regionKey: "East Pacific" }
+    ];
+
+    function buildRegionsGeoJSON(normValues) {
       const features = [];
-      for (const { label, lon1, lon2 } of defs) {
+      for (const { label, lon1, lon2, regionKey } of REGION_DEFS) {
+        const normValue = normValues ? (normValues[regionKey] || 0) : 0;
         features.push({
           type: "Feature",
           geometry: { type: "Polygon", coordinates: [[[lon1, -15], [lon2, -15], [lon2, 15], [lon1, 15], [lon1, -15]]] },
-          properties: { label }
+          properties: { label, normValue }
         });
         features.push({
           type: "Feature",
           geometry: { type: "Point", coordinates: [lon1 + 3, -13] },
-          properties: { label }
+          properties: { label, normValue }
         });
       }
       return { type: "FeatureCollection", features };
@@ -1081,31 +1084,32 @@
       return map.getStyle().layers.find(l => l.type === "symbol")?.id;
     }
 
+    function addRasterLayer(key, beforeId) {
+      const map = state.map;
+      const bId = beforeId != null ? beforeId : getFirstSymbolLayerId(map);
+      const { canvas, lonMin, lonMax, latMin, latMax } = buildLayerCanvas(key, state.data);
+      map.addSource("src-raster-" + key, {
+        type: "canvas",
+        canvas,
+        coordinates: [[lonMin, latMax], [lonMax, latMax], [lonMax, latMin], [lonMin, latMin]],
+        animate: false
+      });
+      map.addLayer({
+        id: "layer-raster-" + key,
+        type: "raster",
+        source: "src-raster-" + key,
+        layout: { visibility: "visible" },
+        paint: { "raster-opacity": 0.92, "raster-fade-duration": 0, "raster-resampling": "linear" }
+      }, bId);
+      state.builtLayers.add(key);
+    }
+
     function initMapLayers(data) {
       const map = state.map;
       const beforeId = getFirstSymbolLayerId(map);
 
-      for (const [key] of Object.entries(layerConfig)) {
-        const { canvas, lonMin, lonMax, latMin, latMax } = buildLayerCanvas(key, data);
-        map.addSource("src-raster-" + key, {
-          type: "canvas",
-          canvas,
-          // 0-360 longitude; Mapbox GL JS v3 supports values > 180 for antimeridian-crossing sources
-          coordinates: [[lonMin, latMax], [lonMax, latMax], [lonMax, latMin], [lonMin, latMin]],
-          animate: false
-        });
-        map.addLayer({
-          id: "layer-raster-" + key,
-          type: "raster",
-          source: "src-raster-" + key,
-          layout: { visibility: key === state.layer ? "visible" : "none" },
-          paint: {
-            "raster-opacity": 0.82,
-            "raster-fade-duration": 0,
-            "raster-resampling": "linear"
-          }
-        }, beforeId);
-      }
+      // Only build the active layer on first load; others are deferred until first use
+      addRasterLayer(state.layer, beforeId);
 
       // Nino 3.4 box overlay
       map.addSource("src-nino-box", { type: "geojson", data: buildNinoBoxGeoJSON() });
@@ -1133,14 +1137,28 @@
       });
 
       // Region boundary overlays
-      map.addSource("src-regions", { type: "geojson", data: buildRegionsGeoJSON() });
+      map.addSource("src-regions", { type: "geojson", data: buildRegionsGeoJSON(null) });
+      map.addLayer({
+        id: "layer-region-fill",
+        type: "fill",
+        source: "src-regions",
+        filter: ["==", ["geometry-type"], "Polygon"],
+        layout: { visibility: state.showRegions ? "visible" : "none" },
+        paint: {
+          "fill-color": ["case",
+            [">", ["get", "normValue"], 0], "#c1341e",
+            "#1d6fa3"
+          ],
+          "fill-opacity": ["interpolate", ["linear"], ["abs", ["get", "normValue"]], 0, 0, 1, 0.22]
+        }
+      }, beforeId);
       map.addLayer({
         id: "layer-regions",
         type: "line",
         source: "src-regions",
         filter: ["==", ["geometry-type"], "Polygon"],
         layout: { visibility: state.showRegions ? "visible" : "none" },
-        paint: { "line-color": "rgba(255,255,255,0.20)", "line-width": 1, "line-dasharray": [4, 4] }
+        paint: { "line-color": "rgba(255,255,255,0.35)", "line-width": 1.5, "line-dasharray": [4, 4] }
       }, beforeId);
       map.addLayer({
         id: "layer-region-labels",
@@ -1155,13 +1173,13 @@
           "text-anchor": "top-left",
           "text-offset": [0.3, 0.3]
         },
-        paint: { "text-color": "rgba(255,255,255,0.45)", "text-halo-color": "rgba(0,0,0,0.25)", "text-halo-width": 1 }
+        paint: { "text-color": "rgba(255,255,255,0.65)", "text-halo-color": "rgba(0,0,0,0.4)", "text-halo-width": 1.5 }
       });
     }
 
     function setMapLayer(key) {
       if (!state.map || !state.map.isStyleLoaded()) return;
-      Object.keys(layerConfig).forEach(k => {
+      state.builtLayers.forEach(k => {
         state.map.setLayoutProperty("layer-raster-" + k, "visibility", k === key ? "visible" : "none");
       });
     }
@@ -1169,6 +1187,22 @@
     function setOverlayVisibility(layerId, visible) {
       if (!state.map || !state.map.isStyleLoaded()) return;
       state.map.setLayoutProperty(layerId, "visibility", visible ? "visible" : "none");
+    }
+
+    function updateRegionFill(layerKey) {
+      if (!state.map || !state.map.isStyleLoaded() || !state.data) return;
+      const config = layerConfig[layerKey];
+      const key = config.key;
+      const [rMin, rMax] = config.range;
+      const normValues = {};
+      state.data.regional.forEach(r => {
+        const raw = r[key];
+        normValues[r.region] = raw < 0
+          ? Math.max(-1, raw / Math.abs(rMin))
+          : Math.min(1, raw / rMax);
+      });
+      const src = state.map.getSource("src-regions");
+      if (src) src.setData(buildRegionsGeoJSON(normValues));
     }
 
     function resetReadout() {
@@ -1225,7 +1259,7 @@
       const rect = resizeCanvas(timelineCanvas);
       const data = state.data.timeline;
       timelineCtx.clearRect(0, 0, rect.width, rect.height);
-      timelineCtx.fillStyle = "#fbfaf6";
+      timelineCtx.fillStyle = "#f0ede4";
       timelineCtx.fillRect(0, 0, rect.width, rect.height);
 
       const pad = { left: 44, right: 12, top: 12, bottom: 24 };
@@ -1318,7 +1352,21 @@
         button.setAttribute("aria-pressed", String(layerKey === key));
       });
       updateRegionBars();
-      setMapLayer(key);
+      updateRegionFill(key);
+
+      if (!state.map || !state.map.isStyleLoaded()) return;
+
+      if (!state.builtLayers.has(key)) {
+        document.querySelector("#hoverTitle").textContent = "Building layer…";
+        document.querySelector("#hoverText").textContent = "";
+        setTimeout(() => {
+          addRasterLayer(key, getFirstSymbolLayerId(state.map));
+          setMapLayer(key);
+          resetReadout();
+        }, 0);
+      } else {
+        setMapLayer(key);
+      }
     }
 
     function updateRegionBars() {
@@ -1331,7 +1379,7 @@
         const value = region[key];
         const row = document.createElement("div");
         row.className = "region-bar";
-        const width = Math.min(50, Math.abs(value) / max * 50);
+        const width = Math.min(100, Math.abs(value) / max * 100);
         row.innerHTML = `
           <div><span>${region.region}</span><strong>${value.toFixed(2)} ${config.units}</strong></div>
           <div class="bar-track"><span class="${value < 0 ? "negative" : ""}" style="width:${width}%"></span></div>
@@ -1375,6 +1423,7 @@
     document.querySelector("#regionsBtn").addEventListener("click", (event) => {
       state.showRegions = !state.showRegions;
       event.currentTarget.setAttribute("aria-pressed", String(state.showRegions));
+      setOverlayVisibility("layer-region-fill", state.showRegions);
       setOverlayVisibility("layer-regions", state.showRegions);
       setOverlayVisibility("layer-region-labels", state.showRegions);
     });
@@ -1394,6 +1443,28 @@
         renderFacts();
         setLayer("combined");
         drawTimeline();
+
+        mapboxgl.accessToken = "pk.eyJ1IjoieWFsbDc3NyIsImEiOiJjbXA3ZXIzNjIwMm5zMnNweDkwamtpM3RtIn0.udhgEgCcnM5hGKdL5Mz3Nw";
+        state.map = new mapboxgl.Map({
+          container: "map",
+          style: "mapbox://styles/yall777/cmpqinxwr003c01ssexkv41yq",
+          center: [-160, 0],
+          zoom: 2.0,
+          minZoom: 1.5,
+          maxZoom: 8
+        });
+        state.map.addControl(new mapboxgl.NavigationControl(), "bottom-right");
+        state.map.on("load", () => {
+          state.map.setFog({
+            color: "rgb(10, 18, 30)",
+            "high-color": "rgb(5, 12, 28)",
+            "horizon-blend": 0.04,
+            "space-color": "rgb(4, 8, 18)",
+            "star-intensity": 0.45
+          });
+          initMapLayers(data);
+          setupMapEvents();
+        });
       })
       .catch((error) => {
         document.querySelector("#layerTitle").textContent = "Data failed to load";
