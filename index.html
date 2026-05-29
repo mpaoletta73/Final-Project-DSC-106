@@ -883,8 +883,9 @@
     const timelineCtx = timelineCanvas.getContext("2d");
 
     function formatLon(lon) {
-      if (Math.round(lon) === 180) return "180";
-      return lon < 180 ? `${Math.round(lon)}E` : `${Math.round(360 - lon)}W`;
+      const r = Math.round(lon);
+      if (r === 0 || r === 180 || r === -180) return `${Math.abs(r)}`;
+      return r > 0 ? `${r}E` : `${-r}W`;
     }
 
     function formatLat(lat) {
@@ -945,10 +946,10 @@
 
     function buildLayerCanvas(layerKey, data) {
       const config = layerConfig[layerKey];
-      const records = data.layers[layerKey].filter(r =>
-        r[config.key] !== null && !Number.isNaN(r[config.key]) &&
-        r.lon >= 90 && r.lon <= 290
-      );
+      // Convert 0-360 lons to -180/180 for Mapbox compatibility; keep all global data
+      const records = data.layers[layerKey]
+        .filter(r => r[config.key] !== null && !Number.isNaN(r[config.key]))
+        .map(r => ({ ...r, lon: r.lon > 180 ? r.lon - 360 : r.lon }));
       const [rMin, rMax] = config.range;
 
       const lons = [...new Set(records.map(r => r.lon))].sort((a, b) => a - b);
@@ -960,7 +961,7 @@
       const latMin = lats[0] - latStep / 2;
       const latMax = lats[lats.length - 1] + latStep / 2;
 
-      // Build lookup map
+      // Build lookup map using -180/180 keys
       const lookup = new Map();
       records.forEach(r => lookup.set(`${r.lon},${r.lat}`, r[config.key]));
       state.lookups[layerKey] = lookup;
@@ -979,6 +980,7 @@
 
       for (let py = 0; py < height; py++) {
         const lat = latMax - py / pxPerDeg;
+        // Only fade lat edges (poles); no lon fade since data wraps the full globe
         const ey = cosEdge(py, height, fadeDegs * pxPerDeg);
 
         for (let px = 0; px < width; px++) {
@@ -987,8 +989,7 @@
           const idx = (py * width + px) * 4;
 
           if (value !== undefined) {
-            const ex = cosEdge(px, width, fadeDegs * pxPerDeg);
-            const edgeFade = ex * ey;
+            const edgeFade = ey;
             const [r, g, b, valueAlpha] = valueToRGBA(value, rMin, rMax);
             const alpha = Math.round(edgeFade * valueAlpha * 255);
             img.data[idx] = r;
@@ -1022,7 +1023,8 @@
       return {
         type: "FeatureCollection",
         features: records
-          .filter(r => r[config.key] !== null && !Number.isNaN(r[config.key]) && r.lon >= 90 && r.lon <= 290)
+          .filter(r => r[config.key] !== null && !Number.isNaN(r[config.key]))
+          .map(r => ({ ...r, lon: r.lon > 180 ? r.lon - 360 : r.lon }))
           .map(r => ({
             type: "Feature",
             geometry: {
@@ -1036,22 +1038,41 @@
       };
     }
 
-    function buildNinoBoxGeoJSON() {
+    function buildNinoBoxGeoJSON(normValue = 0) {
       return {
         type: "FeatureCollection",
         features: [
           {
             type: "Feature",
             geometry: { type: "Polygon", coordinates: [[[190, -5], [240, -5], [240, 5], [190, 5], [190, -5]]] },
-            properties: { label: "Nino 3.4" }
+            properties: { label: "Nino 3.4", normValue }
           },
           {
             type: "Feature",
             geometry: { type: "Point", coordinates: [191, 6] },
-            properties: { label: "Nino 3.4" }
+            properties: { label: "Nino 3.4", normValue }
           }
         ]
       };
+    }
+
+    function updateNinoBoxFill(layerKey) {
+      if (!state.map || !state.data) return;
+      const config = layerConfig[layerKey];
+      const key = config.key;
+      const [rMin, rMax] = config.range;
+      const records = state.data.layers[layerKey].filter(r =>
+        r.lon >= 190 && r.lon <= 240 && r.lat >= -5 && r.lat <= 5 &&
+        r[key] !== null && !Number.isNaN(r[key])
+      );
+      const mean = records.length > 0
+        ? records.reduce((s, r) => s + r[key], 0) / records.length
+        : 0;
+      const normValue = mean < 0
+        ? Math.max(-1, mean / Math.abs(rMin))
+        : Math.min(1, mean / rMax);
+      const src = state.map.getSource("src-nino-box");
+      if (src) src.setData(buildNinoBoxGeoJSON(normValue));
     }
 
     const REGION_DEFS = [
@@ -1114,6 +1135,17 @@
       // Nino 3.4 box overlay
       map.addSource("src-nino-box", { type: "geojson", data: buildNinoBoxGeoJSON() });
       map.addLayer({
+        id: "layer-nino-box-fill",
+        type: "fill",
+        source: "src-nino-box",
+        filter: ["==", ["geometry-type"], "Polygon"],
+        layout: { visibility: state.showNinoBox ? "visible" : "none" },
+        paint: {
+          "fill-color": ["case", [">", ["get", "normValue"], 0], "#c1341e", "#1d6fa3"],
+          "fill-opacity": ["interpolate", ["linear"], ["abs", ["get", "normValue"]], 0, 0, 1, 0.22]
+        }
+      }, beforeId);
+      map.addLayer({
         id: "layer-nino-box",
         type: "line",
         source: "src-nino-box",
@@ -1175,6 +1207,10 @@
         },
         paint: { "text-color": "rgba(255,255,255,0.65)", "text-halo-color": "rgba(0,0,0,0.4)", "text-halo-width": 1.5 }
       });
+
+      // Populate fills with real data values now that layers exist
+      updateRegionFill(state.layer);
+      updateNinoBoxFill(state.layer);
     }
 
     function setMapLayer(key) {
@@ -1215,18 +1251,19 @@
 
       map.on("mousemove", e => {
         const lngLat = map.unproject(e.point);
-        const lon360 = ((lngLat.lng % 360) + 360) % 360;
+        // Normalize to -180/180 range
+        const lon = ((lngLat.lng % 360) + 540) % 360 - 180;
         const lat = lngLat.lat;
 
         const gi = state.gridInfo[state.layer];
-        if (!gi || lon360 < gi.lonMin - gi.lonStep || lon360 > gi.lonMax + gi.lonStep ||
+        if (!gi || lon < gi.lonMin - gi.lonStep || lon > gi.lonMax + gi.lonStep ||
             lat < gi.latMin - gi.latStep || lat > gi.latMax + gi.latStep) {
           resetReadout();
           return;
         }
 
         const { lonStep, latStep, lonStart, latStart } = gi;
-        const snapLon = lonStart + Math.round((lon360 - lonStart) / lonStep) * lonStep;
+        const snapLon = lonStart + Math.round((lon - lonStart) / lonStep) * lonStep;
         const snapLat = latStart + Math.round((lat - latStart) / latStep) * latStep;
         const value = state.lookups[state.layer].get(`${snapLon},${snapLat}`);
 
@@ -1363,10 +1400,12 @@
           setMapLayer(key);
           resetReadout();
           updateRegionFill(key);
+          updateNinoBoxFill(key);
         }, 0);
       } else {
         setMapLayer(key);
         updateRegionFill(key);
+        updateNinoBoxFill(key);
       }
     }
 
@@ -1417,6 +1456,7 @@
     document.querySelector("#ninoBoxBtn").addEventListener("click", (event) => {
       state.showNinoBox = !state.showNinoBox;
       event.currentTarget.setAttribute("aria-pressed", String(state.showNinoBox));
+      setOverlayVisibility("layer-nino-box-fill", state.showNinoBox);
       setOverlayVisibility("layer-nino-box", state.showNinoBox);
       setOverlayVisibility("layer-nino-box-label", state.showNinoBox);
     });
