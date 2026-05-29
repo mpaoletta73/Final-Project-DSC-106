@@ -423,6 +423,271 @@
         font-size: 1.55rem;
       }
     }
+
+    /* ── Quiz Game ─────────────────────────────────────────── */
+    .game-section {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      padding: 20px 22px;
+      display: grid;
+      gap: 0;
+    }
+
+    .game-intro-header {
+      margin: 0 0 6px;
+      font-size: 1.2rem;
+      font-weight: 780;
+    }
+
+    .game-intro-text {
+      margin: 0 0 14px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.48;
+    }
+
+    .btn-start {
+      border: none;
+      border-radius: 8px;
+      background: var(--dark);
+      color: #f7f4ec;
+      padding: 11px 22px;
+      font: inherit;
+      font-weight: 700;
+      font-size: 0.92rem;
+      cursor: pointer;
+      width: fit-content;
+    }
+
+    .btn-start:disabled {
+      opacity: 0.45;
+      cursor: default;
+    }
+
+    .btn-start:not(:disabled):hover {
+      opacity: 0.88;
+    }
+
+    .game-body {
+      display: grid;
+      gap: 16px;
+    }
+
+    .game-header-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .game-progress-label,
+    .game-score-label {
+      flex: 0 0 auto;
+      color: var(--muted);
+      font-size: 0.82rem;
+      white-space: nowrap;
+    }
+
+    .game-score-label {
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .progress-track {
+      flex: 1;
+      height: 6px;
+      border-radius: 999px;
+      background: #e7ecef;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: var(--dark);
+      border-radius: 999px;
+      transition: width 320ms ease;
+    }
+
+    .game-question {
+      margin: 0 0 14px;
+      font-size: 1.05rem;
+      font-weight: 650;
+      line-height: 1.42;
+      color: var(--ink);
+    }
+
+    .game-options {
+      display: grid;
+      gap: 8px;
+    }
+
+    .game-option {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--ink);
+      padding: 11px 14px;
+      cursor: pointer;
+      text-align: left;
+      font: inherit;
+      font-size: 0.9rem;
+      line-height: 1.35;
+      transition: border-color 80ms, background 80ms;
+    }
+
+    .game-option:hover:not(:disabled) {
+      border-color: var(--dark);
+      background: #f0ece2;
+    }
+
+    .game-option:disabled {
+      cursor: default;
+    }
+
+    .game-option.opt-correct {
+      border-color: var(--green);
+      background: #eaf4ee;
+      color: var(--green);
+    }
+
+    .game-option.opt-wrong {
+      border-color: var(--warm);
+      background: #faeae7;
+      color: var(--warm);
+    }
+
+    .opt-letter {
+      flex: 0 0 26px;
+      height: 26px;
+      border-radius: 6px;
+      background: #e7ecef;
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .game-option.opt-correct .opt-letter {
+      background: var(--green);
+      color: #fff;
+    }
+
+    .game-option.opt-wrong .opt-letter {
+      background: var(--warm);
+      color: #fff;
+    }
+
+    .game-feedback {
+      margin-top: 14px;
+      border-top: 1px solid var(--line);
+      padding-top: 14px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .feedback-verdict {
+      margin: 0;
+      font-weight: 700;
+      font-size: 1rem;
+    }
+
+    .feedback-verdict.is-correct { color: var(--green); }
+    .feedback-verdict.is-wrong   { color: var(--warm); }
+
+    .feedback-explanation {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.52;
+    }
+
+    .game-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
+
+    .btn-view-map {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--ink);
+      padding: 9px 14px;
+      font: inherit;
+      font-size: 0.87rem;
+      cursor: pointer;
+    }
+
+    .btn-view-map:hover {
+      border-color: var(--dark);
+    }
+
+    .btn-next {
+      border: none;
+      border-radius: 8px;
+      background: var(--dark);
+      color: #f7f4ec;
+      padding: 9px 18px;
+      font: inherit;
+      font-size: 0.87rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-next:hover { opacity: 0.88; }
+
+    .game-results {
+      text-align: center;
+      padding: 12px 0 4px;
+    }
+
+    .results-inner {
+      display: grid;
+      gap: 14px;
+      justify-items: center;
+    }
+
+    .score-ring {
+      width: 92px;
+      height: 92px;
+      border-radius: 50%;
+      background: var(--dark);
+      color: #f7f4ec;
+      font-size: 1.55rem;
+      font-weight: 780;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #resultsMessage {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.48;
+      max-width: 440px;
+    }
+
+    .btn-retry {
+      border: none;
+      border-radius: 8px;
+      background: var(--dark);
+      color: #f7f4ec;
+      padding: 11px 22px;
+      font: inherit;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-retry:hover { opacity: 0.88; }
   </style>
 </head>
 <body>
@@ -492,6 +757,40 @@
           <h3>Regional Summary</h3>
           <div id="regionBars"></div>
         </aside>
+      </section>
+
+      <section class="game-section" id="gameSection">
+        <div id="gameIntro">
+          <h2 class="game-intro-header">Test Your El Niño Knowledge</h2>
+          <p class="game-intro-text">Six questions about the Pacific climate patterns shown in the map above. After each answer, the relevant data layer switches automatically — scroll up to compare your guess with the real data.</p>
+          <button class="btn-start" id="gameStartBtn" disabled>Loading data…</button>
+        </div>
+        <div class="game-body" id="gameBody" style="display:none">
+          <div class="game-header-row">
+            <span class="game-progress-label" id="gameProgress">Question 1 of 6</span>
+            <div class="progress-track"><div class="progress-bar" id="gameProgressBar" style="width:0%"></div></div>
+            <span class="game-score-label" id="gameScoreLabel">Score: 0</span>
+          </div>
+          <div id="gameCard">
+            <p class="game-question" id="gameQuestion"></p>
+            <div class="game-options" id="gameOptions"></div>
+            <div class="game-feedback" id="gameFeedback" style="display:none">
+              <p class="feedback-verdict" id="feedbackVerdict"></p>
+              <p class="feedback-explanation" id="feedbackExplanation"></p>
+              <div class="game-actions">
+                <button class="btn-view-map" id="gameViewMapBtn">↑ View on map</button>
+                <button class="btn-next" id="gameNextBtn">Next Question →</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="game-results" id="gameResults" style="display:none">
+          <div class="results-inner">
+            <div class="score-ring" id="finalScore"></div>
+            <p id="resultsMessage"></p>
+            <button class="btn-retry" id="gameRetryBtn">Play Again</button>
+          </div>
+        </div>
       </section>
     </main>
   </div>
@@ -948,6 +1247,196 @@
       drawTimeline();
     });
 
+    // ── Quiz Game ─────────────────────────────────────────────────
+    const gameState = {
+      questions: [],
+      current: 0,
+      score: 0,
+      answered: false
+    };
+
+    function buildQuestions() {
+      const meta = state.data.meta;
+      const n = meta.el_nino_months;
+      const rawChoices = [
+        Math.round(n * 0.52),
+        Math.round(n * 0.74),
+        n,
+        Math.round(n * 1.45)
+      ].sort((a, b) => a - b);
+      const correctMonthIdx = rawChoices.indexOf(n);
+
+      return [
+        {
+          text: "During El Niño, which part of the Pacific Ocean shows the strongest sea-surface warming?",
+          options: [
+            "Western Pacific — near Indonesia and the Philippines",
+            "Central Pacific — near the international dateline (180°)",
+            "Eastern Pacific — off the coast of South America",
+            "Northern Pacific — above 30°N latitude"
+          ],
+          correct: 2,
+          revealLayer: "sst",
+          explanation: "The strongest SST anomalies appear in the eastern equatorial Pacific, off the coast of South America. This central-to-eastern ocean warming is the defining signature of El Niño."
+        },
+        {
+          text: "Where does rainfall increase most during El Niño compared to neutral years?",
+          options: [
+            "Western Pacific — near Indonesia and Australia",
+            "Central and eastern equatorial Pacific",
+            "Equally across the whole Pacific basin",
+            "Northern Pacific, above 30°N latitude"
+          ],
+          correct: 1,
+          revealLayer: "precip",
+          explanation: "Rainfall shifts dramatically eastward during El Niño. The central and eastern Pacific get significantly wetter, while the western Pacific — near Indonesia and Australia — typically dries out."
+        },
+        {
+          text: "How does total cloud cover change over the central-eastern equatorial Pacific during El Niño?",
+          options: [
+            "It decreases sharply — warmer water creates clearer skies",
+            "It stays roughly unchanged",
+            "It increases — warmer SSTs drive more convective clouds",
+            "It decreases near the equator but increases off-equator"
+          ],
+          correct: 2,
+          revealLayer: "cloud",
+          explanation: "Warmer sea-surface temperatures fuel deep convective clouds, substantially increasing cloud cover over the central-eastern Pacific. This cloud increase is tightly linked to the rainfall anomaly."
+        },
+        {
+          text: "During El Niño, what happens to outgoing shortwave radiation (RSUT) over the eastern equatorial Pacific?",
+          options: [
+            "It decreases — the warmer ocean absorbs more solar energy",
+            "It stays the same — radiation is unaffected by SST changes",
+            "It first increases, then sharply decreases mid-event",
+            "It increases — more clouds reflect sunlight back to space"
+          ],
+          correct: 3,
+          revealLayer: "rsut",
+          explanation: "Increased cloud cover over the eastern Pacific reflects more incoming sunlight back out to space, producing a positive RSUT anomaly. This is the direct radiative footprint of the El Niño cloud increase."
+        },
+        {
+          text: "What sea-surface temperature anomaly threshold defines an El Niño-like month in this CESM2 dataset?",
+          options: [
+            "0.1°C above the long-term average",
+            "0.5°C above the long-term average",
+            "1.5°C above the long-term average",
+            "2.0°C above the long-term average"
+          ],
+          correct: 1,
+          revealLayer: "combined",
+          explanation: `This dataset uses the standard NOAA Niño 3.4 threshold of 0.5°C (confirmed: ${meta.nino34_threshold_c}°C). A month is El Niño-like when the area-averaged SST inside the Niño 3.4 box exceeds this value.`
+        },
+        {
+          text: "From 1951 to 2014, how many months in this CESM2 simulation qualified as El Niño-like?",
+          options: rawChoices.map(v => `${v} months`),
+          correct: correctMonthIdx,
+          revealLayer: "combined",
+          explanation: `${n} of ${n + meta.neutral_months} total months qualified as El Niño-like — about ${Math.round(n / (n + meta.neutral_months) * 100)}% of the record. These are the red bars on the timeline above.`
+        }
+      ];
+    }
+
+    function enableGameStart() {
+      const btn = document.querySelector("#gameStartBtn");
+      btn.textContent = "Start Quiz";
+      btn.disabled = false;
+    }
+
+    function startGame() {
+      gameState.questions = buildQuestions();
+      gameState.current = 0;
+      gameState.score = 0;
+      gameState.answered = false;
+      document.querySelector("#gameIntro").style.display = "none";
+      document.querySelector("#gameResults").style.display = "none";
+      document.querySelector("#gameBody").style.display = "";
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      const q = gameState.questions[gameState.current];
+      const total = gameState.questions.length;
+      const pct = Math.round((gameState.current / total) * 100);
+      document.querySelector("#gameProgress").textContent = `Question ${gameState.current + 1} of ${total}`;
+      document.querySelector("#gameProgressBar").style.width = `${pct}%`;
+      document.querySelector("#gameScoreLabel").textContent = `Score: ${gameState.score}`;
+      document.querySelector("#gameQuestion").textContent = q.text;
+      const optionsEl = document.querySelector("#gameOptions");
+      optionsEl.innerHTML = "";
+      q.options.forEach((opt, i) => {
+        const btn = document.createElement("button");
+        btn.className = "game-option";
+        btn.type = "button";
+        btn.innerHTML = `<span class="opt-letter">${"ABCD"[i]}</span><span>${opt}</span>`;
+        btn.addEventListener("click", () => handleAnswer(i));
+        optionsEl.appendChild(btn);
+      });
+      document.querySelector("#gameFeedback").style.display = "none";
+      gameState.answered = false;
+    }
+
+    function handleAnswer(chosenIdx) {
+      if (gameState.answered) return;
+      gameState.answered = true;
+      const q = gameState.questions[gameState.current];
+      const isCorrect = chosenIdx === q.correct;
+      if (isCorrect) gameState.score++;
+      [...document.querySelectorAll(".game-option")].forEach((btn, i) => {
+        btn.disabled = true;
+        if (i === q.correct) btn.classList.add("opt-correct");
+        else if (i === chosenIdx) btn.classList.add("opt-wrong");
+      });
+      const verdictEl = document.querySelector("#feedbackVerdict");
+      verdictEl.textContent = isCorrect ? "✓ Correct!" : "✗ Not quite — the right answer is highlighted above.";
+      verdictEl.className = `feedback-verdict ${isCorrect ? "is-correct" : "is-wrong"}`;
+      document.querySelector("#feedbackExplanation").textContent = q.explanation;
+      const isLast = gameState.current === gameState.questions.length - 1;
+      document.querySelector("#gameNextBtn").textContent = isLast ? "See My Score →" : "Next Question →";
+      document.querySelector("#gameFeedback").style.display = "";
+      document.querySelector("#gameScoreLabel").textContent = `Score: ${gameState.score}`;
+      setLayer(q.revealLayer);
+    }
+
+    function advanceGame() {
+      if (!gameState.answered) return;
+      if (gameState.current === gameState.questions.length - 1) {
+        showResults();
+      } else {
+        gameState.current++;
+        renderQuestion();
+      }
+    }
+
+    function showResults() {
+      document.querySelector("#gameBody").style.display = "none";
+      document.querySelector("#gameResults").style.display = "";
+      const total = gameState.questions.length;
+      const score = gameState.score;
+      document.querySelector("#finalScore").textContent = `${score} / ${total}`;
+      const pct = score / total;
+      let msg;
+      if (pct === 1) msg = "Perfect score! You understand El Niño at a CESM2 level.";
+      else if (pct >= 0.67) msg = "Great job — you have a solid grasp of Pacific climate patterns. Use the layer buttons to revisit anything you missed.";
+      else if (pct >= 0.34) msg = "Good effort. Flip through the data layers above to see each effect that tripped you up.";
+      else msg = "Keep exploring — switch through the five data layers above to see each El Niño effect directly on the map.";
+      document.querySelector("#resultsMessage").textContent = msg;
+    }
+
+    document.querySelector("#gameStartBtn").addEventListener("click", startGame);
+    document.querySelector("#gameNextBtn").addEventListener("click", advanceGame);
+    document.querySelector("#gameViewMapBtn").addEventListener("click", () => {
+      document.querySelector("#mapWrap").scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    document.querySelector("#gameRetryBtn").addEventListener("click", () => {
+      gameState.current = 0;
+      gameState.score = 0;
+      gameState.answered = false;
+      document.querySelector("#gameResults").style.display = "none";
+      document.querySelector("#gameBody").style.display = "";
+      renderQuestion();
+    });
+
     fetch("data/interactive_el_nino_dashboard.json")
       .then((response) => {
         if (!response.ok) throw new Error("Could not load dashboard data.");
@@ -959,6 +1448,7 @@
         renderFacts();
         setLayer("combined");
         drawTimeline();
+        enableGameStart();
       })
       .catch((error) => {
         document.querySelector("#layerTitle").textContent = "Data failed to load";
