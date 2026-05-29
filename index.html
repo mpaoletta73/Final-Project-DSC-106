@@ -459,8 +459,8 @@
       <div class="control-group">
         <span class="label">Overlays</span>
         <div class="mini-toggle">
-          <button id="ninoBoxBtn" type="button" aria-pressed="true">Nino 3.4 Box</button>
-          <button id="regionsBtn" type="button" aria-pressed="true">Regions</button>
+          <button id="ninoBoxBtn" type="button" aria-pressed="false">Nino 3.4 Box</button>
+          <button id="regionsBtn" type="button" aria-pressed="false">Regions</button>
         </div>
       </div>
 
@@ -575,8 +575,8 @@
       data: null,
       map: null,
       layer: "combined",
-      showNinoBox: true,
-      showRegions: true,
+      showNinoBox: false,
+      showRegions: false,
       selectedTimelineIndex: null,
       lookups: {},    // key -> Map<"lon,lat" -> value>
       gridInfo: {}    // key -> { lonStep, latStep, lonMin, lonMax, latMin, latMax }
@@ -617,22 +617,33 @@
       return lookup.get(`${lons[snapLi]},${lats[snapLa]}`);
     }
 
-    function valueToRGB(v, rMin, rMax) {
+    // 3-stop diverging colormap: transparent at neutral → saturated at extremes
+    const CMAP_COLD = [[140, 210, 255, 0.0], [30, 144, 255, 0.70], [0, 40, 180, 0.95]];
+    const CMAP_WARM = [[255, 230, 130, 0.0], [255, 100,   0, 0.70], [160,  0,   0, 0.95]];
+
+    function lerpStop(a, b, t) {
+      return [
+        Math.round(a[0] + (b[0] - a[0]) * t),
+        Math.round(a[1] + (b[1] - a[1]) * t),
+        Math.round(a[2] + (b[2] - a[2]) * t),
+        a[3] + (b[3] - a[3]) * t
+      ];
+    }
+
+    function valueToRGBA(v, rMin, rMax) {
       const t = v < 0 ? Math.max(-1, v / Math.abs(rMin)) : Math.min(1, v / rMax);
-      // cool #1d6fa3 <-> neutral #f8f4ee <-> warm #c1341e
-      let r, g, b;
-      if (t < 0) {
-        const m = -t;
-        r = Math.round(0xf8 - (0xf8 - 0x1d) * m);
-        g = Math.round(0xf4 - (0xf4 - 0x6f) * m);
-        b = Math.round(0xee - (0xee - 0xa3) * m);
-      } else {
-        const m = t;
-        r = Math.round(0xf8 - (0xf8 - 0xc1) * m);
-        g = Math.round(0xf4 - (0xf4 - 0x34) * m);
-        b = Math.round(0xee - (0xee - 0x1e) * m);
-      }
-      return [r, g, b];
+      const absT = Math.abs(t);
+      const stops = t < 0 ? CMAP_COLD : CMAP_WARM;
+      const c = absT <= 0.5
+        ? lerpStop(stops[0], stops[1], absT / 0.5)
+        : lerpStop(stops[1], stops[2], (absT - 0.5) / 0.5);
+      return [c[0], c[1], c[2], c[3]];
+    }
+
+    function cosEdge(pos, total, fadeW) {
+      const d = Math.min(pos, total - 1 - pos);
+      const t = Math.min(d / fadeW, 1);
+      return (1 - Math.cos(t * Math.PI)) / 2;
     }
 
     function buildLayerCanvas(layerKey, data) {
@@ -655,8 +666,8 @@
       state.lookups[layerKey] = lookup;
       state.gridInfo[layerKey] = { lonStep, latStep, lonMin, lonMax, latMin, latMax, lonStart: lons[0], latStart: lats[0] };
 
-      const pxPerDeg = 8;
-      const fadeDegs = 3;  // alpha fade width at each edge
+      const pxPerDeg = 16;
+      const fadeDegs = 15;
       const width = Math.ceil((lonMax - lonMin) * pxPerDeg);
       const height = Math.ceil((latMax - latMin) * pxPerDeg);
 
@@ -668,7 +679,7 @@
 
       for (let py = 0; py < height; py++) {
         const lat = latMax - py / pxPerDeg;
-        const edgeFadeY = Math.min(py / (fadeDegs * pxPerDeg), 1) * Math.min((height - 1 - py) / (fadeDegs * pxPerDeg), 1);
+        const ey = cosEdge(py, height, fadeDegs * pxPerDeg);
 
         for (let px = 0; px < width; px++) {
           const lon = lonMin + px / pxPerDeg;
@@ -676,9 +687,10 @@
           const idx = (py * width + px) * 4;
 
           if (value !== undefined) {
-            const edgeFadeX = Math.min(px / (fadeDegs * pxPerDeg), 1) * Math.min((width - 1 - px) / (fadeDegs * pxPerDeg), 1);
-            const alpha = Math.round(Math.min(edgeFadeX, edgeFadeY) * 180);
-            const [r, g, b] = valueToRGB(value, rMin, rMax);
+            const ex = cosEdge(px, width, fadeDegs * pxPerDeg);
+            const edgeFade = ex * ey;
+            const [r, g, b, valueAlpha] = valueToRGBA(value, rMin, rMax);
+            const alpha = Math.round(edgeFade * valueAlpha * 255);
             img.data[idx] = r;
             img.data[idx + 1] = g;
             img.data[idx + 2] = b;
@@ -693,7 +705,7 @@
       blurred.width = width;
       blurred.height = height;
       const bCtx = blurred.getContext("2d");
-      bCtx.filter = `blur(${Math.round(pxPerDeg * 0.6)}px)`;
+      bCtx.filter = `blur(${Math.round(pxPerDeg * 2.0)}px)`;
       bCtx.drawImage(cvs, 0, 0);
 
       return { canvas: blurred, lonMin, lonMax, latMin, latMax };
@@ -789,7 +801,7 @@
           source: "src-raster-" + key,
           layout: { visibility: key === state.layer ? "visible" : "none" },
           paint: {
-            "raster-opacity": 0.55,
+            "raster-opacity": 0.82,
             "raster-fade-duration": 0,
             "raster-resampling": "linear"
           }
@@ -804,7 +816,7 @@
         source: "src-nino-box",
         filter: ["==", ["geometry-type"], "Polygon"],
         layout: { visibility: state.showNinoBox ? "visible" : "none" },
-        paint: { "line-color": "#111820", "line-width": 2, "line-dasharray": [4, 3] }
+        paint: { "line-color": "rgba(255,255,255,0.30)", "line-width": 1.5, "line-dasharray": [5, 3] }
       }, beforeId);
       map.addLayer({
         id: "layer-nino-box-label",
@@ -818,7 +830,7 @@
           "text-font": ["DIN Offc Pro Bold", "Arial Unicode MS Bold"],
           "text-anchor": "bottom-left"
         },
-        paint: { "text-color": "#111820", "text-halo-color": "rgba(255,255,255,0.7)", "text-halo-width": 1 }
+        paint: { "text-color": "rgba(255,255,255,0.50)", "text-halo-color": "rgba(0,0,0,0.25)", "text-halo-width": 1 }
       });
 
       // Region boundary overlays
@@ -829,7 +841,7 @@
         source: "src-regions",
         filter: ["==", ["geometry-type"], "Polygon"],
         layout: { visibility: state.showRegions ? "visible" : "none" },
-        paint: { "line-color": "rgba(23,32,39,0.52)", "line-width": 1.4 }
+        paint: { "line-color": "rgba(255,255,255,0.20)", "line-width": 1, "line-dasharray": [4, 4] }
       }, beforeId);
       map.addLayer({
         id: "layer-region-labels",
@@ -844,7 +856,7 @@
           "text-anchor": "top-left",
           "text-offset": [0.3, 0.3]
         },
-        paint: { "text-color": "rgba(23,32,39,0.72)", "text-halo-color": "rgba(255,255,255,0.7)", "text-halo-width": 1 }
+        paint: { "text-color": "rgba(255,255,255,0.45)", "text-halo-color": "rgba(0,0,0,0.25)", "text-halo-width": 1 }
       });
     }
 
