@@ -965,8 +965,8 @@
     }
 
     // 3-stop diverging colormap: transparent at neutral → saturated at extremes
-    const CMAP_COLD = [[100, 200, 255, 0.45], [0, 160, 255, 1.0], [0, 60, 220, 1.0]];
-    const CMAP_WARM = [[255, 220, 80, 0.45], [255, 80, 0, 1.0], [200, 0, 0, 1.0]];
+    const CMAP_COLD = [[100, 200, 255, 0.88], [0, 160, 255, 1.0], [0, 60, 220, 1.0]];
+    const CMAP_WARM = [[255, 220, 80, 0.88], [255, 80, 0, 1.0], [200, 0, 0, 1.0]];
 
     function lerpStop(a, b, t) {
       return [
@@ -1555,11 +1555,11 @@
         state.map.addControl(new mapboxgl.NavigationControl(), "bottom-right");
         state.map.on("load", () => {
           state.map.setFog({
-            color: "rgb(80, 80, 90)",
-            "high-color": "rgb(60, 60, 70)",
-            "horizon-blend": 0.02,
-            "space-color": "rgb(20, 20, 28)",
-            "star-intensity": 0.45
+            color: "rgb(160, 195, 230)",
+            "high-color": "rgb(50, 110, 200)",
+            "horizon-blend": 0.04,
+            "space-color": "rgb(5, 8, 20)",
+            "star-intensity": 0.5
           });
           initMapLayers(data);
           setupMapEvents();
