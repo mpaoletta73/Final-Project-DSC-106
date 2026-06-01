@@ -123,11 +123,18 @@
       border-color: rgba(255, 255, 255, 0.28);
     }
 
-    .layer-buttons button[aria-pressed="true"],
+    .layer-buttons button[aria-pressed="true"] {
+      background: #e8a020;
+      color: #ffffff;
+      border-color: #e8a020;
+      box-shadow: 0 0 0 2px rgba(232, 160, 32, 0.3), 0 2px 10px rgba(232, 160, 32, 0.22);
+    }
+
     .mini-toggle button[aria-pressed="true"] {
-      background: #f7f4ec;
-      color: var(--dark);
-      border-color: #f7f4ec;
+      background: #1d6fa3;
+      color: #ffffff;
+      border-color: #1d6fa3;
+      box-shadow: 0 0 0 2px rgba(29, 111, 163, 0.28);
     }
 
     .mini-toggle {
@@ -167,9 +174,11 @@
     main {
       padding: 24px;
       min-width: 0;
-      display: grid;
+      display: flex;
+      flex-direction: column;
       gap: 16px;
-      align-content: start;
+      height: 100vh;
+      overflow-y: auto;
     }
 
     .topbar {
@@ -249,13 +258,15 @@
       box-shadow: 0 20px 48px rgba(23, 32, 39, 0.16);
       overflow: hidden;
       display: grid;
-      grid-template-rows: minmax(460px, 62vh) auto;
+      grid-template-rows: 1fr auto;
+      flex: 1;
+      min-height: 0;
     }
 
     .map-wrap {
       position: relative;
       background: #020408;
-      min-height: 460px;
+      min-height: 300px;
     }
 
     #map {
@@ -309,61 +320,6 @@
       font-weight: 500;
     }
 
-    .bottom-grid {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(260px, 330px);
-      gap: 16px;
-      align-items: start;
-    }
-
-    .region-panel {
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: var(--panel);
-      box-shadow: var(--shadow);
-      padding: 16px;
-      display: grid;
-      gap: 13px;
-    }
-
-    .region-panel h3 {
-      margin: 0;
-      font-size: 1rem;
-    }
-
-    .region-bar {
-      display: grid;
-      gap: 5px;
-    }
-
-    .region-bar div:first-child {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      color: var(--muted);
-      font-size: 0.84rem;
-    }
-
-    .bar-track {
-      height: 12px;
-      border-radius: 999px;
-      background: #e7ecef;
-      overflow: hidden;
-      display: flex;
-      align-items: stretch;
-    }
-
-    .bar-track span {
-      display: block;
-      background: var(--warm);
-      border-radius: 999px;
-    }
-
-    .bar-track span.negative {
-      background: var(--cool);
-      margin-left: auto;
-    }
-
     .method {
       margin: 0;
       color: var(--muted);
@@ -388,6 +344,8 @@
       main {
         max-width: 100vw;
         overflow-x: hidden;
+        height: auto;
+        overflow-y: visible;
       }
 
       h1,
@@ -402,7 +360,6 @@
         min-width: 0;
       }
 
-      .bottom-grid,
       .topbar {
         display: grid;
         grid-template-columns: 1fr;
@@ -429,6 +386,7 @@
       }
 
       .viz-panel {
+        flex: 0 0 auto;
         grid-template-rows: minmax(360px, 58vh) auto;
       }
 
@@ -701,6 +659,27 @@
     }
 
     .btn-retry:hover { opacity: 0.88; }
+
+    .layer-tooltip {
+      position: fixed;
+      z-index: 9999;
+      background: #f59e0b;
+      color: #1a0e00;
+      font-size: 0.78rem;
+      line-height: 1.42;
+      padding: 9px 13px;
+      border-radius: 8px;
+      width: 224px;
+      pointer-events: none;
+      transform: translateY(-50%);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.32);
+      opacity: 0;
+      transition: opacity 130ms ease;
+    }
+
+    .layer-tooltip.tt-visible {
+      opacity: 1;
+    }
   </style>
 </head>
 <body>
@@ -762,16 +741,6 @@
         </div>
       </section>
 
-      <section class="bottom-grid">
-        <p class="method">
-          The map is drawn from one shared JSON data file generated from CESM2 historical CMIP6 data. Buttons change the encoded variable inside the same Pacific coordinate system; the timeline below stays linked to the Nino 3.4 index used to define El Nino-like months. This combined view is the foundation for the final reveal: users will eventually make predictions first, then compare those guesses against the mapped climate signal.
-        </p>
-        <aside class="region-panel">
-          <h3>Regional Summary</h3>
-          <div id="regionBars"></div>
-        </aside>
-      </section>
-
       <section class="game-section" id="gameSection">
         <div id="gameIntro">
           <h2 class="game-intro-header">Test Your El Niño Knowledge</h2>
@@ -819,7 +788,8 @@
         range: [-1, 1],
         note: "Composite index: 35% SST, 25% rainfall, 20% cloud cover, 20% radiation.",
         minLabel: "Lower combined response",
-        maxLabel: "Higher combined response"
+        maxLabel: "Higher combined response",
+        tooltip: "The full El Niño fingerprint — SST, rain, clouds, and radiation weighted into one index. Start here."
       },
       sst: {
         label: "SST Warming",
@@ -830,7 +800,8 @@
         range: [-2, 2],
         note: "This is the ocean trigger layer from the SST graph.",
         minLabel: "Cooler",
-        maxLabel: "Warmer"
+        maxLabel: "Warmer",
+        tooltip: "Sea surface temperature anomaly. Watch the central and eastern Pacific light up red during El Niño years."
       },
       precip: {
         label: "Rainfall Shift",
@@ -841,7 +812,8 @@
         range: [-4, 4],
         note: "Positive values mean wetter than neutral; negative values mean drier.",
         minLabel: "Drier",
-        maxLabel: "Wetter"
+        maxLabel: "Wetter",
+        tooltip: "Rain moves eastward, away from Indonesia. This disrupts monsoons across Southeast Asia and Australia."
       },
       cloud: {
         label: "Cloud Cover",
@@ -852,7 +824,8 @@
         range: [-14, 14],
         note: "Positive values mean cloudier than neutral; negative values mean clearer.",
         minLabel: "Clearer",
-        maxLabel: "Cloudier"
+        maxLabel: "Cloudier",
+        tooltip: "Clouds follow the warm water. Positive = cloudier than normal; negative = clearer skies."
       },
       rsut: {
         label: "Radiation",
@@ -863,7 +836,8 @@
         range: [-24, 24],
         note: "This brings the Hovmoller radiation graph into the shared map coordinates.",
         minLabel: "Less outgoing SW",
-        maxLabel: "More outgoing SW"
+        maxLabel: "More outgoing SW",
+        tooltip: "Outgoing longwave radiation reveals where the atmosphere is releasing heat. Fewer clouds = more heat escaping."
       }
     };
 
@@ -916,8 +890,8 @@
     }
 
     // 3-stop diverging colormap: transparent at neutral → saturated at extremes
-    const CMAP_COLD = [[100, 200, 255, 0.0], [0, 160, 255, 0.85], [0, 60, 220, 1.0]];
-    const CMAP_WARM = [[255, 220, 80, 0.0], [255, 80, 0, 0.85], [200, 0, 0, 1.0]];
+    const CMAP_COLD = [[100, 200, 255, 0.45], [0, 160, 255, 1.0], [0, 60, 220, 1.0]];
+    const CMAP_WARM = [[255, 220, 80, 0.45], [255, 80, 0, 1.0], [200, 0, 0, 1.0]];
 
     function lerpStop(a, b, t) {
       return [
@@ -1350,6 +1324,23 @@
 
     // --- UI controls ---
 
+    const layerTooltipEl = document.createElement("div");
+    layerTooltipEl.className = "layer-tooltip";
+    layerTooltipEl.setAttribute("aria-hidden", "true");
+    document.body.appendChild(layerTooltipEl);
+
+    function showLayerTooltip(btn, text) {
+      const r = btn.getBoundingClientRect();
+      layerTooltipEl.textContent = text;
+      layerTooltipEl.style.top = (r.top + r.height / 2) + "px";
+      layerTooltipEl.style.left = (r.right + 12) + "px";
+      layerTooltipEl.classList.add("tt-visible");
+    }
+
+    function hideLayerTooltip() {
+      layerTooltipEl.classList.remove("tt-visible");
+    }
+
     function renderControls() {
       const box = document.querySelector("#layerButtons");
       box.innerHTML = "";
@@ -1359,6 +1350,10 @@
         button.textContent = config.label;
         button.setAttribute("aria-pressed", String(key === state.layer));
         button.addEventListener("click", () => setLayer(key));
+        if (config.tooltip) {
+          button.addEventListener("mouseenter", () => showLayerTooltip(button, config.tooltip));
+          button.addEventListener("mouseleave", hideLayerTooltip);
+        }
         box.appendChild(button);
       });
     }
@@ -1388,7 +1383,6 @@
         const layerKey = Object.keys(layerConfig)[i];
         button.setAttribute("aria-pressed", String(layerKey === key));
       });
-      updateRegionBars();
 
       if (!state.map || !state.map.isStyleLoaded()) return;
 
@@ -1407,25 +1401,6 @@
         updateRegionFill(key);
         updateNinoBoxFill(key);
       }
-    }
-
-    function updateRegionBars() {
-      const config = layerConfig[state.layer];
-      const key = config.key;
-      const max = Math.max(...state.data.regional.map((r) => Math.abs(r[key])), 0.001);
-      const wrap = document.querySelector("#regionBars");
-      wrap.innerHTML = "";
-      state.data.regional.forEach((region) => {
-        const value = region[key];
-        const row = document.createElement("div");
-        row.className = "region-bar";
-        const width = Math.min(100, Math.abs(value) / max * 100);
-        row.innerHTML = `
-          <div><span>${region.region}</span><strong>${value.toFixed(2)} ${config.units}</strong></div>
-          <div class="bar-track"><span class="${value < 0 ? "negative" : ""}" style="width:${width}%"></span></div>
-        `;
-        wrap.appendChild(row);
-      });
     }
 
     // --- Event listeners ---
