@@ -1167,7 +1167,7 @@
         source: "src-raster-" + key,
         slot: "top",
         layout: { visibility: "visible" },
-        paint: { "raster-opacity": 1.0, "raster-fade-duration": 0, "raster-resampling": "linear", "raster-saturation": 0.5, "raster-contrast": 0.25 }
+        paint: { "raster-opacity": 0.72, "raster-fade-duration": 0, "raster-resampling": "linear", "raster-saturation": 0.2, "raster-contrast": 0.1, "raster-brightness-max": 0.78 }
       });
       state.builtLayers.add(key);
     }
@@ -1562,11 +1562,11 @@
         state.map.addControl(new mapboxgl.NavigationControl(), "bottom-right");
         state.map.on("load", () => {
           state.map.setFog({
-            color: "rgb(50, 120, 240)",
-            "high-color": "rgb(5, 8, 20)",
-            "horizon-blend": 0.01,
-            "space-color": "rgb(5, 8, 20)",
-            "star-intensity": 0.5
+            color: "rgb(210, 70, 25)",
+            "high-color": "rgb(10, 4, 4)",
+            "horizon-blend": 0.015,
+            "space-color": "rgb(6, 4, 8)",
+            "star-intensity": 0.6
           });
           initMapLayers(data);
           setupMapEvents();
