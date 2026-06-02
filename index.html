@@ -688,6 +688,10 @@
         margin: 18px;
       }
 
+      .takeaway-section {
+        margin: 0 18px 24px;
+      }
+
       .map-next-cue {
         padding: 12px 18px 0;
       }
@@ -768,6 +772,47 @@
 
     .btn-start:not(:disabled):hover {
       opacity: 0.88;
+    }
+
+    .takeaway-section {
+      margin: 0 24px 32px;
+      border: 1px solid rgba(23, 32, 39, 0.12);
+      border-radius: 8px;
+      background:
+        linear-gradient(135deg, rgba(29, 111, 163, 0.08), rgba(193, 52, 30, 0.08)),
+        var(--panel);
+      box-shadow: var(--shadow);
+      padding: 22px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .takeaway-section h2 {
+      margin: 0;
+      font-size: clamp(1.35rem, 2.2vw, 2rem);
+      line-height: 1.12;
+      font-weight: 800;
+    }
+
+    .takeaway-section p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.96rem;
+      line-height: 1.5;
+      max-width: 760px;
+    }
+
+    .takeaway-stat {
+      width: fit-content;
+      max-width: 100%;
+      border: 1px solid rgba(193, 52, 30, 0.2);
+      border-radius: 8px;
+      background: rgba(193, 52, 30, 0.08);
+      color: var(--ink);
+      padding: 12px 14px;
+      font-size: 0.9rem;
+      line-height: 1.35;
+      font-weight: 740;
     }
 
     .game-body {
@@ -1136,6 +1181,15 @@
             <button class="btn-retry" id="gameRetryBtn">Play Again</button>
           </div>
         </div>
+      </section>
+
+      <section class="takeaway-section" aria-labelledby="takeawayTitle">
+        <div>
+          <h2 id="takeawayTitle">What El Nino Actually Teaches Us</h2>
+          <p>El Nino is not one isolated ocean effect. It begins with unusual warming in the tropical Pacific, and that warming lines up with shifts in rainfall, cloud cover, outgoing shortwave radiation, and regional climate patterns.</p>
+          <p>The project succeeds when users can see those variables as one connected Pacific-wide system.</p>
+        </div>
+        <div class="takeaway-stat">Strong El Nino events can exceed about +2 °C in the Nino 3.4 region.</div>
       </section>
     </main>
   </div>
