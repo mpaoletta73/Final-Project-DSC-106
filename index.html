@@ -42,7 +42,7 @@
     .app {
       height: 100vh;
       display: grid;
-      grid-template-columns: 315px minmax(0, 1fr);
+      grid-template-columns: 1fr 2fr;
     }
 
     .sidebar {
@@ -1559,9 +1559,9 @@
         state.map.addControl(new mapboxgl.NavigationControl(), "bottom-right");
         state.map.on("load", () => {
           state.map.setFog({
-            color: "rgb(5, 8, 20)",
-            "high-color": "rgb(8, 14, 30)",
-            "horizon-blend": 0.03,
+            color: "rgb(25, 65, 140)",
+            "high-color": "rgb(12, 30, 80)",
+            "horizon-blend": 0.05,
             "space-color": "rgb(5, 8, 20)",
             "star-intensity": 0.5
           });
