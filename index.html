@@ -964,9 +964,9 @@
       return lookup.get(`${lons[snapLi]},${lats[snapLa]}`);
     }
 
-    // 3-stop diverging colormap: transparent at neutral → saturated at extremes
-    const CMAP_COLD = [[200, 240, 255, 0.0], [0, 230, 255, 1.0], [150, 0, 255, 1.0]];
-    const CMAP_WARM = [[255, 250, 160, 0.0], [255, 200, 10, 1.0], [230, 10, 0, 1.0]];
+    // 3-stop diverging colormap: transparent at neutral → vivid saturated at extremes
+    const CMAP_COLD = [[0, 240, 255, 0.0], [20, 110, 255, 1.0], [160, 0, 220, 1.0]];
+    const CMAP_WARM = [[255, 210, 0, 0.0], [255, 70, 0, 1.0], [200, 0, 60, 1.0]];
 
     function lerpStop(a, b, t) {
       return [
@@ -986,7 +986,7 @@
         : lerpStop(stops[1], stops[2], (absT - 0.5) / 0.5);
       // Power curve steepens the alpha ramp so moderate signals (~0.2) are ~75% opaque
       // instead of 47%, making the overlay clearly visible over dark satellite imagery
-      return [c[0], c[1], c[2], Math.pow(c[3], 0.28)];
+      return [c[0], c[1], c[2], Math.pow(c[3], 0.22)];
     }
 
     function cosEdge(pos, total, fadeW) {
@@ -1057,7 +1057,7 @@
       blurred.width = width;
       blurred.height = height;
       const bCtx = blurred.getContext("2d");
-      bCtx.filter = `blur(${Math.round(pxPerDeg * 2.0)}px)`;
+      bCtx.filter = `blur(${Math.round(pxPerDeg * 0.5)}px)`;
       bCtx.drawImage(cvs, 0, 0);
 
       return { canvas: blurred, lonMin, lonMax, latMin, latMax };
@@ -1167,7 +1167,7 @@
         source: "src-raster-" + key,
         slot: "top",
         layout: { visibility: "visible" },
-        paint: { "raster-opacity": 1.0, "raster-fade-duration": 0, "raster-resampling": "linear" }
+        paint: { "raster-opacity": 1.0, "raster-fade-duration": 0, "raster-resampling": "linear", "raster-saturation": 0.5, "raster-contrast": 0.25 }
       });
       state.builtLayers.add(key);
     }
@@ -1553,7 +1553,7 @@
         mapboxgl.accessToken = "pk.eyJ1IjoieWFsbDc3NyIsImEiOiJjbXA3ZXIzNjIwMm5zMnNweDkwamtpM3RtIn0.udhgEgCcnM5hGKdL5Mz3Nw";
         state.map = new mapboxgl.Map({
           container: "map",
-          style: "mapbox://styles/yall777/cmpqinxwr003c01ssexkv41yq",
+          style: "mapbox://styles/yall777/cmpqinxwr003c01ssexkv41yq?fresh=true",
           center: [-160, 0],
           zoom: 2.0,
           minZoom: 1.5,
