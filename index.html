@@ -323,6 +323,20 @@
       line-height: 1.3;
     }
 
+    #hoverText .readout-layer {
+      color: rgba(247, 244, 236, 0.82);
+      font-weight: 720;
+    }
+
+    #hoverText .readout-value {
+      color: #f7f4ec;
+      font-variant-numeric: tabular-nums;
+    }
+
+    #hoverText .readout-meaning {
+      color: rgba(247, 244, 236, 0.72);
+    }
+
     .map-label-strip {
       position: absolute;
       bottom: 14px;
@@ -993,7 +1007,7 @@
           <div id="map" aria-label="Interactive Pacific data map"></div>
           <div class="map-readout">
             <strong id="hoverTitle">Hover the Pacific map</strong>
-            <span id="hoverText">Move over a data cell or the timeline to inspect the data.</span>
+            <span id="hoverText">Hover over the Pacific overlay to see how this place changes during El Nino-like months.</span>
           </div>
           <div class="map-label-strip" id="mapLabelStrip">
             <span id="mapLabelText">El Nino Fingerprint</span>
@@ -1505,7 +1519,53 @@
 
     function resetReadout() {
       document.querySelector("#hoverTitle").textContent = "Hover the Pacific map";
-      document.querySelector("#hoverText").textContent = "Move over a data cell or the timeline to inspect the data.";
+      document.querySelector("#hoverText").textContent = "Hover over the Pacific overlay to see how this place changes during El Nino-like months.";
+    }
+
+    function getLayerInterpretation(layerKey, value) {
+      if (layerKey === "combined") {
+        if (value > 0.15) return "Strong El Nino fingerprint: multiple effects line up here.";
+        if (value < -0.15) return "Opposite or weaker El Nino response here.";
+        return "Weak or mixed El Nino fingerprint here.";
+      }
+
+      if (layerKey === "sst") {
+        return value >= 0 ? "Warmer ocean surface than neutral months." : "Cooler ocean surface than neutral months.";
+      }
+
+      if (layerKey === "precip") {
+        return value >= 0 ? "Wetter than neutral months." : "Drier than neutral months.";
+      }
+
+      if (layerKey === "cloud") {
+        return value >= 0 ? "Cloudier than neutral months." : "Clearer than neutral months.";
+      }
+
+      if (layerKey === "rsut") {
+        return value >= 0
+          ? "More outgoing shortwave radiation, meaning more reflected sunlight escapes."
+          : "Less outgoing shortwave radiation, often linked with thicker cloud cover.";
+      }
+
+      return "";
+    }
+
+    function formatLayerValue(layerKey, value) {
+      if (layerKey === "combined") return value.toFixed(3) + " index";
+      if (layerKey === "sst") return value.toFixed(2) + " °C";
+      if (layerKey === "precip") return value.toFixed(2) + " mm/day";
+      if (layerKey === "cloud") return value.toFixed(1) + " percentage points";
+      if (layerKey === "rsut") return value.toFixed(1) + " W/m²";
+      return value.toFixed(3);
+    }
+
+    function updateMapReadout(locationText, config, value) {
+      const layerKey = state.layer;
+      document.querySelector("#hoverTitle").textContent = locationText;
+      document.querySelector("#hoverText").innerHTML =
+        `<span class="readout-layer">${config.label}</span>` +
+        `<span class="readout-value">${formatLayerValue(layerKey, value)}</span>` +
+        `<span class="readout-meaning">${getLayerInterpretation(layerKey, value)}</span>`;
     }
 
     function setupMapEvents() {
@@ -1531,8 +1591,7 @@
 
         if (value !== undefined) {
           const config = layerConfig[state.layer];
-          document.querySelector("#hoverTitle").textContent = formatLon(snapLon) + ", " + formatLat(snapLat);
-          document.querySelector("#hoverText").textContent = config.label + ": " + value.toFixed(3) + " " + config.units;
+          updateMapReadout(formatLon(snapLon) + ", " + formatLat(snapLat), config, value);
         } else {
           resetReadout();
         }
