@@ -461,6 +461,49 @@
       cursor: crosshair;
     }
 
+    .timeline-story {
+      display: grid;
+      gap: 8px;
+    }
+
+    .timeline-story h3 {
+      margin: 0;
+      color: var(--ink);
+      font-size: 1rem;
+      line-height: 1.18;
+      font-weight: 780;
+    }
+
+    .timeline-story p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.86rem;
+      line-height: 1.42;
+    }
+
+    .timeline-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 14px;
+      color: #4e5c64;
+      font-size: 0.8rem;
+      font-weight: 650;
+    }
+
+    .timeline-legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .timeline-legend span::before {
+      content: "";
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--dot-color);
+    }
+
     .map-next-cue {
       margin: 0;
       padding: 12px 24px 0;
@@ -1046,9 +1089,18 @@
             </div>
             <p class="method" id="layerNote"></p>
           </div>
+          <div class="timeline-story">
+            <h3>How we identify El Nino-like months</h3>
+            <p>Bars show the Nino 3.4 monthly sea-surface temperature anomaly from 1950-2014. Months above +0.5 °C are El Nino-like; months below -0.5 °C are La Nina-like; the rest are neutral.</p>
+            <div class="timeline-legend" aria-label="Timeline phase legend">
+              <span style="--dot-color: #c1341e">Red = El Nino-like</span>
+              <span style="--dot-color: #9ba6ab">Gray = Neutral</span>
+              <span style="--dot-color: #1d6fa3">Blue = La Nina-like</span>
+            </div>
+          </div>
           <canvas class="timeline" id="timelineCanvas" aria-label="Nino 3.4 monthly anomaly timeline"></canvas>
         </div>
-        <button class="timeline-toggle" id="timelineToggle" type="button" aria-pressed="false">↑ Timeline</button>
+        <button class="timeline-toggle" id="timelineToggle" type="button" aria-pressed="false">Show Nino 3.4 timeline</button>
       </section>
       <p class="map-next-cue">Next: test your intuition.</p>
 
@@ -1682,9 +1734,9 @@
 
       timelineCtx.fillStyle = "#4e5c64";
       timelineCtx.font = "12px system-ui, sans-serif";
-      timelineCtx.fillText("+3C", 8, pad.top + 6);
+      timelineCtx.fillText("+3 °C", 8, pad.top + 6);
       timelineCtx.fillText("0", 22, zeroY + 4);
-      timelineCtx.fillText("-3C", 8, rect.height - pad.bottom);
+      timelineCtx.fillText("-3 °C", 8, rect.height - pad.bottom);
       for (let year = 1950; year <= 2010; year += 10) {
         const index = data.findIndex((d) => d.year === year && d.date.endsWith("-01"));
         if (index >= 0) {
@@ -1791,7 +1843,7 @@
       const index = Math.max(0, Math.min(state.data.timeline.length - 1, Math.floor((x - padLeft) / plotW * state.data.timeline.length)));
       const item = state.data.timeline[index];
       document.querySelector("#hoverTitle").textContent = item.date;
-      document.querySelector("#hoverText").textContent = `Nino 3.4 anomaly: ${item.nino34_anomaly_c.toFixed(2)} deg C (${item.phase.replace("_", " ")})`;
+      document.querySelector("#hoverText").textContent = `Nino 3.4 anomaly: ${item.nino34_anomaly_c.toFixed(2)} °C (${item.phase.replace("_", " ")})`;
     });
 
     timelineCanvas.addEventListener("click", (event) => {
@@ -1824,7 +1876,7 @@
       const btn = e.currentTarget;
       const footer = document.querySelector(".viz-footer");
       const isVisible = footer.classList.toggle("tf-visible");
-      btn.textContent = isVisible ? "↓ Timeline" : "↑ Timeline";
+      btn.textContent = isVisible ? "Hide Nino 3.4 timeline" : "Show Nino 3.4 timeline";
       btn.setAttribute("aria-pressed", String(isVisible));
     });
 
