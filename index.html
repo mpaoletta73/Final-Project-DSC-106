@@ -939,7 +939,7 @@
     <section class="sidebar">
       <div>
         <h1>El Nino as One Pacific System</h1>
-        <p class="lede">A single interactive visualization connects the project's five pieces: ocean warming, radiation, rainfall, clouds, and a combined El Nino signal.</p>
+        <p class="lede">A single interactive visualization connects the project's five pieces: ocean warming, radiation, rainfall, clouds, and an El Nino fingerprint.</p>
       </div>
 
       <a class="sidebar-link" href="prototype-writeup.html">Prototype Write-Up</a>
@@ -983,7 +983,7 @@
         <div class="map-intro-inner">
           <h2 id="mapIntroTitle">El Nino is a system, not a single warm patch.</h2>
           <p>This project compares El Nino-like months against neutral months using CESM2 historical CMIP6 data from 1950-2014. The map shows a composite pattern, not a year-by-year animation.</p>
-          <p>The goal is to see how ocean warming connects with rainfall, cloud cover, and outgoing shortwave radiation across the Pacific. Start with the combined layer, then peel apart the variables.</p>
+          <p>The goal is to see how ocean warming connects with rainfall, cloud cover, and outgoing shortwave radiation across the Pacific. Start with the El Nino fingerprint, then peel apart the variables.</p>
           <span class="map-instruction">Drag to rotate. Use + / - or Ctrl/⌘ + scroll to zoom. Scroll to continue.</span>
         </div>
       </section>
@@ -996,7 +996,7 @@
             <span id="hoverText">Move over a data cell or the timeline to inspect the data.</span>
           </div>
           <div class="map-label-strip" id="mapLabelStrip">
-            <span id="mapLabelText">Combined Signal</span>
+            <span id="mapLabelText">El Nino Fingerprint</span>
             <span class="map-label-sub">Pacific Ocean · land areas have no data</span>
           </div>
         </div>
@@ -1057,16 +1057,16 @@
   <script>
     const layerConfig = {
       combined: {
-        label: "Combined Signal",
-        title: "Combined El Nino ocean-atmosphere signal",
-        description: "A weighted blend of sea-surface warming, rainfall change, cloud-cover change, and outgoing shortwave radiation.",
+        label: "El Nino Fingerprint",
+        title: "El Nino fingerprint composite index",
+        description: "A normalized composite index: 35% sea-surface temperature anomaly, 25% precipitation change, 20% cloud-cover change, and 20% outgoing shortwave radiation change. It is not a physical variable with one unit; positive values show where multiple El Nino-related effects line up, near-zero values are weak or mixed, and negative values show an opposite or weaker response.",
         key: "combined",
         units: "index",
         range: [-1, 1],
-        note: "Composite index: 35% SST, 25% rainfall, 20% cloud cover, 20% radiation.",
-        minLabel: "Lower combined response",
-        maxLabel: "Higher combined response",
-        tooltip: "The full El Niño fingerprint — SST, rain, clouds, and radiation weighted into one index. Start here."
+        note: "Normalized composite index: 35% SST, 25% precipitation, 20% cloud cover, 20% outgoing shortwave radiation.",
+        minLabel: "Opposite or weaker response",
+        maxLabel: "Strong aligned fingerprint",
+        tooltip: "El Nino Fingerprint is a normalized composite index. Positive values mean SST, precipitation, cloud cover, and radiation effects line up strongly; near zero is weak or mixed; negative is opposite or weaker."
       },
       sst: {
         label: "SST Warming",
