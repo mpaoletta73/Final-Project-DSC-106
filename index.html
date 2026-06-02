@@ -965,8 +965,8 @@
     }
 
     // 3-stop diverging colormap: transparent at neutral → saturated at extremes
-    const CMAP_COLD = [[180, 255, 255, 0.0], [0, 240, 255, 1.0], [0, 160, 255, 1.0]];
-    const CMAP_WARM = [[255, 255, 150, 0.0], [255, 200, 0, 1.0], [255, 40, 0, 1.0]];
+    const CMAP_COLD = [[200, 240, 255, 0.0], [0, 230, 255, 1.0], [150, 0, 255, 1.0]];
+    const CMAP_WARM = [[255, 250, 160, 0.0], [255, 200, 10, 1.0], [230, 10, 0, 1.0]];
 
     function lerpStop(a, b, t) {
       return [
@@ -986,7 +986,7 @@
         : lerpStop(stops[1], stops[2], (absT - 0.5) / 0.5);
       // Power curve steepens the alpha ramp so moderate signals (~0.2) are ~75% opaque
       // instead of 47%, making the overlay clearly visible over dark satellite imagery
-      return [c[0], c[1], c[2], Math.pow(c[3], 0.4)];
+      return [c[0], c[1], c[2], Math.pow(c[3], 0.28)];
     }
 
     function cosEdge(pos, total, fadeW) {
@@ -1152,13 +1152,8 @@
 
     // --- Mapbox layer management ---
 
-    function getFirstSymbolLayerId(map) {
-      return map.getStyle().layers.find(l => l.type === "symbol")?.id;
-    }
-
-    function addRasterLayer(key, beforeId) {
+    function addRasterLayer(key) {
       const map = state.map;
-      const bId = beforeId != null ? beforeId : getFirstSymbolLayerId(map);
       const { canvas, lonMin, lonMax, latMin, latMax } = buildLayerCanvas(key, state.data);
       map.addSource("src-raster-" + key, {
         type: "canvas",
@@ -1170,18 +1165,18 @@
         id: "layer-raster-" + key,
         type: "raster",
         source: "src-raster-" + key,
+        slot: "top",
         layout: { visibility: "visible" },
         paint: { "raster-opacity": 1.0, "raster-fade-duration": 0, "raster-resampling": "linear" }
-      }, bId);
+      });
       state.builtLayers.add(key);
     }
 
     function initMapLayers(data) {
       const map = state.map;
-      const beforeId = getFirstSymbolLayerId(map);
 
       // Only build the active layer on first load; others are deferred until first use
-      addRasterLayer(state.layer, beforeId);
+      addRasterLayer(state.layer);
 
       // Nino 3.4 box overlay
       map.addSource("src-nino-box", { type: "geojson", data: buildNinoBoxGeoJSON() });
@@ -1189,25 +1184,28 @@
         id: "layer-nino-box-fill",
         type: "fill",
         source: "src-nino-box",
+        slot: "top",
         filter: ["==", ["geometry-type"], "Polygon"],
         layout: { visibility: state.showNinoBox ? "visible" : "none" },
         paint: {
           "fill-color": ["case", [">", ["get", "normValue"], 0], "#c1341e", "#1d6fa3"],
           "fill-opacity": ["interpolate", ["linear"], ["abs", ["get", "normValue"]], 0, 0, 1, 0.45]
         }
-      }, beforeId);
+      });
       map.addLayer({
         id: "layer-nino-box",
         type: "line",
         source: "src-nino-box",
+        slot: "top",
         filter: ["==", ["geometry-type"], "Polygon"],
         layout: { visibility: state.showNinoBox ? "visible" : "none" },
         paint: { "line-color": "rgba(255,255,255,0.75)", "line-width": 1.5, "line-dasharray": [5, 3] }
-      }, beforeId);
+      });
       map.addLayer({
         id: "layer-nino-box-label",
         type: "symbol",
         source: "src-nino-box",
+        slot: "top",
         filter: ["==", ["geometry-type"], "Point"],
         layout: {
           visibility: state.showNinoBox ? "visible" : "none",
@@ -1225,6 +1223,7 @@
         id: "layer-region-fill",
         type: "fill",
         source: "src-regions",
+        slot: "top",
         filter: ["==", ["geometry-type"], "Polygon"],
         layout: { visibility: state.showRegions ? "visible" : "none" },
         paint: {
@@ -1234,19 +1233,21 @@
           ],
           "fill-opacity": ["interpolate", ["linear"], ["abs", ["get", "normValue"]], 0, 0, 1, 0.45]
         }
-      }, beforeId);
+      });
       map.addLayer({
         id: "layer-regions",
         type: "line",
         source: "src-regions",
+        slot: "top",
         filter: ["==", ["geometry-type"], "Polygon"],
         layout: { visibility: state.showRegions ? "visible" : "none" },
         paint: { "line-color": "rgba(255,255,255,0.80)", "line-width": 1.5, "line-dasharray": [4, 4] }
-      }, beforeId);
+      });
       map.addLayer({
         id: "layer-region-labels",
         type: "symbol",
         source: "src-regions",
+        slot: "top",
         filter: ["==", ["geometry-type"], "Point"],
         layout: {
           visibility: state.showRegions ? "visible" : "none",
@@ -1468,7 +1469,7 @@
         document.querySelector("#hoverText").textContent = "";
         setTimeout(() => {
           if (!state.builtLayers.has(key)) {
-            addRasterLayer(key, getFirstSymbolLayerId(state.map));
+            addRasterLayer(key);
           }
           if (state.layer === key) {
             setMapLayer(key);
