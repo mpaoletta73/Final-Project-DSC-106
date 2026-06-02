@@ -104,6 +104,22 @@
       gap: 8px;
     }
 
+    .layer-button-label,
+    .layer-button-hint {
+      display: block;
+    }
+
+    .layer-button-label {
+      font-weight: 720;
+    }
+
+    .layer-button-hint {
+      margin-top: 3px;
+      color: rgba(247, 244, 236, 0.66);
+      font-size: 0.76rem;
+      line-height: 1.25;
+    }
+
     .layer-buttons button,
     .mini-toggle button {
       border: 1px solid rgba(255, 255, 255, 0.14);
@@ -128,6 +144,10 @@
       color: #ffffff;
       border-color: #e8a020;
       box-shadow: 0 0 0 2px rgba(232, 160, 32, 0.3), 0 2px 10px rgba(232, 160, 32, 0.22);
+    }
+
+    .layer-buttons button[aria-pressed="true"] .layer-button-hint {
+      color: rgba(255, 255, 255, 0.82);
     }
 
     .mini-toggle button[aria-pressed="true"] {
@@ -1072,6 +1092,7 @@
     const layerConfig = {
       combined: {
         label: "El Nino Fingerprint",
+        hint: "Where do multiple El Nino effects line up?",
         title: "El Nino fingerprint composite index",
         description: "A normalized composite index: 35% sea-surface temperature anomaly, 25% precipitation change, 20% cloud-cover change, and 20% outgoing shortwave radiation change. It is not a physical variable with one unit; positive values show where multiple El Nino-related effects line up, near-zero values are weak or mixed, and negative values show an opposite or weaker response.",
         key: "combined",
@@ -1084,6 +1105,7 @@
       },
       sst: {
         label: "SST Warming",
+        hint: "Where does the ocean heat up most?",
         title: "Sea-surface temperature anomaly",
         description: "Average DJF sea-surface temperature anomaly during CESM2 El Nino winters, 1951-2014.",
         key: "sst_anomaly_c",
@@ -1096,6 +1118,7 @@
       },
       precip: {
         label: "Rainfall Shift",
+        hint: "Does warmer water mean more rain everywhere?",
         title: "Precipitation change during El Nino-like months",
         description: "El Nino-like months minus neutral months, shown as rainfall difference across the Pacific.",
         key: "precip_mm_day",
@@ -1108,6 +1131,7 @@
       },
       cloud: {
         label: "Cloud Cover",
+        hint: "Where does convection move?",
         title: "Cloud cover change during El Nino-like months",
         description: "El Nino-like months minus neutral months, shown as total cloud-cover percentage-point difference.",
         key: "cloud_pct_points",
@@ -1120,6 +1144,7 @@
       },
       rsut: {
         label: "Radiation",
+        hint: "How do clouds change reflected sunlight?",
         title: "Outgoing shortwave radiation anomaly",
         description: "Equatorial outgoing shortwave radiation difference projected by longitude onto the Pacific map.",
         key: "rsut_w_m2",
@@ -1128,7 +1153,7 @@
         note: "This brings the Hovmoller radiation graph into the shared map coordinates.",
         minLabel: "Less outgoing SW",
         maxLabel: "More outgoing SW",
-        tooltip: "Outgoing longwave radiation reveals where the atmosphere is releasing heat. Fewer clouds = more heat escaping."
+        tooltip: "Outgoing shortwave radiation shows where reflected sunlight escapes. Fewer clouds usually mean more reflected sunlight leaves the Earth system."
       }
     };
 
@@ -1694,7 +1719,7 @@
       Object.entries(layerConfig).forEach(([key, config]) => {
         const button = document.createElement("button");
         button.type = "button";
-        button.textContent = config.label;
+        button.innerHTML = `<span class="layer-button-label">${config.label}</span><span class="layer-button-hint">${config.hint}</span>`;
         button.setAttribute("aria-pressed", String(key === state.layer));
         button.addEventListener("click", () => setLayer(key));
         if (config.tooltip) {
