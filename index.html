@@ -750,7 +750,7 @@
       position: absolute;
       left: 50%;
       bottom: 14px;
-      z-index: 6;
+      z-index: 18;
       width: min(720px, calc(100% - 360px));
       display: grid;
       grid-template-columns: minmax(0, 1fr) auto;
@@ -813,6 +813,59 @@
     .map-control-dock .mini-toggle {
       grid-template-columns: repeat(2, max-content);
       gap: 5px;
+    }
+
+    .dock-header {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
+    .map-control-dock.is-minimized .dock-header {
+      margin-bottom: 0;
+    }
+
+    .dock-layer-name {
+      color: rgba(247, 244, 236, 0.85);
+      font-size: 0.82rem;
+      font-weight: 700;
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .dock-toggle-btn {
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 6px;
+      color: #f7f4ec;
+      width: 28px;
+      height: 28px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+      line-height: 1;
+      transition: background 0.15s, transform 0.2s;
+    }
+
+    .dock-toggle-btn:hover {
+      background: rgba(255, 255, 255, 0.22);
+    }
+
+    .map-control-dock.is-minimized .dock-toggle-btn {
+      transform: rotate(180deg);
+    }
+
+    .map-control-dock.is-minimized .control-group,
+    .map-control-dock.is-minimized .map-instruction-dock {
+      display: none;
     }
 
     .map-instruction-dock {
@@ -1928,14 +1981,14 @@
     .game-progress-label,
     .game-score-label {
       flex: 0 0 auto;
-      color: var(--muted);
+      color: rgba(247, 244, 236, 0.65);
       font-size: 0.82rem;
       white-space: nowrap;
     }
 
     .game-score-label {
       font-weight: 700;
-      color: var(--ink);
+      color: #f7f4ec;
     }
 
     .progress-track {
@@ -1958,7 +2011,7 @@
       font-size: 1.05rem;
       font-weight: 650;
       line-height: 1.42;
-      color: var(--ink);
+      color: #ffffff;
     }
 
     .game-options {
@@ -2202,6 +2255,63 @@
         transform: none;
       }
     }
+
+    /* --- Back-to-quiz floating banner --- */
+    .back-to-quiz-banner {
+      position: fixed;
+      bottom: -80px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1000;
+      background: var(--dark);
+      color: #f7f4ec;
+      border-radius: 100px;
+      padding: 10px 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      box-shadow: 0 8px 28px rgba(23, 32, 39, 0.38);
+      transition: bottom 320ms cubic-bezier(0.34, 1.3, 0.64, 1);
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    .back-to-quiz-banner.is-visible {
+      bottom: 24px;
+      pointer-events: all;
+    }
+
+    .back-to-quiz-banner > span {
+      color: rgba(247, 244, 236, 0.72);
+    }
+
+    .back-to-quiz-banner button {
+      background: var(--warm);
+      color: #ffffff;
+      border: none;
+      border-radius: 100px;
+      padding: 7px 16px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 760;
+    }
+
+    .back-to-quiz-banner button:hover {
+      opacity: 0.88;
+    }
+
+    .feedback-map-hint {
+      margin: 8px 0 4px;
+      padding: 8px 12px;
+      background: rgba(29, 111, 163, 0.08);
+      border-left: 3px solid var(--cool);
+      border-radius: 0 6px 6px 0;
+      font-size: 0.86rem;
+      color: var(--muted);
+      line-height: 1.45;
+    }
   </style>
 </head>
 <body>
@@ -2287,6 +2397,10 @@
               <span class="map-label-sub">Pacific Ocean · land areas have no data</span>
             </div>
             <div class="map-control-dock" aria-label="Map layer and overlay controls">
+              <div class="dock-header">
+                <span class="dock-layer-name" id="dockLayerName">El Nino Fingerprint</span>
+                <button class="dock-toggle-btn" id="dockToggleBtn" type="button" title="Minimize controls" aria-label="Minimize layer controls">&#x25B2;</button>
+              </div>
               <div class="control-group">
                 <span class="label">Layer controls</span>
                 <div class="layer-buttons" id="layerButtons"></div>
@@ -2385,6 +2499,7 @@
                 <div class="game-feedback" id="gameFeedback" style="display:none">
                   <p class="feedback-verdict" id="feedbackVerdict"></p>
                   <p class="feedback-explanation" id="feedbackExplanation"></p>
+                  <p class="feedback-map-hint" id="feedbackMapHint"></p>
                   <div class="game-actions">
                     <button class="btn-view-map" id="gameViewMapBtn">↑ View on map</button>
                     <button class="btn-next" id="gameNextBtn">Next Question →</button>
@@ -2414,7 +2529,99 @@
     </main>
   </div>
 
+  <div class="back-to-quiz-banner" id="backToQuizBanner" aria-hidden="true">
+    <span>Viewing the map</span>
+    <button id="backToQuizBtn" type="button">&#x2193; Back to Quiz</button>
+  </div>
+
   <script>
+    const QUIZ_QUESTIONS = [
+      {
+        layer: "sst",
+        question: "During an El Niño event, which part of the Pacific Ocean heats up the most?",
+        options: [
+          "The western Pacific near the Philippines and Indonesia",
+          "The central and eastern tropical Pacific",
+          "The North Pacific near Alaska and the Aleutian Islands",
+          "The South Pacific near New Zealand"
+        ],
+        correctIndex: 1,
+        explanation: "The central and eastern tropical Pacific is ground zero for El Niño warming. The Niño 3.4 region (5°N–5°S, 170°W–120°W) is the key monitoring zone — when it exceeds +0.5°C above average, scientists declare an El Niño event.",
+        mapHint: "On the map: Switch to SST Warming and toggle the Niño 3.4 Box to see the exact monitoring region light up red.",
+        highlight: "nino"
+      },
+      {
+        layer: "precip",
+        question: "El Niño warms the central Pacific. What does that do to rainfall across the basin?",
+        options: [
+          "Rain increases everywhere equally across the Pacific",
+          "Rain decreases everywhere — El Niño always means drought",
+          "Rain shifts eastward: some places flood while others dry out",
+          "Rainfall patterns do not change — only temperature is affected"
+        ],
+        correctIndex: 2,
+        explanation: "El Niño is infamous for shifting rainfall rather than simply adding or removing it. Heavy convection migrates eastward, bringing floods to Peru and Ecuador while Australia and Indonesia experience severe drought. Same event, opposite effects — depending entirely on where you are.",
+        mapHint: "On the map: Switch to Rainfall Shift. Red areas got wetter, blue areas dried out. Notice how starkly the eastern and western Pacific differ.",
+        highlight: "regions"
+      },
+      {
+        layer: "cloud",
+        question: "The warm water moves east during El Niño. Where do the tropical storm clouds go?",
+        options: [
+          "Clouds stay locked in place over Indonesia — they ignore ocean temperature",
+          "Cloud cover increases uniformly across the whole Pacific basin",
+          "Clouds disappear entirely over the tropics — warmer water suppresses convection",
+          "Clouds follow the warm water, shifting east and away from the western Pacific"
+        ],
+        correctIndex: 3,
+        explanation: "Tropical convection — the engine behind thunderstorms — is powered by warm sea-surface temperatures. When warm water shifts east during El Niño, the convective zone and its clouds follow. This is why Indonesia dries out while the central Pacific gets soaked.",
+        mapHint: "On the map: Switch to Cloud Cover. The positive (cloudier) signal over the central Pacific and the negative (clearer) signal near Indonesia show the shift clearly.",
+        highlight: "regions"
+      },
+      {
+        layer: "rsut",
+        question: "El Niño rearranges clouds across the Pacific. What happens to reflected sunlight as a result?",
+        options: [
+          "Where clouds increase, more sunlight is reflected back to space",
+          "Reflected sunlight only changes over land, never over open ocean",
+          "El Niño has no measurable effect on how much sunlight escapes to space",
+          "Sunlight reflection decreases everywhere because warmer ocean absorbs more energy"
+        ],
+        correctIndex: 0,
+        explanation: "Clouds are the Pacific's solar reflectors. Where El Niño builds new cloud towers, more incoming sunlight bounces straight back to space. Where skies clear out, more sunlight reaches and warms the ocean surface. This radiation feedback is part of why El Niño sustains itself for months at a time.",
+        mapHint: "On the map: Switch to Radiation. The pattern closely mirrors Cloud Cover — confirming that clouds and reflected sunlight are tightly coupled.",
+        highlight: "regions"
+      },
+      {
+        layer: "combined",
+        question: "The El Niño Fingerprint combines SST, rainfall, clouds, and radiation. Where is the signal strongest?",
+        options: [
+          "Evenly distributed across the entire Pacific basin",
+          "Near the coasts of Japan and South Korea in the northwest",
+          "The central and eastern tropical Pacific — all four signals converge there",
+          "In the far southern Pacific near Antarctica and the Drake Passage"
+        ],
+        correctIndex: 2,
+        explanation: "When you overlay all four El Niño signals, the central and eastern tropical Pacific jumps out immediately. This is where ocean warming, extra rainfall, new cloud cover, and changed radiation reinforce each other. The western Pacific shows the opposite — a consistent anti-fingerprint as conditions there flip.",
+        mapHint: "On the map: Switch to El Niño Fingerprint. The deep red zone in the central-eastern tropics is where every signal arrives at once.",
+        highlight: "regions"
+      },
+      {
+        layer: "sst",
+        question: "Scientists can forecast El Niño months in advance using models like CESM2. Who benefits most from that lead time?",
+        options: [
+          "Space agencies tracking orbital decay from increased atmospheric drag",
+          "Farmers, flood planners, and fire managers in regions El Niño affects",
+          "Only climate researchers — forecasts are not used outside academia",
+          "Mainly ocean shipping companies routing around warm water"
+        ],
+        correctIndex: 1,
+        explanation: "El Niño is one of the most predictable climate events on Earth — often forecastable 6–9 months ahead. That lead time is lifesaving: farmers in sub-Saharan Africa adjust planting schedules, flood authorities in Ecuador pre-position relief supplies, and fire managers in California extend burn bans. The CESM2 model you explored here feeds directly into those real-world forecasts.",
+        mapHint: "On the map: Switch to SST Warming and toggle the Niño 3.4 Box — this is the exact region scientists monitor to issue those forecasts.",
+        highlight: "nino"
+      }
+    ];
+
     const layerConfig = {
       combined: {
         label: "El Nino Fingerprint",
@@ -3404,6 +3611,8 @@
       document.querySelector("#layerNote").textContent = config.note;
       const labelEl = document.querySelector("#mapLabelText");
       if (labelEl) labelEl.textContent = config.label;
+      const dockLabelEl = document.querySelector("#dockLayerName");
+      if (dockLabelEl) dockLabelEl.textContent = config.label;
       pulseMapLabel();
       const legendLabels = getLegendLabels(key);
       document.querySelector("#legendMin").textContent = legendLabels.min;
@@ -3464,6 +3673,13 @@
     document.querySelector("#globeEnterBtn").addEventListener("click", enterGlobeFocus);
     document.querySelector("#globeExitBtn").addEventListener("click", exitGlobeFocus);
 
+    document.querySelector("#dockToggleBtn").addEventListener("click", () => {
+      const dock = document.querySelector(".map-control-dock");
+      const isNowMinimized = dock.classList.toggle("is-minimized");
+      document.querySelector("#dockToggleBtn").setAttribute("aria-label",
+        isNowMinimized ? "Expand layer controls" : "Minimize layer controls");
+    });
+
     document.querySelector("#timelineToggle").addEventListener("click", (e) => {
       const btn = e.currentTarget;
       const footer = document.querySelector(".viz-footer");
@@ -3484,6 +3700,176 @@
       }
     });
 
+    // --- Quiz Game Logic ---
+
+    const gameState = {
+      currentIndex: 0,
+      score: 0,
+      answered: false
+    };
+
+    function enableGameStart() {
+      const btn = document.querySelector("#gameStartBtn");
+      btn.disabled = false;
+      btn.textContent = "Start Quiz \u2192";
+    }
+
+    function startGame() {
+      gameState.currentIndex = 0;
+      gameState.score = 0;
+      gameState.answered = false;
+      document.querySelector("#gameIntro").style.display = "none";
+      document.querySelector("#gameResults").style.display = "none";
+      document.querySelector("#gameBody").style.display = "block";
+      loadQuestion(0);
+    }
+
+    function loadQuestion(index) {
+      const q = QUIZ_QUESTIONS[index];
+      const total = QUIZ_QUESTIONS.length;
+      gameState.answered = false;
+
+      document.querySelector("#gameProgress").textContent = `Question ${index + 1} of ${total}`;
+      document.querySelector("#gameProgressBar").style.width = `${(index / total) * 100}%`;
+      document.querySelector("#gameScoreLabel").textContent = `Score: ${gameState.score}`;
+      document.querySelector("#gameQuestion").textContent = q.question;
+      document.querySelector("#gameNextBtn").textContent =
+        index === total - 1 ? "See Results \u2192" : "Next Question \u2192";
+
+      const optionsEl = document.querySelector("#gameOptions");
+      optionsEl.innerHTML = "";
+      ["A", "B", "C", "D"].forEach((letter, i) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "game-option";
+        btn.innerHTML = `<span class="opt-letter">${letter}</span>${q.options[i]}`;
+        btn.addEventListener("click", () => handleOptionClick(i));
+        optionsEl.appendChild(btn);
+      });
+
+      document.querySelector("#gameFeedback").style.display = "none";
+    }
+
+    function handleOptionClick(selectedIndex) {
+      if (gameState.answered) return;
+      gameState.answered = true;
+
+      const q = QUIZ_QUESTIONS[gameState.currentIndex];
+      const isCorrect = selectedIndex === q.correctIndex;
+      if (isCorrect) gameState.score++;
+
+      document.querySelectorAll(".game-option").forEach((btn, i) => {
+        btn.disabled = true;
+        if (i === q.correctIndex) btn.classList.add("opt-correct");
+        else if (i === selectedIndex) btn.classList.add("opt-wrong");
+      });
+
+      const verdict = document.querySelector("#feedbackVerdict");
+      verdict.textContent = isCorrect ? "Correct!" : "Not quite.";
+      verdict.className = "feedback-verdict " + (isCorrect ? "is-correct" : "is-wrong");
+      document.querySelector("#feedbackExplanation").textContent = q.explanation;
+      document.querySelector("#feedbackMapHint").textContent = q.mapHint;
+      document.querySelector("#gameScoreLabel").textContent = `Score: ${gameState.score}`;
+      document.querySelector("#gameViewMapBtn").textContent = "\u2191 View on map";
+      document.querySelector("#gameFeedback").style.display = "block";
+    }
+
+    function viewOnMap() {
+      const q = QUIZ_QUESTIONS[gameState.currentIndex];
+      setLayer(q.layer);
+
+      if (q.highlight === "nino" && !state.showNinoBox) {
+        state.showNinoBox = true;
+        document.querySelector("#ninoBoxBtn").setAttribute("aria-pressed", "true");
+        setOverlayVisibility("layer-nino-box-fill", true);
+        setOverlayVisibility("layer-nino-box", true);
+        setOverlayVisibility("layer-nino-box-label", true);
+      }
+      if (q.highlight === "regions" && !state.showRegions) {
+        state.showRegions = true;
+        document.querySelector("#regionsBtn").setAttribute("aria-pressed", "true");
+        setOverlayVisibility("layer-region-fill", true);
+        setOverlayVisibility("layer-regions", true);
+        setOverlayVisibility("layer-region-labels", true);
+      }
+
+      // Minimize the control dock so the globe is fully visible
+      document.querySelector(".map-control-dock").classList.add("is-minimized");
+
+      document.querySelector(".scrolly-exhibit").scrollIntoView({ behavior: "smooth", block: "start" });
+      document.querySelector("#gameViewMapBtn").textContent = "\u2191 On map now";
+
+      // Enter globe focus after a short delay to let scroll settle
+      window.setTimeout(() => {
+        if (!state.globeFocus) enterGlobeFocus();
+      }, 600);
+
+      const banner = document.querySelector("#backToQuizBanner");
+      banner.classList.add("is-visible");
+      banner.setAttribute("aria-hidden", "false");
+    }
+
+    function backToQuiz() {
+      const banner = document.querySelector("#backToQuizBanner");
+      banner.classList.remove("is-visible");
+      banner.setAttribute("aria-hidden", "true");
+
+      // Exit globe focus and restore the controls
+      if (state.globeFocus) exitGlobeFocus();
+      document.querySelector(".map-control-dock").classList.remove("is-minimized");
+
+      document.querySelector("#gameSection").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function advanceQuestion() {
+      const banner = document.querySelector("#backToQuizBanner");
+      banner.classList.remove("is-visible");
+      banner.setAttribute("aria-hidden", "true");
+
+      const nextIndex = gameState.currentIndex + 1;
+      if (nextIndex >= QUIZ_QUESTIONS.length) {
+        showResults();
+      } else {
+        gameState.currentIndex = nextIndex;
+        loadQuestion(nextIndex);
+      }
+    }
+
+    function showResults() {
+      document.querySelector("#gameBody").style.display = "none";
+      document.querySelector("#gameResults").style.display = "block";
+
+      const total = QUIZ_QUESTIONS.length;
+      const score = gameState.score;
+      document.querySelector("#finalScore").textContent = `${score} / ${total}`;
+
+      let message;
+      if (score === total) {
+        message = "Perfect score! You already think like a climate scientist. El Ni\u00f1o holds no secrets from you.";
+      } else if (score >= total - 1) {
+        message = "Excellent! You\u2019ve got a strong grasp of how El Ni\u00f1o rewires the Pacific. One more round and you\u2019ll be forecasting alongside NOAA.";
+      } else if (score >= Math.ceil(total / 2)) {
+        message = "Solid intuition! You understand the big picture \u2014 a few more explorations of the map layers and the details will click.";
+      } else if (score >= 2) {
+        message = "Good start! El Ni\u00f1o is genuinely complex \u2014 a single ocean anomaly reorganizing rain, clouds, and radiation across the planet is remarkable. Explore the map layers and try again.";
+      } else {
+        message = "El Ni\u00f1o is one of Earth\u2019s most intricate climate signals. Even meteorologists spent decades unraveling it. Try clicking through the map layers above \u2014 the patterns become obvious once you see them.";
+      }
+
+      document.querySelector("#resultsMessage").textContent = message;
+    }
+
+    function retryGame() {
+      document.querySelector("#gameResults").style.display = "none";
+      startGame();
+    }
+
+    document.querySelector("#gameStartBtn").addEventListener("click", startGame);
+    document.querySelector("#gameRetryBtn").addEventListener("click", retryGame);
+    document.querySelector("#gameNextBtn").addEventListener("click", advanceQuestion);
+    document.querySelector("#gameViewMapBtn").addEventListener("click", viewOnMap);
+    document.querySelector("#backToQuizBtn").addEventListener("click", backToQuiz);
+
     setupNarrativeReveals();
 
     fetch("data/interactive_el_nino_dashboard.json")
@@ -3497,6 +3883,7 @@
         renderFacts();
         setLayer("combined");
         drawTimeline();
+        enableGameStart();
 
         mapboxgl.accessToken = "pk.eyJ1IjoieWFsbDc3NyIsImEiOiJjbXA3ZXIzNjIwMm5zMnNweDkwamtpM3RtIn0.udhgEgCcnM5hGKdL5Mz3Nw";
         state.map = new mapboxgl.Map({
