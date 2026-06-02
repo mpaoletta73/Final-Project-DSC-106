@@ -1188,8 +1188,8 @@
         filter: ["==", ["geometry-type"], "Polygon"],
         layout: { visibility: state.showNinoBox ? "visible" : "none" },
         paint: {
-          "fill-color": ["case", [">", ["get", "normValue"], 0], "#c1341e", "#1d6fa3"],
-          "fill-opacity": ["interpolate", ["linear"], ["abs", ["get", "normValue"]], 0, 0, 1, 0.45]
+          "fill-color": ["case", [">", ["get", "normValue"], 0], "#e82010", "#1558a0"],
+          "fill-opacity": ["interpolate", ["linear"], ["abs", ["get", "normValue"]], 0, 0, 0.3, 0.35, 1, 0.72]
         }
       });
       map.addLayer({
@@ -1228,10 +1228,10 @@
         layout: { visibility: state.showRegions ? "visible" : "none" },
         paint: {
           "fill-color": ["case",
-            [">", ["get", "normValue"], 0], "#c1341e",
-            "#1d6fa3"
+            [">", ["get", "normValue"], 0], "#e82010",
+            "#1558a0"
           ],
-          "fill-opacity": ["interpolate", ["linear"], ["abs", ["get", "normValue"]], 0, 0, 1, 0.45]
+          "fill-opacity": ["interpolate", ["linear"], ["abs", ["get", "normValue"]], 0, 0, 0.3, 0.35, 1, 0.72]
         }
       });
       map.addLayer({
@@ -1562,11 +1562,11 @@
         state.map.addControl(new mapboxgl.NavigationControl(), "bottom-right");
         state.map.on("load", () => {
           state.map.setFog({
-            color: "rgb(210, 70, 25)",
-            "high-color": "rgb(10, 4, 4)",
-            "horizon-blend": 0.015,
-            "space-color": "rgb(6, 4, 8)",
-            "star-intensity": 0.6
+            color: "rgb(160, 210, 245)",
+            "high-color": "rgb(8, 20, 55)",
+            "horizon-blend": 0.008,
+            "space-color": "rgb(4, 6, 15)",
+            "star-intensity": 0.55
           });
           initMapLayers(data);
           setupMapEvents();
