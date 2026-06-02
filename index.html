@@ -6,6 +6,7 @@
   <title>Interactive El Nino Pacific Visualization</title>
   <link href="https://api.mapbox.com/mapbox-gl-js/v3.12.0/mapbox-gl.css" rel="stylesheet">
   <script src="https://api.mapbox.com/mapbox-gl-js/v3.12.0/mapbox-gl.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
   <style>
     :root {
       --ink: #172027;
@@ -26,6 +27,10 @@
       box-sizing: border-box;
     }
 
+    html {
+      scroll-behavior: smooth;
+    }
+
     body {
       margin: 0;
       background: var(--page);
@@ -39,24 +44,182 @@
       font: inherit;
     }
 
-    .app {
-      min-height: 100vh;
+    .site-hero {
+      position: relative;
+      min-height: 100svh;
       display: grid;
-      grid-template-columns: 1fr 2fr;
+      align-items: center;
+      overflow: hidden;
+      padding: clamp(28px, 4.2vw, 56px) clamp(30px, 5vw, 72px) clamp(72px, 9vh, 96px);
+      background:
+        linear-gradient(115deg, rgba(193, 52, 30, 0.22), transparent 34%),
+        linear-gradient(290deg, rgba(29, 111, 163, 0.38), transparent 44%),
+        linear-gradient(180deg, #071018 0%, #102334 52%, #071018 100%);
+      color: #f7f4ec;
+      isolation: isolate;
     }
 
-    .sidebar {
-      position: sticky;
-      top: 0;
-      height: 100vh;
-      padding: 24px;
-      background: var(--dark);
-      color: #f7f4ec;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-      overflow: auto;
-      border-right: 1px solid rgba(255, 255, 255, 0.06);
+    .site-hero::before {
+      content: "";
+      position: absolute;
+      inset: -20%;
+      z-index: -2;
+      background:
+        linear-gradient(100deg, transparent 0 20%, rgba(29, 111, 163, 0.22) 32%, transparent 46%),
+        linear-gradient(145deg, transparent 0 28%, rgba(232, 160, 32, 0.18) 40%, transparent 56%),
+        linear-gradient(210deg, transparent 0 35%, rgba(193, 52, 30, 0.2) 52%, transparent 66%);
+      background-size: 140% 140%;
+      animation: heroAtmosphere 16s ease-in-out infinite alternate;
+    }
+
+    .site-hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background:
+        linear-gradient(90deg, rgba(7, 16, 24, 0.72), rgba(7, 16, 24, 0.2) 58%, rgba(7, 16, 24, 0.46)),
+        repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 52px);
+      pointer-events: none;
+    }
+
+    .hero-content {
+      max-width: 980px;
+      display: grid;
+      gap: clamp(16px, 2.2vh, 24px);
+    }
+
+    .hero-kicker,
+    .hero-title,
+    .hero-hook,
+    .hero-copy,
+    .hero-question {
+      opacity: 0;
+      transform: translateY(16px);
+      animation: heroReveal 620ms ease both;
+    }
+
+    .hero-kicker {
+      margin: 0;
+      color: #e8a020;
+      font-size: 0.78rem;
+      font-weight: 780;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      animation-delay: 80ms;
+    }
+
+    .hero-title {
+      margin: 0;
+      max-width: 980px;
+      font-size: clamp(3rem, 5.1vw, 5rem);
+      line-height: 0.94;
+      font-weight: 850;
+      text-wrap: balance;
+      animation-delay: 170ms;
+    }
+
+    .hero-hook {
+      margin: 0;
+      max-width: 660px;
+      color: #ffffff;
+      font-size: clamp(1.12rem, 1.65vw, 1.5rem);
+      line-height: 1.2;
+      font-weight: 760;
+      text-wrap: balance;
+      animation-delay: 290ms;
+    }
+
+    .hero-copy {
+      margin: 0;
+      max-width: 820px;
+      color: rgba(247, 244, 236, 0.78);
+      font-size: clamp(0.94rem, 1vw, 1.02rem);
+      line-height: 1.45;
+      animation-delay: 390ms;
+    }
+
+    .hero-question {
+      margin: 0;
+      max-width: 660px;
+      color: #ffffff;
+      font-size: clamp(1.02rem, 1.25vw, 1.22rem);
+      line-height: 1.28;
+      font-weight: 780;
+      animation-delay: 480ms;
+    }
+
+    .hero-scroll-cue {
+      position: absolute;
+      left: 50%;
+      bottom: clamp(22px, 5vh, 46px);
+      display: grid;
+      justify-items: center;
+      align-items: center;
+      gap: 7px;
+      color: rgba(247, 244, 236, 0.78);
+      font-size: 0.78rem;
+      line-height: 1;
+      font-weight: 720;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      transform: translateX(-50%);
+    }
+
+    .hero-chevron {
+      width: 22px;
+      height: 22px;
+      border-right: 3px solid currentColor;
+      border-bottom: 3px solid currentColor;
+      transform: rotate(45deg);
+      animation: chevronBounce 1.7s ease-in-out infinite;
+    }
+
+    @keyframes heroReveal {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes heroAtmosphere {
+      from {
+        transform: translate3d(-1.4%, -1%, 0);
+        background-position: 0% 42%;
+      }
+
+      to {
+        transform: translate3d(1.6%, 1%, 0);
+        background-position: 100% 58%;
+      }
+    }
+
+    @keyframes scrollCue {
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(4px);
+      }
+    }
+
+    @keyframes chevronBounce {
+      0%,
+      100% {
+        transform: translateY(0) rotate(45deg);
+      }
+
+      50% {
+        transform: translateY(5px) rotate(45deg);
+      }
+    }
+
+    .app {
+      min-height: 100vh;
+      display: block;
+      background: var(--page);
     }
 
     h1 {
@@ -66,11 +229,12 @@
       font-weight: 780;
     }
 
-    .lede {
-      margin: 10px 0 0;
-      color: #ccd4d7;
-      line-height: 1.45;
-      font-size: 0.95rem;
+    .intro-transition {
+      margin: 18px 0 0;
+      color: var(--muted);
+      line-height: 1.5;
+      font-size: 1.02rem;
+      max-width: 720px;
     }
 
     .sidebar-link {
@@ -88,11 +252,11 @@
 
     .control-group {
       display: grid;
-      gap: 9px;
+      gap: 8px;
     }
 
     .label {
-      color: #dce2e5;
+      color: #5d6870;
       font-size: 0.76rem;
       text-transform: uppercase;
       letter-spacing: 0.08em;
@@ -101,53 +265,44 @@
 
     .layer-buttons {
       display: grid;
+      grid-template-columns: repeat(5, minmax(120px, 1fr));
       gap: 8px;
     }
 
-    .layer-button-label,
-    .layer-button-hint {
-      display: block;
-    }
-
     .layer-button-label {
-      font-weight: 720;
-    }
-
-    .layer-button-hint {
-      margin-top: 3px;
-      color: rgba(247, 244, 236, 0.66);
-      font-size: 0.76rem;
-      line-height: 1.25;
+      font-weight: 760;
     }
 
     .layer-buttons button,
     .mini-toggle button {
-      border: 1px solid rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(23, 32, 39, 0.12);
       border-radius: 8px;
-      background: rgba(255, 255, 255, 0.06);
-      color: #f7f4ec;
-      min-height: 42px;
-      padding: 10px 12px;
+      background: rgba(255, 255, 255, 0.72);
+      color: var(--ink);
+      min-height: 38px;
+      padding: 8px 11px;
       cursor: pointer;
       text-align: left;
-      transition: background 120ms ease, border-color 120ms ease, color 120ms ease;
+      transition:
+        background 160ms ease,
+        border-color 160ms ease,
+        color 160ms ease,
+        box-shadow 180ms ease,
+        transform 160ms ease;
     }
 
     .layer-buttons button:hover,
     .mini-toggle button:hover {
-      background: rgba(255, 255, 255, 0.12);
-      border-color: rgba(255, 255, 255, 0.28);
+      background: #ffffff;
+      border-color: rgba(193, 52, 30, 0.22);
+      transform: translateY(-1px);
     }
 
     .layer-buttons button[aria-pressed="true"] {
-      background: #e8a020;
-      color: #ffffff;
-      border-color: #e8a020;
-      box-shadow: 0 0 0 2px rgba(232, 160, 32, 0.3), 0 2px 10px rgba(232, 160, 32, 0.22);
-    }
-
-    .layer-buttons button[aria-pressed="true"] .layer-button-hint {
-      color: rgba(255, 255, 255, 0.82);
+      background: var(--dark);
+      color: #f7f4ec;
+      border-color: var(--dark);
+      box-shadow: inset 0 3px 0 #e8a020, 0 8px 20px rgba(23, 32, 39, 0.14);
     }
 
     .mini-toggle button[aria-pressed="true"] {
@@ -159,36 +314,45 @@
 
     .mini-toggle {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(2, max-content);
       gap: 8px;
     }
 
     .facts {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 9px;
+      grid-template-columns: repeat(4, minmax(120px, 1fr));
+      gap: 12px;
     }
 
     .fact {
-      min-height: 76px;
-      border: 1px solid rgba(255, 255, 255, 0.13);
-      border-radius: 8px;
-      padding: 11px;
-      background: rgba(255, 255, 255, 0.06);
+      min-height: 104px;
+      border-top: 3px solid var(--dark);
+      border-radius: 0;
+      padding: 14px 4px 0;
+      background: transparent;
     }
 
     .fact strong {
       display: block;
-      font-size: 1.1rem;
-      line-height: 1.1;
+      color: var(--dark);
+      font-size: clamp(2rem, 3.6vw, 3.5rem);
+      line-height: 0.92;
+      font-weight: 850;
+      letter-spacing: 0;
+      white-space: nowrap;
+    }
+
+    .fact-period strong {
+      font-size: clamp(2rem, 3vw, 3.5rem);
     }
 
     .fact span {
       display: block;
-      margin-top: 6px;
-      color: #cbd3d6;
-      font-size: 0.8rem;
-      line-height: 1.25;
+      margin-top: 10px;
+      color: #4f5d65;
+      font-size: 0.82rem;
+      line-height: 1.3;
+      font-weight: 680;
     }
 
     main {
@@ -197,25 +361,178 @@
       display: block;
     }
 
-    .topbar {
-      display: block;
-      padding: 22px 24px 18px;
-      background: var(--page);
+    .article-intro,
+    .facts-strip {
+      padding: clamp(36px, 6vw, 72px) clamp(22px, 5vw, 72px);
+    }
+
+    .article-intro {
+      background: #fbfaf6;
       border-bottom: 1px solid var(--line);
+    }
+
+    .article-intro-inner {
+      max-width: 1040px;
+      margin: 0 auto;
+    }
+
+    .article-kicker {
+      margin: 0;
+      color: var(--gold);
+      font-size: 0.78rem;
+      font-weight: 820;
+      letter-spacing: 0.09em;
+      line-height: 1.2;
+      text-transform: uppercase;
+    }
+
+    .article-intro h2 {
+      margin: 10px 0 0;
+      max-width: 880px;
+      font-size: clamp(2rem, 4vw, 4rem);
+      line-height: 1;
+      font-weight: 830;
+      text-wrap: balance;
+    }
+
+    .article-intro-body {
+      margin: 18px 0 0;
+      max-width: 850px;
+      color: #4f5d65;
+      font-size: clamp(1.02rem, 1.35vw, 1.2rem);
+      line-height: 1.58;
+    }
+
+    .article-data-note {
+      margin: 14px 0 0;
+      max-width: 760px;
+      color: #5d6870;
+      font-size: 0.96rem;
+      line-height: 1.5;
+      font-weight: 640;
+    }
+
+    .facts-strip {
+      padding-top: 30px;
+      padding-bottom: 34px;
+      background:
+        linear-gradient(180deg, #f0e8d9 0%, #f7f3ea 100%);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .facts-strip-inner {
+      max-width: 1220px;
+      margin: 0 auto;
+      display: grid;
+      gap: 18px;
+    }
+
+    .facts-strip-heading {
+      display: grid;
+      gap: 6px;
+      max-width: 700px;
+    }
+
+    .facts-strip-heading h3 {
+      margin: 0;
+      color: var(--ink);
+      font-size: clamp(1.25rem, 2.2vw, 2rem);
+      line-height: 1.12;
+      font-weight: 820;
+    }
+
+    .facts-strip-heading p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.96rem;
+      line-height: 1.45;
+    }
+
+    .topbar {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      z-index: 5;
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      width: min(360px, calc(100% - 32px));
+      padding: 16px 17px;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      background: rgba(23, 32, 39, 0.9);
+      border: 1px solid rgba(232, 160, 32, 0.38);
+      border-radius: 10px;
+      color: #f7f4ec;
+      box-shadow: 0 16px 38px rgba(2, 4, 8, 0.38);
+    }
+
+    .topbar .caption-kicker {
+      margin: 0;
+      color: #e8a020;
+      font-size: 0.72rem;
+      font-weight: 820;
+      letter-spacing: 0.09em;
+      line-height: 1.2;
+      text-transform: uppercase;
+    }
+
+    .caption-heading {
+      margin: 0;
+      color: #ffffff;
+      font-size: clamp(1.12rem, 1.65vw, 1.42rem);
+      line-height: 1.12;
+      font-weight: 820;
+      text-wrap: balance;
+    }
+
+    .topbar .caption-body {
+      margin: 0;
+      color: rgba(247, 244, 236, 0.76);
+      font-size: 0.84rem;
+      line-height: 1.42;
+    }
+
+    .caption-current {
+      display: none;
     }
 
     .topbar h2 {
       margin: 0;
-      font-size: 1.55rem;
+      color: rgba(247, 244, 236, 0.96);
+      font-size: 0.82rem;
       font-weight: 760;
-      line-height: 1.18;
+      line-height: 1.25;
+      display: -webkit-box;
+      overflow: hidden;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 1;
     }
 
     .topbar p {
-      margin: 6px 0 0;
-      color: var(--muted);
-      line-height: 1.42;
-      max-width: 700px;
+      margin: 0;
+      color: rgba(247, 244, 236, 0.68);
+      font-size: 0.74rem;
+      line-height: 1.35;
+      max-width: 100%;
+    }
+
+    #layerDescription {
+      display: none;
+      overflow: hidden;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+    }
+
+    .current-view-label,
+    .map-intro-label {
+      margin: 0;
+      color: var(--gold);
+      font-size: 0.74rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      line-height: 1.2;
+      text-transform: uppercase;
     }
 
     .narrative-hook {
@@ -313,34 +630,44 @@
 
     .map-readout {
       position: absolute;
-      top: 14px;
-      right: 14px;
+      top: 0;
+      left: 0;
       z-index: 2;
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
-      background: rgba(23, 32, 39, 0.78);
+      background: rgba(23, 32, 39, 0.86);
       color: #f7f4ec;
       border: 1px solid rgba(255, 255, 255, 0.15);
       border-radius: 10px;
-      padding: 11px 14px;
-      min-width: 195px;
-      max-width: 245px;
-      font-size: 0.86rem;
-      line-height: 1.35;
+      padding: 9px 11px;
+      max-width: 230px;
+      font-size: 0.74rem;
+      line-height: 1.2;
+      opacity: 0;
+      transform: translate3d(var(--hover-x, 16px), var(--hover-y, 16px), 0);
+      pointer-events: none;
+      transition: opacity 120ms ease;
+    }
+
+    .map-readout.is-visible {
+      opacity: 1;
     }
 
     .map-readout strong {
       display: block;
-      font-size: 0.9rem;
+      font-size: 0.72rem;
       font-weight: 650;
+      color: rgba(247, 244, 236, 0.7);
     }
 
     .map-readout span {
-      display: block;
-      margin-top: 4px;
-      color: rgba(247, 244, 236, 0.68);
-      font-size: 0.82rem;
-      line-height: 1.3;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 3px 7px;
+      margin-top: 2px;
+      color: rgba(247, 244, 236, 0.8);
+      font-size: 0.78rem;
+      line-height: 1.2;
     }
 
     #hoverText .readout-layer {
@@ -350,11 +677,12 @@
 
     #hoverText .readout-value {
       color: #f7f4ec;
+      font-weight: 780;
       font-variant-numeric: tabular-nums;
     }
 
     #hoverText .readout-meaning {
-      color: rgba(247, 244, 236, 0.72);
+      display: none;
     }
 
     .map-label-strip {
@@ -387,10 +715,342 @@
       text-transform: none;
     }
 
+    .map-label-strip.label-pulse {
+      animation: labelPulse 420ms ease;
+    }
+
+    .scrolly-exhibit {
+      position: relative;
+      min-height: auto;
+      background: #020408;
+      color: #f7f4ec;
+    }
+
+    .scrolly-exhibit .viz-panel {
+      position: relative;
+      top: auto;
+      height: clamp(620px, 82vh, 880px);
+      min-height: 620px;
+      z-index: 1;
+    }
+
+    body.globe-focus-active {
+      overflow: hidden;
+    }
+
+    body.globe-focus-active .scrolly-exhibit .viz-panel {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      height: 100dvh;
+      min-height: 0;
+    }
+
+    .map-control-dock {
+      position: absolute;
+      left: 50%;
+      bottom: 14px;
+      z-index: 6;
+      width: min(720px, calc(100% - 360px));
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: end;
+      padding: 9px;
+      transform: translateX(-50%);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      background: rgba(23, 32, 39, 0.78);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 12px;
+      box-shadow: 0 18px 42px rgba(2, 4, 8, 0.42);
+    }
+
+    .viz-panel.timeline-open .map-control-dock {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .map-control-dock .label {
+      color: rgba(247, 244, 236, 0.7);
+    }
+
+    .map-control-dock .layer-buttons {
+      grid-template-columns: repeat(5, minmax(72px, 1fr));
+      gap: 5px;
+    }
+
+    .map-control-dock .layer-buttons button,
+    .map-control-dock .mini-toggle button {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.14);
+      color: #f7f4ec;
+      box-shadow: none;
+      min-height: 34px;
+      padding: 7px 9px;
+      text-align: center;
+      font-size: 0.82rem;
+      line-height: 1.1;
+    }
+
+    .map-control-dock .layer-buttons button:hover,
+    .map-control-dock .mini-toggle button:hover {
+      background: rgba(255, 255, 255, 0.16);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .map-control-dock .layer-buttons button[aria-pressed="true"] {
+      background: #e8a020;
+      border-color: #e8a020;
+      color: #172027;
+      box-shadow: 0 0 0 2px rgba(232, 160, 32, 0.28), 0 10px 24px rgba(2, 4, 8, 0.22);
+    }
+
+    .map-control-dock .overlay-control {
+      min-width: 162px;
+    }
+
+    .map-control-dock .mini-toggle {
+      grid-template-columns: repeat(2, max-content);
+      gap: 5px;
+    }
+
+    .map-instruction-dock {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 12px;
+      align-items: center;
+    }
+
+    .scrolly-exhibit .map-instruction {
+      display: flex;
+      margin-top: 0;
+      border-color: rgba(255, 255, 255, 0.16);
+      background: rgba(255, 255, 255, 0.08);
+      color: rgba(247, 244, 236, 0.84);
+      padding: 6px 9px;
+      font-size: 0.76rem;
+    }
+
+    .map-instruction-help {
+      color: rgba(247, 244, 236, 0.78);
+      font-weight: 680;
+    }
+
+    .globe-entry-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 17;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background:
+        radial-gradient(circle at 50% 42%, rgba(29, 111, 163, 0.18), transparent 36%),
+        rgba(2, 4, 8, 0.5);
+      backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(2px);
+      color: #f7f4ec;
+      opacity: 1;
+      pointer-events: auto;
+      transition: opacity 180ms ease;
+    }
+
+    body.globe-focus-active .globe-entry-overlay {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .globe-entry-panel {
+      width: min(430px, 100%);
+      border: 1px solid rgba(232, 160, 32, 0.38);
+      border-radius: 12px;
+      padding: 20px 22px;
+      background: rgba(23, 32, 39, 0.88);
+      box-shadow: 0 22px 54px rgba(2, 4, 8, 0.45);
+      text-align: center;
+    }
+
+    .globe-entry-panel strong {
+      display: block;
+      color: #ffffff;
+      font-size: clamp(1.25rem, 2vw, 1.65rem);
+      line-height: 1.1;
+      font-weight: 830;
+    }
+
+    .globe-entry-panel span {
+      display: block;
+      margin: 8px auto 0;
+      max-width: 340px;
+      color: rgba(247, 244, 236, 0.78);
+      font-size: 0.9rem;
+      line-height: 1.4;
+      font-weight: 620;
+    }
+
+    .globe-entry-panel button,
+    .globe-exit-btn {
+      border: 0;
+      cursor: pointer;
+      font: inherit;
+      font-weight: 820;
+    }
+
+    .globe-entry-panel button {
+      margin-top: 16px;
+      border-radius: 9px;
+      padding: 10px 16px;
+      background: #e8a020;
+      color: #172027;
+      box-shadow: 0 12px 28px rgba(2, 4, 8, 0.28);
+    }
+
+    .globe-exit-btn {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      z-index: 20;
+      display: none;
+      border-radius: 8px;
+      padding: 9px 13px;
+      background: #c1341e;
+      color: #ffffff;
+      box-shadow: 0 14px 32px rgba(2, 4, 8, 0.34);
+    }
+
+    body.globe-focus-active .globe-exit-btn {
+      display: inline-flex;
+    }
+
+    .scrolly-exhibit .map-label-strip {
+      display: none;
+    }
+
+    .map-legend-overlay {
+      position: absolute;
+      top: 182px;
+      left: 16px;
+      z-index: 5;
+      width: min(360px, calc(100% - 32px));
+      min-width: 280px;
+      padding: 9px 11px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      background: rgba(23, 32, 39, 0.78);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 10px;
+      box-shadow: 0 16px 34px rgba(2, 4, 8, 0.34);
+      color: #f7f4ec;
+    }
+
+    .map-legend-overlay .legend-row {
+      grid-template-columns: 1fr;
+      gap: 6px;
+    }
+
+    .map-legend-overlay .legend {
+      border-color: rgba(255, 255, 255, 0.22);
+    }
+
+    .map-legend-overlay .legend-labels {
+      color: rgba(247, 244, 236, 0.78);
+      font-size: 0.68rem;
+      line-height: 1.2;
+    }
+
+    .map-legend-overlay .legend-labels span {
+      min-width: 0;
+    }
+
+    .map-legend-overlay .method {
+      color: rgba(247, 244, 236, 0.66);
+      font-size: 0.7rem;
+      line-height: 1.32;
+    }
+
+    .scroll-callout {
+      display: none;
+    }
+
+    .scroll-callout.is-prominent {
+      display: none;
+    }
+
+    .scroll-callout-text {
+      display: block;
+    }
+
+    .scroll-callout small {
+      display: block;
+      margin-top: 7px;
+      color: rgba(232, 160, 32, 0.82);
+      font-size: 0.7rem;
+      line-height: 1.2;
+      font-weight: 780;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .story-steps {
+      display: none;
+    }
+
+    .scrolly-exhibit .timeline-toggle {
+      bottom: 214px;
+    }
+
+    .story-step {
+      min-height: 190px;
+      display: grid;
+      align-content: center;
+      gap: 8px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: transparent;
+      box-shadow: none;
+      opacity: 0;
+      transition:
+        opacity 220ms ease,
+        transform 220ms ease,
+        border-color 220ms ease,
+        background 220ms ease;
+      pointer-events: auto;
+    }
+
+    .story-step.is-active {
+      opacity: 0;
+    }
+
+    .story-step-kicker {
+      margin: 0;
+      color: #e8a020;
+      font-size: 0.72rem;
+      font-weight: 820;
+      letter-spacing: 0.09em;
+      line-height: 1.2;
+      text-transform: uppercase;
+    }
+
+    .story-step h3 {
+      margin: 0;
+      font-size: clamp(1.35rem, 2vw, 1.75rem);
+      line-height: 1.08;
+      font-weight: 820;
+      text-wrap: balance;
+    }
+
+    .story-step p:last-child {
+      margin: 0;
+      color: rgba(247, 244, 236, 0.76);
+      font-size: 0.96rem;
+      line-height: 1.5;
+    }
+
     .map-intro {
-      padding: 22px 24px 18px;
+      padding: 34px 24px 24px;
       background: #fbfaf6;
-      border-top: 1px solid var(--line);
       border-bottom: 1px solid var(--line);
     }
 
@@ -399,9 +1059,9 @@
     }
 
     .map-intro h2 {
-      margin: 0;
-      font-size: clamp(1.35rem, 2vw, 1.8rem);
-      line-height: 1.12;
+      margin: 8px 0 0;
+      font-size: clamp(1.25rem, 1.65vw, 1.55rem);
+      line-height: 1.18;
       font-weight: 780;
     }
 
@@ -427,7 +1087,7 @@
 
     .viz-panel {
       position: relative;
-      height: clamp(500px, 70vh, 700px);
+      height: clamp(520px, 72vh, 760px);
       display: block;
       overflow: hidden;
       border: none;
@@ -451,19 +1111,254 @@
       height: 100%;
     }
 
+    .map-loading-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 18;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background: rgba(2, 4, 8, 0.58);
+      backdrop-filter: blur(3px);
+      -webkit-backdrop-filter: blur(3px);
+      color: #f7f4ec;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 160ms ease;
+    }
+
+    .map-loading-overlay.is-visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .map-loading-panel {
+      width: min(360px, 100%);
+      border: 1px solid rgba(232, 160, 32, 0.34);
+      border-radius: 10px;
+      padding: 18px 20px;
+      background: rgba(23, 32, 39, 0.9);
+      box-shadow: 0 22px 48px rgba(2, 4, 8, 0.42);
+      text-align: center;
+    }
+
+    .map-loading-panel strong {
+      display: block;
+      color: #e8a020;
+      font-size: 0.82rem;
+      line-height: 1.2;
+      font-weight: 850;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .map-loading-panel span {
+      display: block;
+      margin-top: 8px;
+      color: rgba(247, 244, 236, 0.82);
+      font-size: 0.9rem;
+      line-height: 1.35;
+      font-weight: 650;
+    }
+
+    .timeline-wrap {
+      position: relative;
+      border: 1px solid rgba(23, 32, 39, 0.12);
+      border-radius: 10px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(247, 243, 234, 0.98));
+      overflow: hidden;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    }
+
     .timeline {
       display: block;
       width: 100%;
-      height: 118px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: #fbfaf6;
+      height: 210px;
       cursor: crosshair;
+    }
+
+    .timeline .axis path,
+    .timeline .axis line {
+      stroke: #b8c1c6;
+      shape-rendering: crispEdges;
+    }
+
+    .timeline .axis text {
+      fill: #53616a;
+      font-size: 0.72rem;
+      font-weight: 650;
+    }
+
+    .timeline .axis-label {
+      fill: #4f5d65;
+      font-size: 0.7rem;
+      font-weight: 760;
+    }
+
+    .timeline .threshold-label {
+      fill: #f7f4ec;
+      font-size: 0.68rem;
+      font-weight: 820;
+      letter-spacing: 0.02em;
+    }
+
+    .timeline .threshold-label-bg {
+      fill: rgba(193, 52, 30, 0.86);
+      stroke: rgba(255, 255, 255, 0.65);
+      stroke-width: 0.5;
+    }
+
+    .timeline .threshold-line {
+      stroke: rgba(193, 52, 30, 0.72);
+      stroke-width: 1.2;
+      stroke-dasharray: 4 4;
+    }
+
+    .timeline .zero-line {
+      stroke: rgba(23, 32, 39, 0.35);
+      stroke-width: 1;
+    }
+
+    .timeline .selected-marker {
+      stroke: var(--dark);
+      stroke-width: 2;
+      pointer-events: none;
+    }
+
+    .timeline-bar {
+      transition: opacity 120ms ease;
+      shape-rendering: crispEdges;
+    }
+
+    .timeline-bar:hover {
+      opacity: 0.78;
+    }
+
+    .timeline-tooltip {
+      position: absolute;
+      z-index: 2;
+      min-width: 170px;
+      padding: 8px 10px;
+      border: 1px solid rgba(23, 32, 39, 0.14);
+      border-radius: 8px;
+      background: rgba(23, 32, 39, 0.92);
+      color: #f7f4ec;
+      box-shadow: 0 10px 28px rgba(23, 32, 39, 0.24);
+      font-size: 0.78rem;
+      line-height: 1.35;
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, -108%);
+      transition: opacity 120ms ease;
+    }
+
+    .timeline-tooltip strong {
+      display: block;
+      font-size: 0.82rem;
+      margin-bottom: 2px;
+    }
+
+    .timeline-tooltip.is-visible {
+      opacity: 1;
+    }
+
+    .timeline-section {
+      padding: clamp(42px, 6vw, 76px) clamp(22px, 5vw, 72px);
+      background:
+        radial-gradient(circle at 8% 8%, rgba(232, 160, 32, 0.12), transparent 30%),
+        linear-gradient(180deg, #fbfaf6 0%, #f0e8d9 100%);
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .timeline-section-inner {
+      max-width: 1180px;
+      margin: 0 auto;
+      display: grid;
+      gap: 20px;
+    }
+
+    .timeline-section-header {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 18px;
+      align-items: end;
+    }
+
+    .timeline-kicker {
+      margin: 0 0 8px;
+      color: var(--gold);
+      font-size: 0.76rem;
+      line-height: 1.2;
+      font-weight: 840;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+    }
+
+    .timeline-section h2 {
+      margin: 0;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.3vw, 3rem);
+      line-height: 1.1;
+      font-weight: 820;
+      text-wrap: balance;
+    }
+
+    .timeline-rule-card {
+      min-width: 220px;
+      border-left: 3px solid var(--gold);
+      padding: 9px 0 9px 14px;
+      color: #4f5d65;
+      font-size: 0.84rem;
+      line-height: 1.35;
+      font-weight: 680;
+    }
+
+    .timeline-rule-card strong {
+      display: block;
+      color: var(--ink);
+      font-size: 1.12rem;
+      line-height: 1;
+      font-weight: 850;
+      white-space: nowrap;
+    }
+
+    .timeline-rule-card span {
+      display: block;
+      margin-top: 6px;
+    }
+
+    .timeline-section .timeline-story {
+      max-width: none;
+    }
+
+    .timeline-section .timeline-wrap {
+      background: #ffffff;
+      box-shadow: 0 18px 44px rgba(23, 32, 39, 0.12);
+    }
+
+    .timeline-section .viz-footer {
+      position: static;
+      z-index: auto;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+      box-shadow: none;
+      transform: none;
+    }
+
+    .legacy-timeline-control {
+      display: none;
     }
 
     .timeline-story {
       display: grid;
-      gap: 8px;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 14px 22px;
+      align-items: end;
     }
 
     .timeline-story h3 {
@@ -477,23 +1372,29 @@
     .timeline-story p {
       margin: 0;
       color: var(--muted);
-      font-size: 0.86rem;
-      line-height: 1.42;
+      font-size: 0.98rem;
+      line-height: 1.5;
     }
 
     .timeline-legend {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px 14px;
+      justify-content: flex-end;
+      gap: 8px;
       color: #4e5c64;
       font-size: 0.8rem;
-      font-weight: 650;
+      font-weight: 760;
     }
 
     .timeline-legend span {
       display: inline-flex;
       align-items: center;
       gap: 6px;
+      min-height: 30px;
+      padding: 5px 10px;
+      border: 1px solid rgba(23, 32, 39, 0.1);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.66);
     }
 
     .timeline-legend span::before {
@@ -506,11 +1407,12 @@
 
     .map-next-cue {
       margin: 0;
-      padding: 12px 24px 0;
-      color: var(--gold);
+      max-width: none;
+      padding: 0;
+      color: #e8a020;
       font-size: 0.82rem;
       line-height: 1.3;
-      font-weight: 780;
+      font-weight: 820;
       letter-spacing: 0.04em;
       text-transform: uppercase;
     }
@@ -578,13 +1480,21 @@
     }
 
     .legend-labels {
-      display: flex;
-      justify-content: space-between;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
       gap: 12px;
       margin-top: 6px;
       color: var(--muted);
       font-size: 0.82rem;
       font-weight: 500;
+    }
+
+    .legend-labels span:nth-child(2) {
+      text-align: center;
+    }
+
+    .legend-labels span:nth-child(3) {
+      text-align: right;
     }
 
     .method {
@@ -601,13 +1511,6 @@
         overflow-x: hidden;
       }
 
-      .sidebar {
-        position: relative;
-        height: auto;
-        width: 100%;
-        max-width: 100vw;
-      }
-
       main {
         max-width: 100vw;
         overflow-x: hidden;
@@ -621,6 +1524,16 @@
         overflow-wrap: break-word;
       }
 
+      .article-intro,
+      .facts-strip {
+        padding-left: 18px;
+        padding-right: 18px;
+      }
+
+      .layer-buttons {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
       .layer-buttons button,
       .mini-toggle button {
         width: 100%;
@@ -628,8 +1541,10 @@
       }
 
       .topbar {
-        padding: 18px 18px 0;
-        border-bottom: 1px solid var(--line);
+        top: 12px;
+        left: 12px;
+        width: min(360px, calc(100% - 24px));
+        padding: 14px 15px;
       }
 
       .narrative-hook {
@@ -638,7 +1553,7 @@
       }
 
       .map-intro {
-        padding: 20px 18px 16px;
+        padding: 26px 18px 20px;
       }
 
       .viz-panel {
@@ -653,6 +1568,60 @@
         width: 100%;
         min-width: 0;
         margin: 0;
+      }
+
+      .scrolly-exhibit {
+        min-height: auto;
+      }
+
+      .scrolly-exhibit .viz-panel {
+        position: relative;
+        top: auto;
+        height: 72vh;
+        min-height: 500px;
+        z-index: 1;
+      }
+
+      .map-control-dock {
+        left: 12px;
+        right: 12px;
+        bottom: 12px;
+        width: auto;
+        grid-template-columns: 1fr;
+        transform: none;
+      }
+
+      .map-control-dock .layer-buttons {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .map-control-dock .mini-toggle {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .map-control-dock .overlay-control {
+        min-width: 0;
+      }
+
+      .scrolly-exhibit .map-label-strip {
+        display: none;
+      }
+
+      .map-legend-overlay {
+        top: 174px;
+        left: 12px;
+        right: auto;
+        bottom: auto;
+        width: min(360px, calc(100% - 24px));
+        min-width: 0;
+      }
+
+      .story-steps {
+        display: none;
+      }
+
+      .story-step {
+        min-height: auto;
       }
 
       .map-wrap {
@@ -684,29 +1653,103 @@
         min-width: 0;
       }
 
+      .timeline-section-header,
+      .timeline-story {
+        grid-template-columns: 1fr;
+        align-items: start;
+      }
+
+      .timeline-rule-card {
+        min-width: 0;
+      }
+
+      .timeline-legend {
+        justify-content: flex-start;
+      }
+
       .game-section {
-        margin: 18px;
+        margin: 22px 18px;
       }
 
       .takeaway-section {
-        margin: 0 18px 24px;
+        grid-template-columns: 1fr;
       }
 
       .map-next-cue {
-        padding: 12px 18px 0;
+        padding: 0;
       }
     }
 
     @media (max-width: 640px) {
-      main,
-      .sidebar {
-        padding: 18px;
+      .site-hero {
+        padding: 26px 20px 78px;
+      }
+
+      .hero-title {
+        font-size: clamp(2.65rem, 14vw, 3.35rem);
+      }
+
+      main {
+        padding: 0;
       }
 
       .facts,
       .mini-toggle,
+      .layer-buttons,
       .legend-row {
         grid-template-columns: 1fr;
+      }
+
+      .scrolly-exhibit {
+        display: block;
+      }
+
+      .scrolly-exhibit .viz-panel {
+        position: relative;
+        top: auto;
+        height: auto;
+        min-height: 0;
+        display: grid;
+        grid-template-rows: minmax(380px, 58vh) auto;
+      }
+
+      .story-steps {
+        display: none;
+      }
+
+      .topbar {
+        position: relative;
+        top: auto;
+        left: auto;
+        width: auto;
+        margin: 12px;
+      }
+
+      .map-control-dock {
+        position: relative;
+        left: auto;
+        right: auto;
+        bottom: auto;
+        width: auto;
+        margin: 0 12px 12px;
+        border-radius: 10px;
+      }
+
+      .map-readout {
+        top: 0;
+        left: 0;
+        display: block;
+        max-width: min(190px, calc(100% - 20px));
+      }
+
+      .map-legend-overlay {
+        position: relative;
+        left: auto;
+        right: auto;
+        bottom: auto;
+        width: auto;
+        margin: 0 12px 12px;
+        transform: none;
       }
 
       h1 {
@@ -725,41 +1768,79 @@
       .map-instruction {
         border-radius: 8px;
       }
+
+      .closing-section {
+        padding-left: 18px;
+        padding-right: 18px;
+      }
+
+      .game-section {
+        margin: 0;
+      }
+
+      .takeaway-stat strong {
+        font-size: clamp(2rem, 14vw, 3.2rem);
+      }
+    }
+
+    .closing-section {
+      padding: clamp(42px, 6vw, 82px) clamp(22px, 5vw, 72px);
+      background:
+        radial-gradient(circle at 12% 18%, rgba(232, 160, 32, 0.16), transparent 30%),
+        radial-gradient(circle at 92% 12%, rgba(29, 111, 163, 0.24), transparent 34%),
+        linear-gradient(180deg, #f0e8d9 0%, #071018 18%, #102334 100%);
+      color: #f7f4ec;
+    }
+
+    .closing-inner {
+      max-width: 1180px;
+      margin: 0 auto;
+      display: grid;
+      gap: 26px;
     }
 
     /* ── Quiz Game ─────────────────────────────────────────── */
     .game-section {
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: var(--panel);
-      box-shadow: var(--shadow);
-      padding: 20px 22px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 12px;
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.045)),
+        rgba(23, 32, 39, 0.78);
+      box-shadow: 0 24px 60px rgba(2, 4, 8, 0.34);
+      padding: clamp(22px, 3vw, 34px);
       display: grid;
       gap: 0;
-      margin: 24px;
+      max-width: none;
+      margin: 0;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
     }
 
     .game-intro-header {
-      margin: 0 0 6px;
-      font-size: 1.2rem;
-      font-weight: 780;
+      margin: 0 0 10px;
+      color: #ffffff;
+      font-size: clamp(1.5rem, 3vw, 2.7rem);
+      line-height: 1.05;
+      font-weight: 830;
+      text-wrap: balance;
     }
 
     .game-intro-text {
-      margin: 0 0 14px;
-      color: var(--muted);
-      font-size: 0.9rem;
-      line-height: 1.48;
+      margin: 0 0 18px;
+      color: rgba(247, 244, 236, 0.76);
+      font-size: clamp(0.98rem, 1.3vw, 1.12rem);
+      line-height: 1.55;
+      max-width: 940px;
     }
 
     .btn-start {
       border: none;
       border-radius: 8px;
-      background: var(--dark);
-      color: #f7f4ec;
+      background: #e8a020;
+      color: #172027;
       padding: 11px 22px;
       font: inherit;
-      font-weight: 700;
+      font-weight: 820;
       font-size: 0.92rem;
       cursor: pointer;
       width: fit-content;
@@ -775,44 +1856,62 @@
     }
 
     .takeaway-section {
-      margin: 0 24px 32px;
-      border: 1px solid rgba(23, 32, 39, 0.12);
-      border-radius: 8px;
+      max-width: none;
+      margin: 0;
+      border: 1px solid rgba(232, 160, 32, 0.26);
+      border-radius: 12px;
       background:
-        linear-gradient(135deg, rgba(29, 111, 163, 0.08), rgba(193, 52, 30, 0.08)),
-        var(--panel);
-      box-shadow: var(--shadow);
-      padding: 22px;
+        linear-gradient(120deg, rgba(193, 52, 30, 0.16), rgba(29, 111, 163, 0.12)),
+        rgba(2, 4, 8, 0.42);
+      box-shadow: 0 24px 64px rgba(2, 4, 8, 0.3);
+      padding: clamp(26px, 4vw, 46px);
       display: grid;
-      gap: 16px;
+      grid-template-columns: minmax(0, 1fr) minmax(260px, 360px);
+      gap: clamp(22px, 4vw, 42px);
+      align-items: end;
     }
 
     .takeaway-section h2 {
       margin: 0;
-      font-size: clamp(1.35rem, 2.2vw, 2rem);
-      line-height: 1.12;
-      font-weight: 800;
+      color: #ffffff;
+      font-size: clamp(2rem, 4.6vw, 4.2rem);
+      line-height: 0.98;
+      font-weight: 850;
+      text-wrap: balance;
     }
 
     .takeaway-section p {
-      margin: 0;
-      color: var(--muted);
-      font-size: 0.96rem;
-      line-height: 1.5;
-      max-width: 760px;
+      margin: 14px 0 0;
+      color: rgba(247, 244, 236, 0.76);
+      font-size: clamp(1rem, 1.35vw, 1.16rem);
+      line-height: 1.58;
+      max-width: 780px;
     }
 
     .takeaway-stat {
-      width: fit-content;
       max-width: 100%;
-      border: 1px solid rgba(193, 52, 30, 0.2);
-      border-radius: 8px;
-      background: rgba(193, 52, 30, 0.08);
-      color: var(--ink);
-      padding: 12px 14px;
-      font-size: 0.9rem;
-      line-height: 1.35;
-      font-weight: 740;
+      border: 1px solid rgba(232, 160, 32, 0.34);
+      border-radius: 10px;
+      background: rgba(232, 160, 32, 0.13);
+      color: #f7f4ec;
+      padding: 18px 20px;
+      font-size: 1rem;
+      line-height: 1.38;
+      font-weight: 760;
+    }
+
+    .takeaway-stat strong {
+      display: block;
+      color: #e8a020;
+      font-size: clamp(2.2rem, 4.5vw, 4.6rem);
+      line-height: 0.9;
+      font-weight: 860;
+      white-space: nowrap;
+    }
+
+    .takeaway-stat span {
+      display: block;
+      margin-top: 10px;
     }
 
     .game-body {
@@ -1034,162 +2133,283 @@
 
     .btn-retry:hover { opacity: 0.88; }
 
-    .layer-tooltip {
-      position: fixed;
-      z-index: 9999;
-      background: #f59e0b;
-      color: #1a0e00;
-      font-size: 0.78rem;
-      line-height: 1.42;
-      padding: 9px 13px;
-      border-radius: 8px;
-      width: 224px;
-      pointer-events: none;
-      transform: translateY(-50%);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.32);
-      opacity: 0;
-      transition: opacity 130ms ease;
+    .hook-inner {
+      animation: hookIntro 520ms ease both;
     }
 
-    .layer-tooltip.tt-visible {
+    .reveal-section {
+      opacity: 0;
+      transform: translateY(14px);
+      transition: opacity 420ms ease, transform 420ms ease;
+    }
+
+    .reveal-section.is-visible {
       opacity: 1;
+      transform: translateY(0);
+    }
+
+    @keyframes hookIntro {
+      from {
+        opacity: 0;
+        transform: translateY(16px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes labelPulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(232, 160, 32, 0);
+      }
+
+      45% {
+        box-shadow: 0 0 0 4px rgba(232, 160, 32, 0.34);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgba(232, 160, 32, 0);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 0.001ms !important;
+      }
+
+      .reveal-section {
+        opacity: 1;
+        transform: none;
+      }
+
+      .hero-kicker,
+      .hero-title,
+      .hero-hook,
+      .hero-copy,
+      .hero-question {
+        opacity: 1;
+        transform: none;
+      }
     }
   </style>
 </head>
 <body>
+  <section class="site-hero" aria-labelledby="heroTitle">
+    <div class="hero-content">
+      <p class="hero-kicker">Pacific climate system</p>
+      <h1 class="hero-title" id="heroTitle">El Nino Rewires the Pacific</h1>
+      <p class="hero-hook">Every few years, the Pacific Ocean rewires the world's weather.</p>
+      <p class="hero-copy">Drought in Australia. Floods in Peru. California can dry out, or drown. El Nino shifts rainfall, clouds, and reflected sunlight across the Pacific.</p>
+      <p class="hero-question">Can you predict where those shifts happen?</p>
+    </div>
+    <div class="hero-scroll-cue">Scroll to explore<span class="hero-chevron" aria-hidden="true"></span></div>
+  </section>
+
   <div class="app">
-    <section class="sidebar">
-      <div>
-        <h1>El Nino as One Pacific System</h1>
-        <p class="lede">A single interactive visualization connects the project's five pieces: ocean warming, radiation, rainfall, clouds, and an El Nino fingerprint.</p>
-      </div>
-
-      <a class="sidebar-link" href="prototype-writeup.html">Prototype Write-Up</a>
-
-      <div class="control-group">
-        <span class="label">Data Layer</span>
-        <div class="layer-buttons" id="layerButtons"></div>
-      </div>
-
-      <div class="control-group">
-        <span class="label">Overlays</span>
-        <div class="mini-toggle">
-          <button id="ninoBoxBtn" type="button" aria-pressed="false">Nino 3.4 Box</button>
-          <button id="regionsBtn" type="button" aria-pressed="false">Regions</button>
-        </div>
-      </div>
-
-      <div class="facts" id="facts"></div>
-    </section>
-
     <main>
-      <section class="narrative-hook" aria-labelledby="hookTitle">
-        <div class="hook-inner">
-          <p class="hook-kicker">Pacific climate signal</p>
-          <h2 class="hook-title" id="hookTitle">Every few years, the Pacific Ocean rewires the world's weather.</h2>
-          <p class="hook-copy">El Nino is not just warmer water; it shifts rain, clouds, and heat across the Pacific.</p>
-          <p class="hook-question">Can you predict where those shifts happen?</p>
-          <div class="hook-meta-row" aria-label="Data source and next step">
-            <span class="hook-chip">CESM2 historical data · 1950-2014</span>
-            <span class="hook-cue">Start with the globe below</span>
-          </div>
+      <section class="article-intro reveal-section" aria-labelledby="mapIntroTitle">
+        <div class="article-intro-inner">
+          <p class="article-kicker">The Pacific pattern</p>
+          <h2 id="mapIntroTitle">El Nino starts in the ocean, but it does not stay there.</h2>
+          <p class="article-intro-body">The map is a composite: it shows the typical Pacific-wide pattern rather than one specific year. Start with the El Nino Fingerprint, then peel apart the layers to see how ocean warming lines up with rainfall, clouds, and reflected sunlight.</p>
+          <p class="article-data-note">Dataset: CESM2 historical climate model output from 1950-2014, comparing El Nino-like months against neutral months.</p>
+          <p class="intro-transition">Now enter the Pacific map. Use the layer controls to separate each signal, then scroll on when you are ready.</p>
         </div>
       </section>
 
-      <section class="topbar">
-        <h2 id="layerTitle">Loading data...</h2>
-        <p id="layerDescription">Reading the interactive CMIP6 dataset.</p>
-      </section>
-
-      <section class="map-intro" aria-labelledby="mapIntroTitle">
-        <div class="map-intro-inner">
-          <h2 id="mapIntroTitle">El Nino is a system, not a single warm patch.</h2>
-          <p>This project compares El Nino-like months against neutral months using CESM2 historical CMIP6 data from 1950-2014. The map shows a composite pattern, not a year-by-year animation.</p>
-          <p>The goal is to see how ocean warming connects with rainfall, cloud cover, and outgoing shortwave radiation across the Pacific. Start with the El Nino fingerprint, then peel apart the variables.</p>
-          <span class="map-instruction">Drag to rotate. Use + / - or Ctrl/⌘ + scroll to zoom. Scroll to continue.</span>
+      <section class="facts-strip reveal-section" aria-label="Data summary">
+        <div class="facts-strip-inner">
+          <div class="facts-strip-heading">
+            <h3>The comparison behind the map</h3>
+            <p>Each layer compares El Nino-like months against neutral months in CESM2 historical data.</p>
+          </div>
+          <div class="facts" id="facts"></div>
         </div>
       </section>
 
-      <section class="viz-panel">
-        <div class="map-wrap" id="mapWrap">
-          <div id="map" aria-label="Interactive Pacific data map"></div>
-          <div class="map-readout">
-            <strong id="hoverTitle">Hover the Pacific map</strong>
-            <span id="hoverText">Hover over the Pacific overlay to see how this place changes during El Nino-like months.</span>
+      <section class="scrolly-exhibit" aria-label="Guided Pacific globe story">
+        <section class="viz-panel">
+          <div class="map-wrap" id="mapWrap">
+            <div id="map" aria-label="Interactive Pacific data map"></div>
+            <div class="map-loading-overlay" id="mapLoadingOverlay" aria-live="polite" aria-hidden="true">
+              <div class="map-loading-panel">
+                <strong id="mapLoadingTitle">Building map layer</strong>
+                <span id="mapLoadingText">Preparing the next El Nino signal for the globe.</span>
+              </div>
+            </div>
+            <div class="globe-entry-overlay" id="globeEntryOverlay">
+              <div class="globe-entry-panel">
+                <strong>Enter the globe</strong>
+                <span>Focus the map to drag, rotate, and zoom the Pacific without the page moving.</span>
+                <button id="globeEnterBtn" type="button">Enter globe</button>
+              </div>
+            </div>
+            <button class="globe-exit-btn" id="globeExitBtn" type="button">Exit</button>
+            <section class="topbar" aria-label="Current map view">
+              <p class="caption-kicker" id="captionKicker">Fingerprint</p>
+              <h3 class="caption-heading" id="captionHeading">The whole pattern appears first.</h3>
+              <p class="caption-body" id="captionBody">Start here to see the places where several El Nino changes show up together.</p>
+              <div class="caption-current">
+                <h2 id="layerTitle">Loading data...</h2>
+                <p id="layerDescription">Reading the interactive CMIP6 dataset.</p>
+              </div>
+            </section>
+            <div class="map-readout">
+              <strong id="hoverTitle">Hover the Pacific map</strong>
+              <span id="hoverText">Hover the colored ocean map for values.</span>
+            </div>
+            <div class="map-legend-overlay" aria-label="Current layer color legend">
+              <div class="legend-row">
+                <div>
+                  <div class="legend" id="legend"></div>
+                  <div class="legend-labels">
+                    <span id="legendMin">Lower</span>
+                    <span id="legendMid">0</span>
+                    <span id="legendMax">Higher</span>
+                  </div>
+                </div>
+                <p class="method" id="layerNote"></p>
+              </div>
+            </div>
+            <div class="map-label-strip" id="mapLabelStrip">
+              <span id="mapLabelText">El Nino Fingerprint</span>
+              <span class="map-label-sub">Pacific Ocean · land areas have no data</span>
+            </div>
+            <div class="map-control-dock" aria-label="Map layer and overlay controls">
+              <div class="control-group">
+                <span class="label">Layer controls</span>
+                <div class="layer-buttons" id="layerButtons"></div>
+              </div>
+
+              <div class="control-group overlay-control">
+                <span class="label">Overlays</span>
+                <div class="mini-toggle">
+                  <button id="ninoBoxBtn" type="button" aria-pressed="false">Nino 3.4 Box</button>
+                  <button id="regionsBtn" type="button" aria-pressed="false">Regions</button>
+                </div>
+              </div>
+
+              <span class="map-instruction map-instruction-dock">
+                <span class="map-instruction-help">Enter the globe to use scroll zoom. Layer buttons switch the data view.</span>
+              </span>
+            </div>
           </div>
-          <div class="map-label-strip" id="mapLabelStrip">
-            <span id="mapLabelText">El Nino Fingerprint</span>
-            <span class="map-label-sub">Pacific Ocean · land areas have no data</span>
-          </div>
+        </section>
+
+        <div class="story-steps" aria-label="Guided layer story">
+          <article class="story-step is-active" data-layer="combined" data-camera-lng="-165" data-camera-lat="0" data-camera-zoom="2.05" data-callout="First, look for where several El Nino signals line up across the Pacific." data-caption-body="Start here to see the places where several El Nino changes show up together." data-highlight="regions">
+            <p class="story-step-kicker">Fingerprint</p>
+            <h3>The whole pattern appears first.</h3>
+            <p>The fingerprint combines ocean warming, rainfall, clouds, and reflected sunlight into one normalized index. Strong positive areas show where several El Nino signals line up.</p>
+          </article>
+          <article class="story-step" data-layer="sst" data-camera-lng="-150" data-camera-lat="0" data-camera-zoom="2.35" data-callout="The ocean trigger sits in the tropical Pacific, especially around the Nino 3.4 region." data-caption-body="The first signal is warmer water across the tropical Pacific." data-highlight="nino">
+            <p class="story-step-kicker">SST Warming</p>
+            <h3>The ocean starts the chain.</h3>
+            <p>Sea-surface temperature rises across the tropical Pacific. This warm water is the trigger that helps reorganize the atmosphere above it.</p>
+          </article>
+          <article class="story-step" data-layer="precip" data-camera-lng="170" data-camera-lat="-5" data-camera-zoom="2.45" data-callout="Rainfall shifts across the basin. Some places get wetter while others dry out." data-caption-body="The rain pattern moves. Redder areas are wetter; bluer areas are drier." data-highlight="regions">
+            <p class="story-step-kicker">Rainfall Shift</p>
+            <h3>Rain does not just increase everywhere.</h3>
+            <p>El Nino shifts rainfall eastward across the Pacific. Some regions become wetter while others dry out, which is why the same event can mean floods in one place and drought in another.</p>
+          </article>
+          <article class="story-step" data-layer="cloud" data-camera-lng="-175" data-camera-lat="0" data-camera-zoom="2.35" data-callout="Clouds follow the moving zone of tropical storms." data-caption-body="Clouds shift with the storms, instead of staying in their usual places." data-highlight="regions">
+            <p class="story-step-kicker">Cloud Cover</p>
+            <h3>Storm clouds follow the warm water.</h3>
+            <p>Cloud cover changes as tropical convection moves. The atmosphere responds to the ocean pattern instead of staying fixed in place.</p>
+          </article>
+          <article class="story-step" data-layer="rsut" data-camera-lng="-160" data-camera-lat="0" data-camera-zoom="2.25" data-callout="Changing clouds also changes how much sunlight reflects back to space." data-caption-body="When clouds change, the amount of sunlight reflected back to space changes too." data-highlight="regions">
+            <p class="story-step-kicker">Radiation</p>
+            <h3>Even reflected sunlight changes.</h3>
+            <p>Clouds affect how much shortwave radiation leaves the top of the atmosphere. This layer shows that El Nino changes the Pacific energy balance, not only ocean temperature.</p>
+          </article>
         </div>
-        <div class="viz-footer">
-          <div class="legend-row">
+      </section>
+
+      <section class="timeline-section reveal-section" aria-labelledby="timelineSectionTitle">
+        <div class="timeline-section-inner">
+          <div class="timeline-section-header">
             <div>
-              <div class="legend" id="legend"></div>
-              <div class="legend-labels">
-                <span id="legendMin">Lower</span>
-                <span id="legendMid">0</span>
-                <span id="legendMax">Higher</span>
+              <p class="timeline-kicker">Behind the comparison</p>
+              <h2 id="timelineSectionTitle">How we define El Nino-like months</h2>
+            </div>
+            <p class="timeline-rule-card"><strong>+0.5 °C threshold</strong><span>Months above this line become the El Nino-like group used in the map.</span></p>
+          </div>
+          <div class="viz-footer tf-visible">
+            <div class="timeline-story">
+              <p>The map compares two groups of months. This timeline shows how those groups are chosen from the Nino 3.4 sea-surface temperature anomaly record, month by month, from 1950-2014.</p>
+              <div class="timeline-legend" aria-label="Timeline phase legend">
+                <span style="--dot-color: #c1341e">El Nino-like</span>
+                <span style="--dot-color: #9ba6ab">Neutral</span>
+                <span style="--dot-color: #1d6fa3">La Nina-like</span>
               </div>
             </div>
-            <p class="method" id="layerNote"></p>
-          </div>
-          <div class="timeline-story">
-            <h3>How we identify El Nino-like months</h3>
-            <p>Bars show the Nino 3.4 monthly sea-surface temperature anomaly from 1950-2014. Months above +0.5 °C are El Nino-like; months below -0.5 °C are La Nina-like; the rest are neutral.</p>
-            <div class="timeline-legend" aria-label="Timeline phase legend">
-              <span style="--dot-color: #c1341e">Red = El Nino-like</span>
-              <span style="--dot-color: #9ba6ab">Gray = Neutral</span>
-              <span style="--dot-color: #1d6fa3">Blue = La Nina-like</span>
+            <div class="timeline-wrap">
+              <svg class="timeline" id="timelineSvg" role="img" aria-label="Nino 3.4 monthly anomaly timeline"></svg>
+              <div class="timeline-tooltip" id="timelineTooltip" role="tooltip"></div>
             </div>
           </div>
-          <canvas class="timeline" id="timelineCanvas" aria-label="Nino 3.4 monthly anomaly timeline"></canvas>
+          <canvas id="timelineCanvas" hidden aria-hidden="true"></canvas>
+          <button class="legacy-timeline-control" id="timelineToggle" type="button" aria-pressed="true">Timeline shown below</button>
         </div>
-        <button class="timeline-toggle" id="timelineToggle" type="button" aria-pressed="false">Show Nino 3.4 timeline</button>
       </section>
-      <p class="map-next-cue">Next: test your intuition.</p>
+      <section class="closing-section" aria-label="Quiz and final takeaway">
+        <div class="closing-inner">
+          <p class="map-next-cue reveal-section">Next: test your intuition.</p>
 
-      <section class="game-section" id="gameSection">
-        <div id="gameIntro">
-          <h2 class="game-intro-header">Test Your El Nino Intuition</h2>
-          <p class="game-intro-text">Now that you have seen the Pacific-wide pattern, test whether your intuition matches the science. Each question will ask you to predict one El Nino effect, then compare your guess against the map layers above.</p>
-          <button class="btn-start" id="gameStartBtn" disabled>Loading data…</button>
-        </div>
-        <div class="game-body" id="gameBody" style="display:none">
-          <div class="game-header-row">
-            <span class="game-progress-label" id="gameProgress">Question 1 of 6</span>
-            <div class="progress-track"><div class="progress-bar" id="gameProgressBar" style="width:0%"></div></div>
-            <span class="game-score-label" id="gameScoreLabel">Score: 0</span>
-          </div>
-          <div id="gameCard">
-            <p class="game-question" id="gameQuestion"></p>
-            <div class="game-options" id="gameOptions"></div>
-            <div class="game-feedback" id="gameFeedback" style="display:none">
-              <p class="feedback-verdict" id="feedbackVerdict"></p>
-              <p class="feedback-explanation" id="feedbackExplanation"></p>
-              <div class="game-actions">
-                <button class="btn-view-map" id="gameViewMapBtn">↑ View on map</button>
-                <button class="btn-next" id="gameNextBtn">Next Question →</button>
+          <section class="game-section reveal-section" id="gameSection">
+            <div id="gameIntro">
+              <h2 class="game-intro-header">Test Your El Nino Intuition</h2>
+              <p class="game-intro-text">Now that you have seen the Pacific-wide pattern, test whether your intuition matches the science. Each question will ask you to predict one El Nino effect, then compare your guess against the map layers above.</p>
+              <button class="btn-start" id="gameStartBtn" disabled>Loading data…</button>
+            </div>
+            <div class="game-body" id="gameBody" style="display:none">
+              <div class="game-header-row">
+                <span class="game-progress-label" id="gameProgress">Question 1 of 6</span>
+                <div class="progress-track"><div class="progress-bar" id="gameProgressBar" style="width:0%"></div></div>
+                <span class="game-score-label" id="gameScoreLabel">Score: 0</span>
+              </div>
+              <div id="gameCard">
+                <p class="game-question" id="gameQuestion"></p>
+                <div class="game-options" id="gameOptions"></div>
+                <div class="game-feedback" id="gameFeedback" style="display:none">
+                  <p class="feedback-verdict" id="feedbackVerdict"></p>
+                  <p class="feedback-explanation" id="feedbackExplanation"></p>
+                  <div class="game-actions">
+                    <button class="btn-view-map" id="gameViewMapBtn">↑ View on map</button>
+                    <button class="btn-next" id="gameNextBtn">Next Question →</button>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
-        <div class="game-results" id="gameResults" style="display:none">
-          <div class="results-inner">
-            <div class="score-ring" id="finalScore"></div>
-            <p id="resultsMessage"></p>
-            <button class="btn-retry" id="gameRetryBtn">Play Again</button>
-          </div>
-        </div>
-      </section>
+            <div class="game-results" id="gameResults" style="display:none">
+              <div class="results-inner">
+                <div class="score-ring" id="finalScore"></div>
+                <p id="resultsMessage"></p>
+                <button class="btn-retry" id="gameRetryBtn">Play Again</button>
+              </div>
+            </div>
+          </section>
 
-      <section class="takeaway-section" aria-labelledby="takeawayTitle">
-        <div>
-          <h2 id="takeawayTitle">What El Nino Actually Teaches Us</h2>
-          <p>El Nino is not one isolated ocean effect. It begins with unusual warming in the tropical Pacific, and that warming lines up with shifts in rainfall, cloud cover, outgoing shortwave radiation, and regional climate patterns.</p>
-          <p>The project succeeds when users can see those variables as one connected Pacific-wide system.</p>
+          <section class="takeaway-section reveal-section" aria-labelledby="takeawayTitle">
+            <div>
+              <h2 id="takeawayTitle">What El Nino Actually Teaches Us</h2>
+              <p>El Nino is not one isolated ocean effect. It begins with unusual warming in the tropical Pacific, and that warming lines up with shifts in rainfall, cloud cover, outgoing shortwave radiation, and regional climate patterns.</p>
+              <p>The project succeeds when users can see those variables as one connected Pacific-wide system.</p>
+            </div>
+            <div class="takeaway-stat"><strong>+2 °C</strong><span>Strong El Nino events can exceed about this anomaly in the Nino 3.4 region.</span></div>
+          </section>
         </div>
-        <div class="takeaway-stat">Strong El Nino events can exceed about +2 °C in the Nino 3.4 region.</div>
       </section>
     </main>
   </div>
@@ -1204,7 +2424,7 @@
         key: "combined",
         units: "index",
         range: [-1, 1],
-        note: "Normalized composite index: 35% SST, 25% precipitation, 20% cloud cover, 20% outgoing shortwave radiation.",
+        note: "Index: higher values mean several El Nino effects line up in the same place.",
         minLabel: "Opposite or weaker response",
         maxLabel: "Strong aligned fingerprint",
         tooltip: "El Nino Fingerprint is a normalized composite index. Positive values mean SST, precipitation, cloud cover, and radiation effects line up strongly; near zero is weak or mixed; negative is opposite or weaker."
@@ -1217,7 +2437,7 @@
         key: "sst_anomaly_c",
         units: "deg C",
         range: [-2, 2],
-        note: "This is the ocean trigger layer from the SST graph.",
+        note: "Sea-surface temperature anomaly in °C compared with neutral months.",
         minLabel: "Cooler",
         maxLabel: "Warmer",
         tooltip: "Sea surface temperature anomaly. Watch the central and eastern Pacific light up red during El Niño years."
@@ -1230,7 +2450,7 @@
         key: "precip_mm_day",
         units: "mm/day",
         range: [-4, 4],
-        note: "Positive values mean wetter than neutral; negative values mean drier.",
+        note: "Precipitation change in mm/day compared with neutral months.",
         minLabel: "Drier",
         maxLabel: "Wetter",
         tooltip: "Rain moves eastward, away from Indonesia. This disrupts monsoons across Southeast Asia and Australia."
@@ -1243,7 +2463,7 @@
         key: "cloud_pct_points",
         units: "percentage points",
         range: [-14, 14],
-        note: "Positive values mean cloudier than neutral; negative values mean clearer.",
+        note: "Cloud-cover change in percentage points compared with neutral months.",
         minLabel: "Clearer",
         maxLabel: "Cloudier",
         tooltip: "Clouds follow the warm water. Positive = cloudier than normal; negative = clearer skies."
@@ -1256,7 +2476,7 @@
         key: "rsut_w_m2",
         units: "W/m2",
         range: [-24, 24],
-        note: "This brings the Hovmoller radiation graph into the shared map coordinates.",
+        note: "Outgoing shortwave radiation change in W/m²; higher means more reflected sunlight escapes.",
         minLabel: "Less outgoing SW",
         maxLabel: "More outgoing SW",
         tooltip: "Outgoing shortwave radiation shows where reflected sunlight escapes. Fewer clouds usually mean more reflected sunlight leaves the Earth system."
@@ -1272,11 +2492,18 @@
       selectedTimelineIndex: null,
       lookups: {},
       gridInfo: {},
-      builtLayers: new Set()
+      builtLayers: new Set(),
+      activeHighlight: null,
+      globeFocus: false,
+      autoSpinFrame: null,
+      lastSpinTime: null,
+      storyCameraUntil: 0,
+      userInteracting: false,
+      calloutTimer: null
     };
 
-    const timelineCanvas = document.querySelector("#timelineCanvas");
-    const timelineCtx = timelineCanvas.getContext("2d");
+    const timelineSvg = d3.select("#timelineSvg");
+    const timelineTooltip = d3.select("#timelineTooltip");
 
     function formatLon(lon) {
       const r = Math.round(lon);
@@ -1365,7 +2592,7 @@
       state.lookups[layerKey] = lookup;
       state.gridInfo[layerKey] = { lonStep, latStep, lonMin, lonMax, latMin, latMax, lonStart: lons[0], latStart: lats[0] };
 
-      const pxPerDeg = 12;
+      const pxPerDeg = 8;
       const fadeDegs = 15;
       const width = Math.ceil((lonMax - lonMin) * pxPerDeg);
       const height = Math.ceil((latMax - latMin) * pxPerDeg);
@@ -1500,6 +2727,7 @@
     // --- Mapbox layer management ---
 
     function addRasterLayer(key) {
+      if (state.builtLayers.has(key) || state.map.getSource("src-raster-" + key)) return;
       const map = state.map;
       const { canvas, lonMin, lonMax, latMin, latMax } = buildLayerCanvas(key, state.data);
       map.addSource("src-raster-" + key, {
@@ -1513,10 +2741,39 @@
         type: "raster",
         source: "src-raster-" + key,
         slot: "top",
-        layout: { visibility: "visible" },
+        layout: { visibility: key === state.layer ? "visible" : "none" },
         paint: { "raster-opacity": 0.72, "raster-fade-duration": 0, "raster-resampling": "linear", "raster-saturation": 0.2, "raster-contrast": 0.1, "raster-brightness-max": 0.78 }
       });
       state.builtLayers.add(key);
+    }
+
+    function prebuildRemainingLayers() {
+      const pending = Object.keys(layerConfig).filter(key => !state.builtLayers.has(key));
+      const schedule = (callback) => {
+        if ("requestIdleCallback" in window) {
+          window.requestIdleCallback(callback, { timeout: 2500 });
+        } else {
+          window.setTimeout(callback, 900);
+        }
+      };
+
+      const buildNext = () => {
+        if (!pending.length || !state.map || !state.map.isStyleLoaded()) return;
+        const exhibit = document.querySelector(".scrolly-exhibit");
+        const rect = exhibit?.getBoundingClientRect();
+        const exhibitInView = rect && rect.top < window.innerHeight && rect.bottom > 0;
+        if (exhibitInView) {
+          schedule(buildNext);
+          return;
+        }
+        addRasterLayer(pending.shift());
+        setMapLayer(state.layer);
+        updateRegionFill(state.layer);
+        updateNinoBoxFill(state.layer);
+        if (pending.length) schedule(buildNext);
+      };
+
+      schedule(buildNext);
     }
 
     function initMapLayers(data) {
@@ -1628,7 +2885,7 @@
     }
 
     function setOverlayVisibility(layerId, visible) {
-      if (!state.map) return;
+      if (!state.map || !state.map.isStyleLoaded() || !state.map.getLayer(layerId)) return;
       state.map.setLayoutProperty(layerId, "visibility", visible ? "visible" : "none");
     }
 
@@ -1649,8 +2906,15 @@
     }
 
     function resetReadout() {
-      document.querySelector("#hoverTitle").textContent = "Hover the Pacific map";
-      document.querySelector("#hoverText").textContent = "Hover over the Pacific overlay to see how this place changes during El Nino-like months.";
+      document.querySelector("#hoverTitle").textContent = "Hover map for values";
+      document.querySelector("#hoverText").textContent = "";
+      document.querySelector(".map-readout").classList.remove("is-visible");
+    }
+
+    function showReadoutHint() {
+      document.querySelector("#hoverTitle").textContent = "Hover map for values";
+      document.querySelector("#hoverText").textContent = "Move over the colored ocean map";
+      document.querySelector(".map-readout").classList.add("is-visible");
     }
 
     function getLayerInterpretation(layerKey, value) {
@@ -1697,126 +2961,267 @@
         `<span class="readout-layer">${config.label}</span>` +
         `<span class="readout-value">${formatLayerValue(layerKey, value)}</span>` +
         `<span class="readout-meaning">${getLayerInterpretation(layerKey, value)}</span>`;
+      document.querySelector(".map-readout").classList.add("is-visible");
+    }
+
+    function positionReadout(event) {
+      const mapWrap = document.querySelector("#mapWrap");
+      const readout = document.querySelector(".map-readout");
+      const rect = mapWrap.getBoundingClientRect();
+      const readoutRect = readout.getBoundingClientRect();
+      const gap = 14;
+      const maxX = Math.max(gap, rect.width - readoutRect.width - gap);
+      const maxY = Math.max(gap, rect.height - readoutRect.height - gap);
+      let x = event.clientX - rect.left + gap;
+      let y = event.clientY - rect.top + gap;
+
+      if (x > maxX) x = event.clientX - rect.left - readoutRect.width - gap;
+      if (y > maxY) y = event.clientY - rect.top - readoutRect.height - gap;
+
+      readout.style.setProperty("--hover-x", `${Math.max(gap, Math.min(maxX, x))}px`);
+      readout.style.setProperty("--hover-y", `${Math.max(gap, Math.min(maxY, y))}px`);
+      readout.classList.add("is-visible");
+    }
+
+    function getNearestLayerValue(layerKey, lon, lat) {
+      const gi = state.gridInfo[layerKey];
+      const lookup = state.lookups[layerKey];
+      if (!gi || !lookup) return null;
+
+      const { lonStep, latStep, lonStart, latStart } = gi;
+      const lonPad = lonStep * 2;
+      const latPad = latStep * 2;
+      if (lon < gi.lonMin - lonPad || lon > gi.lonMax + lonPad ||
+          lat < gi.latMin - latPad || lat > gi.latMax + latPad) {
+        return null;
+      }
+
+      const baseLon = lonStart + Math.round((lon - lonStart) / lonStep) * lonStep;
+      const baseLat = latStart + Math.round((lat - latStart) / latStep) * latStep;
+      let best = null;
+
+      for (let radius = 0; radius <= 2; radius++) {
+        for (let dx = -radius; dx <= radius; dx++) {
+          for (let dy = -radius; dy <= radius; dy++) {
+            const snapLon = Number((baseLon + dx * lonStep).toFixed(6));
+            const snapLat = Number((baseLat + dy * latStep).toFixed(6));
+            const value = lookup.get(`${snapLon},${snapLat}`);
+            if (value === undefined) continue;
+
+            const distance = Math.hypot((snapLon - lon) / lonStep, (snapLat - lat) / latStep);
+            if (!best || distance < best.distance) {
+              best = { lon: snapLon, lat: snapLat, value, distance };
+            }
+          }
+        }
+        if (best) return best;
+      }
+
+      return null;
     }
 
     function setupMapEvents() {
       const map = state.map;
+      let hoverFrame = null;
+      let pendingHoverPoint = null;
 
-      map.on("mousemove", e => {
-        const lngLat = map.unproject(e.point);
+      function updateReadoutFromPoint(point) {
+        const lngLat = map.unproject(point);
         // Normalize to -180/180 range
         const lon = ((lngLat.lng % 360) + 540) % 360 - 180;
         const lat = lngLat.lat;
 
-        const gi = state.gridInfo[state.layer];
-        if (!gi || lon < gi.lonMin - gi.lonStep || lon > gi.lonMax + gi.lonStep ||
-            lat < gi.latMin - gi.latStep || lat > gi.latMax + gi.latStep) {
-          resetReadout();
-          return;
-        }
-
-        const { lonStep, latStep, lonStart, latStart } = gi;
-        const snapLon = lonStart + Math.round((lon - lonStart) / lonStep) * lonStep;
-        const snapLat = latStart + Math.round((lat - latStart) / latStep) * latStep;
-        const value = state.lookups[state.layer].get(`${snapLon},${snapLat}`);
-
-        if (value !== undefined) {
+        const nearest = getNearestLayerValue(state.layer, lon, lat);
+        if (nearest) {
           const config = layerConfig[state.layer];
-          updateMapReadout(formatLon(snapLon) + ", " + formatLat(snapLat), config, value);
+          updateMapReadout(formatLon(nearest.lon) + ", " + formatLat(nearest.lat), config, nearest.value);
         } else {
-          resetReadout();
+          showReadoutHint();
         }
+      }
+
+      map.on("mousemove", e => {
+        if (e.originalEvent) positionReadout(e.originalEvent);
+        pendingHoverPoint = e.point;
+        if (hoverFrame) return;
+        hoverFrame = requestAnimationFrame(() => {
+          hoverFrame = null;
+          if (pendingHoverPoint) updateReadoutFromPoint(pendingHoverPoint);
+        });
       });
 
-      map.getCanvas().addEventListener("mouseleave", resetReadout);
+      const mapWrap = document.querySelector("#mapWrap");
+
+      const queueHoverFromEvent = (event) => {
+        if (!state.map || !state.map.isStyleLoaded()) return;
+        positionReadout(event);
+        const rect = state.map.getCanvas().getBoundingClientRect();
+        pendingHoverPoint = [
+          event.clientX - rect.left,
+          event.clientY - rect.top
+        ];
+        if (hoverFrame) return;
+        hoverFrame = requestAnimationFrame(() => {
+          hoverFrame = null;
+          if (pendingHoverPoint) updateReadoutFromPoint(pendingHoverPoint);
+        });
+      };
+
+      mapWrap.addEventListener("mouseenter", showReadoutHint);
+      mapWrap.addEventListener("mousemove", queueHoverFromEvent);
+      mapWrap.addEventListener("mouseleave", resetReadout);
+
     }
 
-    // --- Timeline (Canvas) ---
-
-    function resizeCanvas(canvasEl) {
-      const ratio = window.devicePixelRatio || 1;
-      const rect = canvasEl.getBoundingClientRect();
-      canvasEl.width = Math.max(1, Math.floor(rect.width * ratio));
-      canvasEl.height = Math.max(1, Math.floor(rect.height * ratio));
-      const context = canvasEl.getContext("2d");
-      context.setTransform(ratio, 0, 0, ratio, 0, 0);
-      return rect;
-    }
+    // --- Timeline (D3) ---
 
     function drawTimeline() {
-      if (!state.data) return;
-      const rect = resizeCanvas(timelineCanvas);
-      const data = state.data.timeline;
-      timelineCtx.clearRect(0, 0, rect.width, rect.height);
-      timelineCtx.fillStyle = "#f0ede4";
-      timelineCtx.fillRect(0, 0, rect.width, rect.height);
+      if (!state.data || typeof d3 === "undefined") return;
 
-      const pad = { left: 44, right: 12, top: 12, bottom: 24 };
-      const plotW = rect.width - pad.left - pad.right;
-      const plotH = rect.height - pad.top - pad.bottom;
-      const zeroY = pad.top + plotH / 2;
-      const maxAbs = 3;
-      const barW = plotW / data.length;
+      const svgNode = timelineSvg.node();
+      const rect = svgNode.getBoundingClientRect();
+      const width = Math.max(360, rect.width);
+      const height = Math.max(180, rect.height || 210);
+      const margin = { top: 24, right: 18, bottom: 36, left: 52 };
+      const innerWidth = width - margin.left - margin.right;
+      const innerHeight = height - margin.top - margin.bottom;
+      const parseMonth = d3.timeParse("%Y-%m");
+      const data = state.data.timeline.map((d, i) => ({
+        ...d,
+        index: i,
+        dateObj: parseMonth(d.date) || new Date(d.date)
+      }));
 
-      timelineCtx.strokeStyle = "#85939a";
-      timelineCtx.lineWidth = 1;
-      timelineCtx.beginPath();
-      timelineCtx.moveTo(pad.left, zeroY);
-      timelineCtx.lineTo(rect.width - pad.right, zeroY);
-      timelineCtx.stroke();
+      timelineSvg
+        .attr("viewBox", `0 0 ${width} ${height}`)
+        .attr("preserveAspectRatio", "none")
+        .selectAll("*")
+        .remove();
 
-      data.forEach((d, i) => {
-        const x = pad.left + i * barW;
-        const h = Math.min(plotH / 2, Math.abs(d.nino34_anomaly_c) / maxAbs * (plotH / 2));
-        timelineCtx.fillStyle = d.phase === "el_nino" ? "#c1341e" : d.phase === "la_nina" ? "#1d6fa3" : "#9ba6ab";
-        if (d.nino34_anomaly_c >= 0) {
-          timelineCtx.fillRect(x, zeroY - h, Math.max(1, barW), h);
-        } else {
-          timelineCtx.fillRect(x, zeroY, Math.max(1, barW), h);
-        }
+      const x = d3.scaleTime()
+        .domain([new Date(1950, 0, 1), new Date(2015, 0, 1)])
+        .range([margin.left, width - margin.right]);
+
+      const y = d3.scaleLinear()
+        .domain([-3, 3])
+        .range([height - margin.bottom, margin.top]);
+
+      const barWidth = Math.max(1, innerWidth / data.length);
+      const phaseColor = d => d.phase === "el_nino" ? "#c1341e" : d.phase === "la_nina" ? "#1d6fa3" : "#9ba6ab";
+      const phaseLabel = d => d.phase === "el_nino" ? "El Nino-like" : d.phase === "la_nina" ? "La Nina-like" : "Neutral";
+
+      const g = timelineSvg.append("g");
+
+      g.append("line")
+        .attr("class", "zero-line")
+        .attr("x1", margin.left)
+        .attr("x2", width - margin.right)
+        .attr("y1", y(0))
+        .attr("y2", y(0));
+
+      [0.5, -0.5].forEach(threshold => {
+        g.append("line")
+          .attr("class", "threshold-line")
+          .attr("x1", margin.left)
+          .attr("x2", width - margin.right)
+          .attr("y1", y(threshold))
+          .attr("y2", y(threshold));
+
+        const label = `${threshold > 0 ? "+" : ""}${threshold} °C`;
+        const labelX = margin.left + 7;
+        const labelY = y(threshold);
+        g.append("text")
+          .attr("class", "threshold-label")
+          .attr("x", labelX + 8)
+          .attr("y", labelY + 4)
+          .attr("text-anchor", "start")
+          .text(label)
+          .each(function () {
+            const bbox = this.getBBox();
+            d3.select(this.parentNode)
+              .insert("rect", "text.threshold-label")
+              .attr("class", "threshold-label-bg")
+              .attr("x", bbox.x - 6)
+              .attr("y", bbox.y - 3)
+              .attr("width", bbox.width + 12)
+              .attr("height", bbox.height + 6)
+              .attr("rx", 5)
+              .attr("ry", 5);
+          });
       });
 
-      if (state.selectedTimelineIndex !== null) {
-        const x = pad.left + state.selectedTimelineIndex * barW;
-        timelineCtx.strokeStyle = "#172027";
-        timelineCtx.lineWidth = 2;
-        timelineCtx.beginPath();
-        timelineCtx.moveTo(x, pad.top);
-        timelineCtx.lineTo(x, rect.height - pad.bottom);
-        timelineCtx.stroke();
+      g.selectAll(".timeline-bar")
+        .data(data)
+        .join("rect")
+        .attr("class", "timeline-bar")
+        .attr("x", d => x(d.dateObj))
+        .attr("y", d => y(Math.max(0, d.nino34_anomaly_c)))
+        .attr("width", barWidth)
+        .attr("height", d => Math.max(1, Math.abs(y(d.nino34_anomaly_c) - y(0))))
+        .attr("fill", phaseColor)
+        .on("mousemove", (event, d) => {
+          const wrapRect = document.querySelector(".timeline-wrap").getBoundingClientRect();
+          timelineTooltip
+            .html(`<strong>${d.date}</strong><span>Niño 3.4 anomaly: ${d.nino34_anomaly_c.toFixed(2)} °C</span><br><span>Phase: ${phaseLabel(d)}</span>`)
+            .style("left", `${event.clientX - wrapRect.left}px`)
+            .style("top", `${event.clientY - wrapRect.top}px`)
+            .classed("is-visible", true);
+        })
+        .on("mouseleave", () => {
+          timelineTooltip.classed("is-visible", false);
+        })
+        .on("click", (event, d) => {
+          state.selectedTimelineIndex = d.index;
+          drawTimeline();
+        });
+
+      if (state.selectedTimelineIndex !== null && data[state.selectedTimelineIndex]) {
+        const selected = data[state.selectedTimelineIndex];
+        g.append("line")
+          .attr("class", "selected-marker")
+          .attr("x1", x(selected.dateObj) + barWidth / 2)
+          .attr("x2", x(selected.dateObj) + barWidth / 2)
+          .attr("y1", margin.top)
+          .attr("y2", height - margin.bottom);
       }
 
-      timelineCtx.fillStyle = "#4e5c64";
-      timelineCtx.font = "12px system-ui, sans-serif";
-      timelineCtx.fillText("+3 °C", 8, pad.top + 6);
-      timelineCtx.fillText("0", 22, zeroY + 4);
-      timelineCtx.fillText("-3 °C", 8, rect.height - pad.bottom);
-      for (let year = 1950; year <= 2010; year += 10) {
-        const index = data.findIndex((d) => d.year === year && d.date.endsWith("-01"));
-        if (index >= 0) {
-          const x = pad.left + index * barW;
-          timelineCtx.fillText(String(year), x, rect.height - 7);
-        }
-      }
+      const xAxis = d3.axisBottom(x)
+        .tickValues(d3.timeYear.every(10).range(new Date(1950, 0, 1), new Date(2015, 0, 1)))
+        .tickFormat(d3.timeFormat("%Y"))
+        .tickSizeOuter(0);
+
+      const yAxis = d3.axisLeft(y)
+        .tickValues([-3, -1.5, 0, 1.5, 3])
+        .tickFormat(d => `${d > 0 ? "+" : ""}${d}`);
+
+      g.append("g")
+        .attr("class", "axis")
+        .attr("transform", `translate(0,${height - margin.bottom})`)
+        .call(xAxis);
+
+      g.append("g")
+        .attr("class", "axis")
+        .attr("transform", `translate(${margin.left},0)`)
+        .call(yAxis);
+
+      g.append("text")
+        .attr("class", "axis-label")
+        .attr("x", 14)
+        .attr("y", margin.top - 8)
+        .text("°C");
     }
 
     // --- UI controls ---
 
-    const layerTooltipEl = document.createElement("div");
-    layerTooltipEl.className = "layer-tooltip";
-    layerTooltipEl.setAttribute("aria-hidden", "true");
-    document.body.appendChild(layerTooltipEl);
-
-    function showLayerTooltip(btn, text) {
-      const r = btn.getBoundingClientRect();
-      layerTooltipEl.textContent = text;
-      layerTooltipEl.style.top = (r.top + r.height / 2) + "px";
-      layerTooltipEl.style.left = (r.right + 12) + "px";
-      layerTooltipEl.classList.add("tt-visible");
-    }
-
-    function hideLayerTooltip() {
-      layerTooltipEl.classList.remove("tt-visible");
+    function getLayerButtonLabel(key) {
+      const labels = {
+        combined: "Fingerprint",
+        sst: "SST",
+        precip: "Rain",
+        cloud: "Clouds",
+        rsut: "Radiation"
+      };
+      return labels[key] || layerConfig[key].label;
     }
 
     function renderControls() {
@@ -1825,13 +3230,10 @@
       Object.entries(layerConfig).forEach(([key, config]) => {
         const button = document.createElement("button");
         button.type = "button";
-        button.innerHTML = `<span class="layer-button-label">${config.label}</span><span class="layer-button-hint">${config.hint}</span>`;
+        button.innerHTML = `<span class="layer-button-label">${getLayerButtonLabel(key)}</span>`;
+        button.setAttribute("aria-label", config.label);
         button.setAttribute("aria-pressed", String(key === state.layer));
         button.addEventListener("click", () => setLayer(key));
-        if (config.tooltip) {
-          button.addEventListener("mouseenter", () => showLayerTooltip(button, config.tooltip));
-          button.addEventListener("mouseleave", hideLayerTooltip);
-        }
         box.appendChild(button);
       });
     }
@@ -1841,22 +3243,172 @@
       document.querySelector("#facts").innerHTML = `
         <div class="fact"><strong>${meta.el_nino_months}</strong><span>El Nino-like months</span></div>
         <div class="fact"><strong>${meta.neutral_months}</strong><span>neutral months</span></div>
-        <div class="fact"><strong>${meta.nino34_threshold_c}C</strong><span>Nino 3.4 threshold</span></div>
-        <div class="fact"><strong>${meta.years}</strong><span>CESM2 historical period</span></div>
+        <div class="fact"><strong>${meta.nino34_threshold_c} °C</strong><span>Nino 3.4 threshold</span></div>
+        <div class="fact fact-period"><strong>${meta.years}</strong><span>CESM2 historical period</span></div>
       `;
+    }
+
+    function setupNarrativeReveals() {
+      const sections = document.querySelectorAll(".reveal-section");
+      if (!sections.length) return;
+
+      if (!("IntersectionObserver" in window)) {
+        sections.forEach(section => section.classList.add("is-visible"));
+        return;
+      }
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.16, rootMargin: "0px 0px -8% 0px" });
+
+      sections.forEach(section => observer.observe(section));
+    }
+
+    function pulseMapLabel() {
+      const labelStrip = document.querySelector("#mapLabelStrip");
+      if (!labelStrip) return;
+      labelStrip.classList.remove("label-pulse");
+      void labelStrip.offsetWidth;
+      labelStrip.classList.add("label-pulse");
+    }
+
+    function setMapLoading(isLoading, label = "map layer") {
+      const overlay = document.querySelector("#mapLoadingOverlay");
+      if (!overlay) return;
+      const title = document.querySelector("#mapLoadingTitle");
+      const text = document.querySelector("#mapLoadingText");
+
+      if (title) title.textContent = isLoading ? `Building ${label}` : "Building map layer";
+      if (text) text.textContent = "Preparing the next El Nino signal for the globe.";
+      overlay.classList.toggle("is-visible", isLoading);
+      overlay.setAttribute("aria-hidden", String(!isLoading));
+    }
+
+    function enterGlobeFocus() {
+      state.globeFocus = true;
+      document.body.classList.add("globe-focus-active");
+      state.map?.scrollZoom.enable();
+      document.querySelector(".map-instruction-help").textContent = "Scroll to zoom the globe. Drag to rotate. Use Exit to return to the page.";
+      window.setTimeout(() => state.map?.resize(), 80);
+      document.querySelector("#globeExitBtn")?.focus({ preventScroll: true });
+    }
+
+    function exitGlobeFocus() {
+      state.globeFocus = false;
+      document.body.classList.remove("globe-focus-active");
+      state.map?.scrollZoom.disable();
+      document.querySelector(".map-instruction-help").textContent = "Enter the globe to use scroll zoom. Layer buttons switch the data view.";
+      window.setTimeout(() => state.map?.resize(), 80);
+      document.querySelector(".scrolly-exhibit")?.scrollIntoView({ block: "start" });
+    }
+
+    function updateActiveStoryStep(key) {
+      const steps = Array.from(document.querySelectorAll(".story-step"));
+      steps.forEach((step, index) => {
+        const isActive = step.dataset.layer === key;
+        step.classList.toggle("is-active", isActive);
+        if (isActive) {
+          const kicker = step.querySelector(".story-step-kicker")?.textContent?.trim();
+          const heading = step.querySelector("h3")?.textContent?.trim();
+          const body = step.dataset.captionBody || step.querySelector("p:last-child")?.textContent?.trim();
+          if (kicker) document.querySelector("#captionKicker").textContent = kicker;
+          if (heading) document.querySelector("#captionHeading").textContent = heading;
+          if (body) document.querySelector("#captionBody").textContent = body;
+        }
+      });
+    }
+
+    function getLegendLabels(key) {
+      const labels = {
+        combined: {
+          min: "Opposite/weaker response",
+          mid: "0",
+          max: "Strong aligned fingerprint"
+        },
+        sst: {
+          min: "Cooler",
+          mid: "0 °C",
+          max: "Warmer"
+        },
+        precip: {
+          min: "Drier",
+          mid: "0 mm/day",
+          max: "Wetter"
+        },
+        cloud: {
+          min: "Clearer",
+          mid: "0 percentage points",
+          max: "Cloudier"
+        },
+        rsut: {
+          min: "Less outgoing SW",
+          mid: "0 W/m²",
+          max: "More outgoing SW"
+        }
+      };
+      return labels[key] || { min: "Lower", mid: "0", max: "Higher" };
+    }
+
+    function setupGlobeDrift() {
+      if (!state.map || state.autoSpinFrame) return;
+      const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (prefersReducedMotion) return;
+
+      const mapWrap = document.querySelector("#mapWrap");
+      const pause = () => { state.userInteracting = true; };
+      const resume = () => {
+        window.setTimeout(() => {
+          state.userInteracting = false;
+          state.lastSpinTime = null;
+        }, 700);
+      };
+
+      ["dragstart", "rotatestart", "zoomstart"].forEach(eventName => state.map.on(eventName, pause));
+      ["dragend", "rotateend", "zoomend"].forEach(eventName => state.map.on(eventName, resume));
+      mapWrap.addEventListener("pointerdown", pause);
+      mapWrap.addEventListener("pointerup", resume);
+      mapWrap.addEventListener("pointerleave", resume);
+
+      const drift = (timestamp) => {
+        const exhibit = document.querySelector(".scrolly-exhibit");
+        const rect = exhibit.getBoundingClientRect();
+        const inView = rect.top < window.innerHeight && rect.bottom > 0;
+        const canDrift = inView && !state.userInteracting && Date.now() > state.storyCameraUntil && state.map.isStyleLoaded();
+
+        if (!state.lastSpinTime) state.lastSpinTime = timestamp;
+        const elapsed = Math.min(140, timestamp - state.lastSpinTime);
+
+        if (canDrift) {
+          const center = state.map.getCenter();
+          state.map.setCenter([center.lng + elapsed * 0.00045, center.lat]);
+        }
+
+        state.lastSpinTime = timestamp;
+        state.autoSpinFrame = requestAnimationFrame(drift);
+      };
+
+      state.autoSpinFrame = requestAnimationFrame(drift);
     }
 
     function setLayer(key) {
       state.layer = key;
       const config = layerConfig[key];
-      document.querySelector("#layerTitle").textContent = config.title;
+      updateActiveStoryStep(key);
+      document.querySelector("#layerTitle").textContent = config.label;
       document.querySelector("#layerDescription").textContent = config.description;
       document.querySelector("#layerNote").textContent = config.note;
       const labelEl = document.querySelector("#mapLabelText");
       if (labelEl) labelEl.textContent = config.label;
-      document.querySelector("#legendMin").textContent = `${config.minLabel} (${config.range[0]})`;
-      document.querySelector("#legendMid").textContent = "0";
-      document.querySelector("#legendMax").textContent = `${config.maxLabel} (+${config.range[1]})`;
+      pulseMapLabel();
+      const legendLabels = getLegendLabels(key);
+      document.querySelector("#legendMin").textContent = legendLabels.min;
+      document.querySelector("#legendMid").textContent = legendLabels.mid;
+      document.querySelector("#legendMax").textContent = legendLabels.max;
       [...document.querySelector("#layerButtons").children].forEach((button, i) => {
         const layerKey = Object.keys(layerConfig)[i];
         button.setAttribute("aria-pressed", String(layerKey === key));
@@ -1865,20 +3417,26 @@
       if (!state.map || !state.map.isStyleLoaded()) return;
 
       if (!state.builtLayers.has(key)) {
-        document.querySelector("#hoverTitle").textContent = "Building layer…";
-        document.querySelector("#hoverText").textContent = "";
-        setTimeout(() => {
-          if (!state.builtLayers.has(key)) {
-            addRasterLayer(key);
-          }
-          if (state.layer === key) {
-            setMapLayer(key);
-            resetReadout();
-            updateRegionFill(key);
-            updateNinoBoxFill(key);
-          }
-        }, 0);
+        setMapLoading(true, getLayerButtonLabel(key));
+        requestAnimationFrame(() => {
+          setTimeout(() => {
+            try {
+              if (!state.builtLayers.has(key)) {
+                addRasterLayer(key);
+              }
+              if (state.layer === key) {
+                setMapLayer(key);
+                resetReadout();
+                updateRegionFill(key);
+                updateNinoBoxFill(key);
+              }
+            } finally {
+              setMapLoading(false);
+            }
+          }, 40);
+        });
       } else {
+        setMapLoading(false);
         setMapLayer(key);
         updateRegionFill(key);
         updateNinoBoxFill(key);
@@ -1886,29 +3444,6 @@
     }
 
     // --- Event listeners ---
-
-    timelineCanvas.addEventListener("mousemove", (event) => {
-      if (!state.data) return;
-      const rect = timelineCanvas.getBoundingClientRect();
-      const x = event.clientX - rect.left;
-      const padLeft = 44;
-      const padRight = 12;
-      const plotW = rect.width - padLeft - padRight;
-      const index = Math.max(0, Math.min(state.data.timeline.length - 1, Math.floor((x - padLeft) / plotW * state.data.timeline.length)));
-      const item = state.data.timeline[index];
-      document.querySelector("#hoverTitle").textContent = item.date;
-      document.querySelector("#hoverText").textContent = `Nino 3.4 anomaly: ${item.nino34_anomaly_c.toFixed(2)} °C (${item.phase.replace("_", " ")})`;
-    });
-
-    timelineCanvas.addEventListener("click", (event) => {
-      const rect = timelineCanvas.getBoundingClientRect();
-      const x = event.clientX - rect.left;
-      const padLeft = 44;
-      const padRight = 12;
-      const plotW = rect.width - padLeft - padRight;
-      state.selectedTimelineIndex = Math.max(0, Math.min(state.data.timeline.length - 1, Math.floor((x - padLeft) / plotW * state.data.timeline.length)));
-      drawTimeline();
-    });
 
     document.querySelector("#ninoBoxBtn").addEventListener("click", (event) => {
       state.showNinoBox = !state.showNinoBox;
@@ -1926,10 +3461,15 @@
       setOverlayVisibility("layer-region-labels", state.showRegions);
     });
 
+    document.querySelector("#globeEnterBtn").addEventListener("click", enterGlobeFocus);
+    document.querySelector("#globeExitBtn").addEventListener("click", exitGlobeFocus);
+
     document.querySelector("#timelineToggle").addEventListener("click", (e) => {
       const btn = e.currentTarget;
       const footer = document.querySelector(".viz-footer");
       const isVisible = footer.classList.toggle("tf-visible");
+      const panel = btn.closest(".viz-panel");
+      if (panel) panel.classList.toggle("timeline-open", isVisible);
       btn.textContent = isVisible ? "Hide Nino 3.4 timeline" : "Show Nino 3.4 timeline";
       btn.setAttribute("aria-pressed", String(isVisible));
     });
@@ -1937,6 +3477,14 @@
     window.addEventListener("resize", () => {
       drawTimeline();
     });
+
+    window.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && state.globeFocus) {
+        exitGlobeFocus();
+      }
+    });
+
+    setupNarrativeReveals();
 
     fetch("data/interactive_el_nino_dashboard.json")
       .then((response) => {
@@ -1958,8 +3506,9 @@
           zoom: 2.0,
           minZoom: 1.5,
           maxZoom: 8,
-          cooperativeGestures: true
+          scrollZoom: false
         });
+        state.map.scrollZoom.disable();
         state.map.addControl(new mapboxgl.NavigationControl(), "bottom-right");
         state.map.on("load", () => {
           state.map.setFog({
@@ -1971,6 +3520,8 @@
           });
           initMapLayers(data);
           setupMapEvents();
+          setupGlobeDrift();
+          prebuildRemainingLayers();
         });
       })
       .catch((error) => {
