@@ -965,8 +965,8 @@
     }
 
     // 3-stop diverging colormap: transparent at neutral → saturated at extremes
-    const CMAP_COLD = [[100, 240, 255, 0.0], [0, 220, 255, 1.0], [30, 130, 255, 1.0]];
-    const CMAP_WARM = [[255, 255, 120, 0.0], [255, 160, 0, 1.0], [255, 30, 30, 1.0]];
+    const CMAP_COLD = [[180, 255, 255, 0.0], [0, 240, 255, 1.0], [0, 160, 255, 1.0]];
+    const CMAP_WARM = [[255, 255, 150, 0.0], [255, 200, 0, 1.0], [255, 40, 0, 1.0]];
 
     function lerpStop(a, b, t) {
       return [
@@ -984,7 +984,9 @@
       const c = absT <= 0.5
         ? lerpStop(stops[0], stops[1], absT / 0.5)
         : lerpStop(stops[1], stops[2], (absT - 0.5) / 0.5);
-      return [c[0], c[1], c[2], c[3]];
+      // Power curve steepens the alpha ramp so moderate signals (~0.2) are ~75% opaque
+      // instead of 47%, making the overlay clearly visible over dark satellite imagery
+      return [c[0], c[1], c[2], Math.pow(c[3], 0.4)];
     }
 
     function cosEdge(pos, total, fadeW) {
@@ -1169,7 +1171,7 @@
         type: "raster",
         source: "src-raster-" + key,
         layout: { visibility: "visible" },
-        paint: { "raster-opacity": 0.92, "raster-fade-duration": 0, "raster-resampling": "linear" }
+        paint: { "raster-opacity": 1.0, "raster-fade-duration": 0, "raster-resampling": "linear" }
       }, bId);
       state.builtLayers.add(key);
     }
@@ -1559,9 +1561,9 @@
         state.map.addControl(new mapboxgl.NavigationControl(), "bottom-right");
         state.map.on("load", () => {
           state.map.setFog({
-            color: "rgb(25, 65, 140)",
-            "high-color": "rgb(12, 30, 80)",
-            "horizon-blend": 0.05,
+            color: "rgb(50, 120, 240)",
+            "high-color": "rgb(5, 8, 20)",
+            "horizon-blend": 0.01,
             "space-color": "rgb(5, 8, 20)",
             "star-intensity": 0.5
           });
