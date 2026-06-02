@@ -246,6 +246,17 @@
       letter-spacing: 0.03em;
       text-transform: uppercase;
       pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .map-label-sub {
+      font-size: 0.68rem;
+      font-weight: 400;
+      letter-spacing: 0.02em;
+      color: rgba(247, 244, 236, 0.55);
+      text-transform: none;
     }
 
     .viz-panel {
@@ -797,6 +808,7 @@
           </div>
           <div class="map-label-strip" id="mapLabelStrip">
             <span id="mapLabelText">Combined Signal</span>
+            <span class="map-label-sub">Pacific Ocean · land areas have no data</span>
           </div>
         </div>
         <div class="viz-footer">
