@@ -1057,7 +1057,7 @@
       blurred.width = width;
       blurred.height = height;
       const bCtx = blurred.getContext("2d");
-      bCtx.filter = `blur(${Math.round(pxPerDeg * 0.5)}px)`;
+      bCtx.filter = `blur(${Math.round(pxPerDeg * 2.5)}px)`;
       bCtx.drawImage(cvs, 0, 0);
 
       return { canvas: blurred, lonMin, lonMax, latMin, latMax };
@@ -1177,6 +1177,14 @@
 
       // Only build the active layer on first load; others are deferred until first use
       addRasterLayer(state.layer);
+
+      // Dim the base globe so data overlay pops more clearly
+      map.addLayer({
+        id: "globe-dim",
+        type: "background",
+        slot: "middle",
+        paint: { "background-color": "#000000", "background-opacity": 0.42 }
+      });
 
       // Nino 3.4 box overlay
       map.addSource("src-nino-box", { type: "geojson", data: buildNinoBoxGeoJSON() });
