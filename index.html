@@ -965,8 +965,8 @@
     }
 
     // 3-stop diverging colormap: transparent at neutral → saturated at extremes
-    const CMAP_COLD = [[100, 200, 255, 0.0], [0, 160, 255, 1.0], [0, 60, 220, 1.0]];
-    const CMAP_WARM = [[255, 220, 80, 0.0], [255, 80, 0, 1.0], [200, 0, 0, 1.0]];
+    const CMAP_COLD = [[100, 240, 255, 0.0], [0, 220, 255, 1.0], [30, 130, 255, 1.0]];
+    const CMAP_WARM = [[255, 255, 120, 0.0], [255, 160, 0, 1.0], [255, 30, 30, 1.0]];
 
     function lerpStop(a, b, t) {
       return [
@@ -1191,7 +1191,7 @@
         layout: { visibility: state.showNinoBox ? "visible" : "none" },
         paint: {
           "fill-color": ["case", [">", ["get", "normValue"], 0], "#c1341e", "#1d6fa3"],
-          "fill-opacity": ["interpolate", ["linear"], ["abs", ["get", "normValue"]], 0, 0, 1, 0.22]
+          "fill-opacity": ["interpolate", ["linear"], ["abs", ["get", "normValue"]], 0, 0, 1, 0.45]
         }
       }, beforeId);
       map.addLayer({
@@ -1200,7 +1200,7 @@
         source: "src-nino-box",
         filter: ["==", ["geometry-type"], "Polygon"],
         layout: { visibility: state.showNinoBox ? "visible" : "none" },
-        paint: { "line-color": "rgba(255,255,255,0.30)", "line-width": 1.5, "line-dasharray": [5, 3] }
+        paint: { "line-color": "rgba(255,255,255,0.75)", "line-width": 1.5, "line-dasharray": [5, 3] }
       }, beforeId);
       map.addLayer({
         id: "layer-nino-box-label",
@@ -1230,7 +1230,7 @@
             [">", ["get", "normValue"], 0], "#c1341e",
             "#1d6fa3"
           ],
-          "fill-opacity": ["interpolate", ["linear"], ["abs", ["get", "normValue"]], 0, 0, 1, 0.22]
+          "fill-opacity": ["interpolate", ["linear"], ["abs", ["get", "normValue"]], 0, 0, 1, 0.45]
         }
       }, beforeId);
       map.addLayer({
@@ -1239,7 +1239,7 @@
         source: "src-regions",
         filter: ["==", ["geometry-type"], "Polygon"],
         layout: { visibility: state.showRegions ? "visible" : "none" },
-        paint: { "line-color": "rgba(255,255,255,0.35)", "line-width": 1.5, "line-dasharray": [4, 4] }
+        paint: { "line-color": "rgba(255,255,255,0.80)", "line-width": 1.5, "line-dasharray": [4, 4] }
       }, beforeId);
       map.addLayer({
         id: "layer-region-labels",
