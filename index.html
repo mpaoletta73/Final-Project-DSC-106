@@ -197,6 +197,99 @@
       max-width: 700px;
     }
 
+    .narrative-hook {
+      position: relative;
+      min-height: clamp(300px, 44vh, 360px);
+      padding: clamp(26px, 4vh, 34px) clamp(24px, 4vw, 52px);
+      display: grid;
+      align-content: center;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 82% 24%, rgba(29, 111, 163, 0.5), transparent 28%),
+        radial-gradient(circle at 12% 78%, rgba(193, 52, 30, 0.38), transparent 30%),
+        linear-gradient(135deg, #0b1824 0%, #172027 54%, #071018 100%);
+      color: #f7f4ec;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .narrative-hook::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, rgba(232, 160, 32, 0.18), transparent 34%),
+        linear-gradient(180deg, transparent, rgba(2, 4, 8, 0.28));
+      pointer-events: none;
+    }
+
+    .hook-inner {
+      position: relative;
+      z-index: 1;
+      max-width: 760px;
+    }
+
+    .hook-kicker {
+      margin: 0 0 10px;
+      color: #e8a020;
+      font-size: 0.74rem;
+      font-weight: 780;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .hook-title {
+      margin: 0;
+      max-width: 720px;
+      font-size: clamp(2rem, 3.35vw, 3rem);
+      line-height: 1.02;
+      font-weight: 800;
+      text-wrap: balance;
+    }
+
+    .hook-copy {
+      margin: 14px 0 0;
+      max-width: 620px;
+      color: rgba(247, 244, 236, 0.78);
+      font-size: clamp(1rem, 1.24vw, 1.12rem);
+      line-height: 1.5;
+    }
+
+    .hook-question {
+      margin: 14px 0 0;
+      color: #ffffff;
+      font-size: clamp(1.05rem, 1.5vw, 1.28rem);
+      line-height: 1.35;
+      font-weight: 760;
+    }
+
+    .hook-meta-row {
+      margin-top: 18px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .hook-chip,
+    .hook-cue {
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 999px;
+      padding: 7px 11px;
+      font-size: 0.78rem;
+      line-height: 1.2;
+      font-weight: 680;
+    }
+
+    .hook-chip {
+      background: rgba(232, 160, 32, 0.16);
+      color: #ffe0a0;
+    }
+
+    .hook-cue {
+      background: rgba(29, 111, 163, 0.2);
+      color: rgba(247, 244, 236, 0.9);
+    }
+
     .map-readout {
       position: absolute;
       top: 14px;
@@ -414,6 +507,11 @@
         border-bottom: 1px solid var(--line);
       }
 
+      .narrative-hook {
+        min-height: 320px;
+        padding: 34px 18px;
+      }
+
       .viz-panel {
         position: relative;
         top: auto;
@@ -476,6 +574,15 @@
 
       h1 {
         font-size: 1.55rem;
+      }
+
+      .hook-title {
+        font-size: 2rem;
+      }
+
+      .hook-meta-row {
+        align-items: flex-start;
+        flex-direction: column;
       }
     }
 
@@ -794,6 +901,19 @@
     </section>
 
     <main>
+      <section class="narrative-hook" aria-labelledby="hookTitle">
+        <div class="hook-inner">
+          <p class="hook-kicker">Pacific climate signal</p>
+          <h2 class="hook-title" id="hookTitle">Every few years, the Pacific Ocean rewires the world's weather.</h2>
+          <p class="hook-copy">El Nino is not just warmer water; it shifts rain, clouds, and heat across the Pacific.</p>
+          <p class="hook-question">Can you predict where those shifts happen?</p>
+          <div class="hook-meta-row" aria-label="Data source and next step">
+            <span class="hook-chip">CESM2 historical data · 1950-2014</span>
+            <span class="hook-cue">Start with the globe below</span>
+          </div>
+        </div>
+      </section>
+
       <section class="topbar">
         <h2 id="layerTitle">Loading data...</h2>
         <p id="layerDescription">Reading the interactive CMIP6 dataset.</p>
