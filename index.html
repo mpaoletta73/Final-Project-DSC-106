@@ -965,8 +965,8 @@
     }
 
     // 3-stop diverging colormap: transparent at neutral → saturated at extremes
-    const CMAP_COLD = [[100, 200, 255, 0.88], [0, 160, 255, 1.0], [0, 60, 220, 1.0]];
-    const CMAP_WARM = [[255, 220, 80, 0.88], [255, 80, 0, 1.0], [200, 0, 0, 1.0]];
+    const CMAP_COLD = [[100, 200, 255, 0.0], [0, 160, 255, 1.0], [0, 60, 220, 1.0]];
+    const CMAP_WARM = [[255, 220, 80, 0.0], [255, 80, 0, 1.0], [200, 0, 0, 1.0]];
 
     function lerpStop(a, b, t) {
       return [
@@ -1465,11 +1465,15 @@
         document.querySelector("#hoverTitle").textContent = "Building layer…";
         document.querySelector("#hoverText").textContent = "";
         setTimeout(() => {
-          addRasterLayer(key, getFirstSymbolLayerId(state.map));
-          setMapLayer(key);
-          resetReadout();
-          updateRegionFill(key);
-          updateNinoBoxFill(key);
+          if (!state.builtLayers.has(key)) {
+            addRasterLayer(key, getFirstSymbolLayerId(state.map));
+          }
+          if (state.layer === key) {
+            setMapLayer(key);
+            resetReadout();
+            updateRegionFill(key);
+            updateNinoBoxFill(key);
+          }
         }, 0);
       } else {
         setMapLayer(key);
