@@ -653,6 +653,11 @@
       opacity: 1;
     }
 
+    body:not(.globe-focus-active) .map-readout {
+      opacity: 0 !important;
+      pointer-events: none;
+    }
+
     .map-readout strong {
       display: block;
       font-size: 0.72rem;
@@ -744,6 +749,8 @@
       z-index: 1000;
       height: 100dvh;
       min-height: 0;
+      overscroll-behavior: contain;
+      touch-action: none;
     }
 
     .map-control-dock {
@@ -894,7 +901,7 @@
     .globe-entry-overlay {
       position: absolute;
       inset: 0;
-      z-index: 17;
+      z-index: 30;
       display: grid;
       place-items: center;
       padding: 24px;
@@ -963,7 +970,7 @@
       position: absolute;
       top: 16px;
       right: 16px;
-      z-index: 20;
+      z-index: 31;
       display: none;
       border-radius: 8px;
       padding: 9px 13px;
@@ -1459,15 +1466,26 @@
     }
 
     .map-next-cue {
-      margin: 0;
-      max-width: none;
+      width: 100%;
+      margin: 0 auto;
+      max-width: 1080px;
       padding: 0;
-      color: #e8a020;
-      font-size: 0.82rem;
+      color: rgba(247, 244, 236, 0.76);
+      font-size: 0.78rem;
       line-height: 1.3;
       font-weight: 820;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
+    }
+
+    .map-next-cue::before {
+      content: "";
+      display: inline-block;
+      width: 28px;
+      height: 2px;
+      margin-right: 10px;
+      vertical-align: middle;
+      background: #e8a020;
     }
 
 
@@ -1838,10 +1856,8 @@
 
     .closing-section {
       padding: clamp(42px, 6vw, 82px) clamp(22px, 5vw, 72px);
-      background:
-        radial-gradient(circle at 12% 18%, rgba(232, 160, 32, 0.16), transparent 30%),
-        radial-gradient(circle at 92% 12%, rgba(29, 111, 163, 0.24), transparent 34%),
-        linear-gradient(180deg, #f0e8d9 0%, #071018 18%, #102334 100%);
+      background: #172027;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
       color: #f7f4ec;
     }
 
@@ -1854,36 +1870,57 @@
 
     /* ── Quiz Game ─────────────────────────────────────────── */
     .game-section {
-      border: 1px solid rgba(255, 255, 255, 0.14);
-      border-radius: 12px;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(247, 244, 236, 0.16);
+      border-radius: 10px;
       background:
-        linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.045)),
-        rgba(23, 32, 39, 0.78);
-      box-shadow: 0 24px 60px rgba(2, 4, 8, 0.34);
-      padding: clamp(22px, 3vw, 34px);
+        linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(246, 244, 238, 0.98));
+      box-shadow: 0 20px 46px rgba(2, 4, 8, 0.28);
+      padding: clamp(22px, 3vw, 32px);
       display: grid;
       gap: 0;
-      max-width: none;
-      margin: 0;
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
+      width: 100%;
+      max-width: 1080px;
+      margin: 0 auto;
+    }
+
+    .game-section::after {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto;
+      height: 4px;
+      background: linear-gradient(90deg, var(--gold), var(--warm), var(--cool));
+      opacity: 0.95;
     }
 
     .game-intro-header {
-      margin: 0 0 10px;
-      color: #ffffff;
-      font-size: clamp(1.5rem, 3vw, 2.7rem);
-      line-height: 1.05;
+      margin: 0 0 12px;
+      color: #172027;
+      font-size: clamp(1.55rem, 2.8vw, 2.35rem);
+      line-height: 1.08;
       font-weight: 830;
       text-wrap: balance;
     }
 
+    #gameIntro::before {
+      content: "Interactive check";
+      display: block;
+      margin-bottom: 10px;
+      color: #e8a020;
+      font-size: 0.76rem;
+      line-height: 1.2;
+      font-weight: 840;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+    }
+
     .game-intro-text {
-      margin: 0 0 18px;
-      color: rgba(247, 244, 236, 0.76);
+      margin: 0 0 20px;
+      color: #53616a;
       font-size: clamp(0.98rem, 1.3vw, 1.12rem);
       line-height: 1.55;
-      max-width: 940px;
+      max-width: 820px;
     }
 
     .btn-start {
@@ -1909,8 +1946,8 @@
     }
 
     .takeaway-section {
-      max-width: none;
-      margin: 0;
+      max-width: 1080px;
+      margin: 0 auto;
       border: 1px solid rgba(232, 160, 32, 0.26);
       border-radius: 12px;
       background:
@@ -1969,92 +2006,109 @@
 
     .game-body {
       display: grid;
-      gap: 16px;
+      gap: 18px;
     }
 
     .game-header-row {
       display: flex;
       align-items: center;
       gap: 12px;
+      padding-bottom: 4px;
     }
 
     .game-progress-label,
     .game-score-label {
       flex: 0 0 auto;
-      color: rgba(247, 244, 236, 0.65);
+      color: #53616a;
       font-size: 0.82rem;
       white-space: nowrap;
+      font-weight: 760;
     }
 
     .game-score-label {
-      font-weight: 700;
-      color: #f7f4ec;
+      font-weight: 800;
+      color: #172027;
     }
 
     .progress-track {
       flex: 1;
       height: 6px;
       border-radius: 999px;
-      background: #e7ecef;
+      background: #dce4e8;
       overflow: hidden;
     }
 
     .progress-bar {
       height: 100%;
-      background: var(--dark);
+      background: #e8a020;
       border-radius: 999px;
       transition: width 320ms ease;
     }
 
+    #gameCard {
+      display: grid;
+      gap: 16px;
+    }
+
     .game-question {
-      margin: 0 0 14px;
-      font-size: 1.05rem;
-      font-weight: 650;
-      line-height: 1.42;
-      color: #ffffff;
+      margin: 0;
+      font-size: clamp(1.08rem, 1.55vw, 1.34rem);
+      font-weight: 760;
+      line-height: 1.32;
+      color: #172027;
+      text-wrap: balance;
     }
 
     .game-options {
       display: grid;
-      gap: 8px;
+      gap: 10px;
     }
 
     .game-option {
       display: flex;
       align-items: center;
       gap: 12px;
-      border: 1px solid var(--line);
+      border: 1px solid rgba(23, 32, 39, 0.13);
       border-radius: 8px;
-      background: var(--panel);
+      background: rgba(255, 255, 255, 0.78);
       color: var(--ink);
-      padding: 11px 14px;
+      padding: 13px 15px;
       cursor: pointer;
       text-align: left;
       font: inherit;
-      font-size: 0.9rem;
+      font-size: clamp(0.9rem, 1.08vw, 1rem);
       line-height: 1.35;
-      transition: border-color 80ms, background 80ms;
+      box-shadow: 0 1px 0 rgba(23, 32, 39, 0.04);
+      transition: border-color 150ms ease, background 150ms ease, transform 150ms ease, box-shadow 150ms ease;
     }
 
     .game-option:hover:not(:disabled) {
-      border-color: var(--dark);
-      background: #f0ece2;
+      border-color: rgba(232, 160, 32, 0.5);
+      background: #fffaf0;
+      transform: translateY(-1px);
+      box-shadow: 0 10px 22px rgba(23, 32, 39, 0.08);
     }
 
     .game-option:disabled {
       cursor: default;
     }
 
+    .game-option:disabled:not(.opt-correct):not(.opt-wrong) {
+      opacity: 0.68;
+    }
+
     .game-option.opt-correct {
-      border-color: var(--green);
-      background: #eaf4ee;
-      color: var(--green);
+      border-color: #4d8b5f;
+      background: #edf7f0;
+      color: #2e6b42;
+      box-shadow: inset 0 0 0 1px rgba(77, 139, 95, 0.18);
     }
 
     .game-option.opt-wrong {
-      border-color: var(--warm);
-      background: #faeae7;
-      color: var(--warm);
+      border-color: #c1341e;
+      background: #fff0ed;
+      color: #9f2c1d;
+      box-shadow: inset 0 0 0 1px rgba(193, 52, 30, 0.15);
     }
 
     .opt-letter {
@@ -2081,55 +2135,71 @@
     }
 
     .game-feedback {
-      margin-top: 14px;
-      border-top: 1px solid var(--line);
-      padding-top: 14px;
+      margin-top: 4px;
+      border: 1px solid #d5dde1;
+      border-left: 4px solid var(--gold);
+      border-radius: 9px;
+      background: #f4f7f8;
+      padding: 15px 16px;
       display: grid;
-      gap: 8px;
+      gap: 9px;
+    }
+
+    .game-feedback:has(.feedback-verdict.is-correct) {
+      border-left-color: #4d8b5f;
+      background: #f2f8f4;
+    }
+
+    .game-feedback:has(.feedback-verdict.is-wrong) {
+      border-left-color: #c1341e;
+      background: #fff5f2;
     }
 
     .feedback-verdict {
       margin: 0;
-      font-weight: 700;
+      font-weight: 820;
       font-size: 1rem;
+      line-height: 1.2;
     }
 
-    .feedback-verdict.is-correct { color: var(--green); }
-    .feedback-verdict.is-wrong   { color: var(--warm); }
+    .feedback-verdict.is-correct { color: #2e6b42; }
+    .feedback-verdict.is-wrong   { color: #c1341e; }
 
     .feedback-explanation {
       margin: 0;
-      color: var(--muted);
-      font-size: 0.88rem;
-      line-height: 1.52;
+      color: #53616a;
+      font-size: 0.93rem;
+      line-height: 1.5;
+      max-width: 880px;
     }
 
     .game-actions {
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
-      margin-top: 4px;
+      margin-top: 2px;
     }
 
     .btn-view-map {
-      border: 1px solid var(--line);
+      border: 1px solid #cbd3d6;
       border-radius: 8px;
-      background: var(--panel);
-      color: var(--ink);
+      background: #ffffff;
+      color: #172027;
       padding: 9px 14px;
       font: inherit;
       font-size: 0.87rem;
+      font-weight: 720;
       cursor: pointer;
     }
 
     .btn-view-map:hover {
-      border-color: var(--dark);
+      border-color: #e8a020;
     }
 
     .btn-next {
       border: none;
       border-radius: 8px;
-      background: var(--dark);
+      background: #172027;
       color: #f7f4ec;
       padding: 9px 18px;
       font: inherit;
@@ -2138,7 +2208,7 @@
       cursor: pointer;
     }
 
-    .btn-next:hover { opacity: 0.88; }
+    .btn-next:hover { opacity: 0.9; }
 
     .game-results {
       text-align: center;
@@ -2304,12 +2374,13 @@
 
     .feedback-map-hint {
       margin: 8px 0 4px;
-      padding: 8px 12px;
-      background: rgba(29, 111, 163, 0.08);
+      max-width: 820px;
+      padding: 9px 12px;
+      background: rgba(29, 111, 163, 0.09);
       border-left: 3px solid var(--cool);
-      border-radius: 0 6px 6px 0;
-      font-size: 0.86rem;
-      color: var(--muted);
+      border-radius: 0 7px 7px 0;
+      font-size: 0.88rem;
+      color: #53616a;
       line-height: 1.45;
     }
   </style>
@@ -2361,7 +2432,7 @@
             <div class="globe-entry-overlay" id="globeEntryOverlay">
               <div class="globe-entry-panel">
                 <strong>Enter the globe</strong>
-                <span>Focus the map to drag, rotate, and zoom the Pacific without the page moving.</span>
+                <span>Unlock the map controls, then drag or scroll to rotate. Pinch to zoom.</span>
                 <button id="globeEnterBtn" type="button">Enter globe</button>
               </div>
             </div>
@@ -2415,7 +2486,7 @@
               </div>
 
               <span class="map-instruction map-instruction-dock">
-                <span class="map-instruction-help">Enter the globe to use scroll zoom. Layer buttons switch the data view.</span>
+                <span class="map-instruction-help">Enter the globe to rotate and zoom. Layer buttons unlock inside.</span>
               </span>
             </div>
           </div>
@@ -3233,6 +3304,7 @@
       let pendingHoverPoint = null;
 
       function updateReadoutFromPoint(point) {
+        if (!state.globeFocus) return;
         const lngLat = map.unproject(point);
         // Normalize to -180/180 range
         const lon = ((lngLat.lng % 360) + 540) % 360 - 180;
@@ -3248,6 +3320,7 @@
       }
 
       map.on("mousemove", e => {
+        if (!state.globeFocus) return;
         if (e.originalEvent) positionReadout(e.originalEvent);
         pendingHoverPoint = e.point;
         if (hoverFrame) return;
@@ -3258,8 +3331,39 @@
       });
 
       const mapWrap = document.querySelector("#mapWrap");
+      let wheelFrame = null;
+      let rotateLngDelta = 0;
+      let rotateLatDelta = 0;
+      let zoomDelta = 0;
+
+      const flushWheel = () => {
+        wheelFrame = null;
+        if (!state.globeFocus || !state.map || !state.map.isStyleLoaded()) {
+          rotateLngDelta = 0;
+          rotateLatDelta = 0;
+          zoomDelta = 0;
+          return;
+        }
+
+        if (zoomDelta) {
+          const nextZoom = Math.max(
+            state.map.getMinZoom(),
+            Math.min(state.map.getMaxZoom(), state.map.getZoom() - zoomDelta * 0.005)
+          );
+          state.map.jumpTo({ zoom: nextZoom });
+        } else if (rotateLngDelta || rotateLatDelta) {
+          const center = state.map.getCenter();
+          const nextLat = Math.max(-65, Math.min(65, center.lat - rotateLatDelta * 0.045));
+          state.map.setCenter([center.lng + rotateLngDelta * 0.08, nextLat]);
+        }
+
+        rotateLngDelta = 0;
+        rotateLatDelta = 0;
+        zoomDelta = 0;
+      };
 
       const queueHoverFromEvent = (event) => {
+        if (!state.globeFocus) return;
         if (!state.map || !state.map.isStyleLoaded()) return;
         positionReadout(event);
         const rect = state.map.getCanvas().getBoundingClientRect();
@@ -3274,9 +3378,26 @@
         });
       };
 
-      mapWrap.addEventListener("mouseenter", showReadoutHint);
+      mapWrap.addEventListener("mouseenter", () => {
+        if (state.globeFocus) showReadoutHint();
+      });
       mapWrap.addEventListener("mousemove", queueHoverFromEvent);
       mapWrap.addEventListener("mouseleave", resetReadout);
+
+      mapWrap.addEventListener("wheel", (event) => {
+        if (!state.globeFocus || !state.map || !state.map.isStyleLoaded()) return;
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (event.ctrlKey || event.metaKey) {
+          zoomDelta += event.deltaY;
+        } else {
+          rotateLngDelta += event.deltaX;
+          rotateLatDelta += event.deltaY;
+        }
+
+        if (!wheelFrame) wheelFrame = requestAnimationFrame(flushWheel);
+      }, { passive: false });
 
     }
 
@@ -3499,8 +3620,8 @@
     function enterGlobeFocus() {
       state.globeFocus = true;
       document.body.classList.add("globe-focus-active");
-      state.map?.scrollZoom.enable();
-      document.querySelector(".map-instruction-help").textContent = "Scroll to zoom the globe. Drag to rotate. Use Exit to return to the page.";
+      state.map?.scrollZoom.disable();
+      document.querySelector(".map-instruction-help").textContent = "Drag or scroll to rotate. Pinch or use + / - to zoom. Use Exit to return.";
       window.setTimeout(() => state.map?.resize(), 80);
       document.querySelector("#globeExitBtn")?.focus({ preventScroll: true });
     }
@@ -3509,7 +3630,8 @@
       state.globeFocus = false;
       document.body.classList.remove("globe-focus-active");
       state.map?.scrollZoom.disable();
-      document.querySelector(".map-instruction-help").textContent = "Enter the globe to use scroll zoom. Layer buttons switch the data view.";
+      resetReadout();
+      document.querySelector(".map-instruction-help").textContent = "Enter the globe to rotate and zoom. Layer buttons unlock inside.";
       window.setTimeout(() => state.map?.resize(), 80);
       document.querySelector(".scrolly-exhibit")?.scrollIntoView({ block: "start" });
     }
@@ -3771,7 +3893,7 @@
       document.querySelector("#feedbackMapHint").textContent = q.mapHint;
       document.querySelector("#gameScoreLabel").textContent = `Score: ${gameState.score}`;
       document.querySelector("#gameViewMapBtn").textContent = "\u2191 View on map";
-      document.querySelector("#gameFeedback").style.display = "block";
+      document.querySelector("#gameFeedback").style.display = "grid";
     }
 
     function viewOnMap() {
@@ -3911,7 +4033,6 @@
           applySpaceFog();
           initMapLayers(data);
           setupMapEvents();
-          setupGlobeDrift();
           prebuildRemainingLayers();
         });
         state.map.on("style.load", applySpaceFog);
