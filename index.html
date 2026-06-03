@@ -3893,11 +3893,12 @@
           zoom: 2.0,
           minZoom: 1.5,
           maxZoom: 8,
-          scrollZoom: false
+          scrollZoom: false,
+          projection: "globe"
         });
         state.map.scrollZoom.disable();
         state.map.addControl(new mapboxgl.NavigationControl(), "bottom-right");
-        state.map.on("load", () => {
+        function applySpaceFog() {
           state.map.setFog({
             color: "rgb(160, 210, 245)",
             "high-color": "rgb(8, 20, 55)",
@@ -3905,11 +3906,15 @@
             "space-color": "rgb(0, 0, 0)",
             "star-intensity": 0.55
           });
+        }
+        state.map.on("load", () => {
+          applySpaceFog();
           initMapLayers(data);
           setupMapEvents();
           setupGlobeDrift();
           prebuildRemainingLayers();
         });
+        state.map.on("style.load", applySpaceFog);
       })
       .catch((error) => {
         document.querySelector("#layerTitle").textContent = "Data failed to load";
