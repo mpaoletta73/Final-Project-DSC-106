@@ -692,40 +692,6 @@
       display: none;
     }
 
-    .map-label-strip {
-      position: absolute;
-      bottom: 14px;
-      left: 14px;
-      z-index: 2;
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      background: rgba(23, 32, 39, 0.72);
-      color: #f7f4ec;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 7px;
-      padding: 6px 12px;
-      font-size: 0.78rem;
-      font-weight: 620;
-      letter-spacing: 0.03em;
-      text-transform: uppercase;
-      pointer-events: none;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .map-label-sub {
-      font-size: 0.68rem;
-      font-weight: 400;
-      letter-spacing: 0.02em;
-      color: rgba(247, 244, 236, 0.55);
-      text-transform: none;
-    }
-
-    .map-label-strip.label-pulse {
-      animation: labelPulse 420ms ease;
-    }
-
     .scrolly-exhibit {
       position: relative;
       min-height: auto;
@@ -760,10 +726,10 @@
       left: 50%;
       bottom: 14px;
       z-index: 18;
-      width: min(720px, calc(100% - 360px));
+      width: min(560px, calc(100% - 180px));
       display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      gap: 10px;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 8px;
       align-items: end;
       padding: 9px;
       transform: translateX(-50%);
@@ -2285,20 +2251,6 @@
       }
     }
 
-    @keyframes labelPulse {
-      0% {
-        box-shadow: 0 0 0 0 rgba(232, 160, 32, 0);
-      }
-
-      45% {
-        box-shadow: 0 0 0 4px rgba(232, 160, 32, 0.34);
-      }
-
-      100% {
-        box-shadow: 0 0 0 0 rgba(232, 160, 32, 0);
-      }
-    }
-
     @media (prefers-reduced-motion: reduce) {
       html {
         scroll-behavior: auto;
@@ -2748,6 +2700,120 @@
         transition: none !important;
       }
     }
+
+    /* ── Overlay toggles — vertical column, top-right of globe ── */
+    #overlay-toggles {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      z-index: 18;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    #overlay-toggles button {
+      background: rgba(23, 32, 39, 0.82);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 8px;
+      color: #f7f4ec;
+      font-size: 0.78rem;
+      font-weight: 680;
+      padding: 7px 12px;
+      cursor: pointer;
+      white-space: nowrap;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      transition: background 120ms ease, border-color 120ms ease;
+      min-height: 34px;
+    }
+
+    #overlay-toggles button:hover {
+      background: rgba(255, 255, 255, 0.16);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    #overlay-toggles button[aria-pressed="true"] {
+      background: #1d6fa3;
+      border-color: #1d6fa3;
+      color: #f7f4ec;
+      box-shadow: 0 0 0 2px rgba(29, 111, 163, 0.35);
+    }
+
+    /* ── Globe geographic labels ── */
+    #globe-labels {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 5;
+      overflow: hidden;
+    }
+
+    .globe-label {
+      position: absolute;
+      top: 0;
+      left: 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(23, 32, 39, 0.84);
+      color: #f7f4ec;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 20px;
+      padding: 5px 11px 5px 8px;
+      font-size: 0.73rem;
+      font-weight: 720;
+      letter-spacing: 0.03em;
+      white-space: nowrap;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      transform: translate(-50%, -50%);
+      transition: opacity 400ms ease;
+      pointer-events: none;
+    }
+
+    .globe-label-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* ── Layer note scroll tooltip ── */
+    .layer-note-tip {
+      position: absolute;
+      bottom: 110px;
+      left: 14px;
+      z-index: 6;
+      max-width: 220px;
+      background: rgba(23, 32, 39, 0.82);
+      color: rgba(247, 244, 236, 0.80);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 0.73rem;
+      line-height: 1.4;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 500ms ease;
+    }
+
+    .layer-note-tip.is-visible {
+      opacity: 1;
+    }
+
+    /* ── Timeline standalone section (below globe) ── */
+    .timeline-standalone {
+      background: var(--page);
+      padding: clamp(48px, 7vh, 80px) clamp(24px, 6vw, 80px);
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .timeline-standalone .timeline-section-inner {
+      max-width: 1060px;
+      margin: 0 auto;
+    }
   </style>
 </head>
 <body>
@@ -2852,36 +2918,6 @@
         <div class="section-scroll-cue" aria-hidden="true">Scroll to explore<span class="cue-chevron"></span></div>
       </section>
 
-      <!-- 8. Timeline -->
-      <section class="story-section story-section--tall timeline-section" id="section-timeline" aria-labelledby="timelineSectionTitle">
-        <div class="timeline-section-inner">
-          <div class="timeline-section-header">
-            <div>
-              <p class="timeline-kicker">Behind the comparison</p>
-              <h2 id="timelineSectionTitle">How we define El Nino-like months</h2>
-            </div>
-            <p class="timeline-rule-card"><strong>+0.5 °C threshold</strong><span>Months above this line become the El Nino-like group used in the map.</span></p>
-          </div>
-          <div class="viz-footer tf-visible">
-            <div class="timeline-story">
-              <p>The map compares two groups of months. This timeline shows how those groups are chosen from the Nino 3.4 sea-surface temperature anomaly record, month by month, from 1950–2014.</p>
-              <div class="timeline-legend" aria-label="Timeline phase legend">
-                <span style="--dot-color: #c1341e">El Nino-like</span>
-                <span style="--dot-color: #9ba6ab">Neutral</span>
-                <span style="--dot-color: #1d6fa3">La Nina-like</span>
-              </div>
-            </div>
-            <div class="timeline-wrap">
-              <svg class="timeline" id="timelineSvg" role="img" aria-label="Nino 3.4 monthly anomaly timeline"></svg>
-              <div class="timeline-tooltip" id="timelineTooltip" role="tooltip"></div>
-            </div>
-          </div>
-          <canvas id="timelineCanvas" hidden aria-hidden="true"></canvas>
-          <button class="legacy-timeline-control" id="timelineToggle" type="button" aria-pressed="true">Timeline shown below</button>
-        </div>
-        <div class="section-scroll-cue" aria-hidden="true">Scroll to explore<span class="cue-chevron"></span></div>
-      </section>
-
     </div><!-- /.story-left -->
 
     <!-- ══ RIGHT 66% — sticky globe ═══════════════════════════════ -->
@@ -2926,14 +2962,15 @@
                   <span id="legendMax">Higher</span>
                 </div>
               </div>
-              <p class="method" id="layerNote"></p>
             </div>
           </div>
-          <div class="map-label-strip" id="mapLabelStrip">
-            <span id="mapLabelText">El Nino Fingerprint</span>
-            <span class="map-label-sub">Pacific Ocean · land areas have no data</span>
+          <div id="layer-note-tooltip" class="layer-note-tip" aria-live="polite"></div>
+          <div id="overlay-toggles" aria-label="Map overlay controls">
+            <button id="ninoBoxBtn" type="button" aria-pressed="false">Nino 3.4 Box</button>
+            <button id="regionsBtn" type="button" aria-pressed="false">Regions</button>
           </div>
-          <div class="map-control-dock" aria-label="Map layer and overlay controls">
+          <div id="globe-labels" aria-hidden="true"></div>
+          <div class="map-control-dock" aria-label="Map layer controls">
             <div class="dock-header">
               <span class="dock-layer-name" id="dockLayerName">El Nino Fingerprint</span>
               <button class="dock-toggle-btn" id="dockToggleBtn" type="button" title="Minimize controls" aria-label="Minimize layer controls">&#x25B2;</button>
@@ -2941,13 +2978,6 @@
             <div class="control-group">
               <span class="label">Layer controls</span>
               <div class="layer-buttons" id="layerButtons"></div>
-            </div>
-            <div class="control-group overlay-control">
-              <span class="label">Overlays</span>
-              <div class="mini-toggle">
-                <button id="ninoBoxBtn" type="button" aria-pressed="false">Nino 3.4 Box</button>
-                <button id="regionsBtn" type="button" aria-pressed="false">Regions</button>
-              </div>
             </div>
             <span class="map-instruction map-instruction-dock">
               <span class="map-instruction-help">Hover the globe to use scroll zoom. Layer buttons switch the data view.</span>
@@ -2958,6 +2988,34 @@
     </div><!-- /.story-right -->
 
   </div><!-- /.scrollytelling-layout -->
+
+  <!-- 8b. How we define El Niño-like months — standalone full-width section -->
+  <section class="standalone-section timeline-standalone" id="section-timeline" aria-labelledby="timelineSectionTitle">
+    <div class="timeline-section-inner">
+      <div class="timeline-section-header">
+        <div>
+          <p class="timeline-kicker">Behind the comparison</p>
+          <h2 id="timelineSectionTitle">How we define El Nino-like months</h2>
+        </div>
+        <p class="timeline-rule-card"><strong>+0.5 °C threshold</strong><span>Months above this line become the El Nino-like group used in the map.</span></p>
+      </div>
+      <div class="viz-footer tf-visible">
+        <div class="timeline-story">
+          <p>The map compares two groups of months. This timeline shows how those groups are chosen from the Nino 3.4 sea-surface temperature anomaly record, month by month, from 1950–2014.</p>
+          <div class="timeline-legend" aria-label="Timeline phase legend">
+            <span style="--dot-color: #c1341e">El Nino-like</span>
+            <span style="--dot-color: #9ba6ab">Neutral</span>
+            <span style="--dot-color: #1d6fa3">La Nina-like</span>
+          </div>
+        </div>
+        <div class="timeline-wrap">
+          <svg class="timeline" id="timelineSvg" role="img" aria-label="Nino 3.4 monthly anomaly timeline"></svg>
+          <div class="timeline-tooltip" id="timelineTooltip" role="tooltip"></div>
+        </div>
+      </div>
+      <canvas id="timelineCanvas" hidden aria-hidden="true"></canvas>
+    </div>
+  </section>
 
   <!-- 9. Quiz — standalone full-width section, no globe -->
   <section class="standalone-section" id="section-quiz" aria-label="Quiz and test">
@@ -3188,7 +3246,8 @@
       lastSpinTime: null,
       storyCameraUntil: 0,
       userInteracting: false,
-      calloutTimer: null
+      calloutTimer: null,
+      globeLabelAnchors: []
     };
 
     const timelineSvg = d3.select("#timelineSvg");
@@ -3810,6 +3869,8 @@
         if (!wheelFrame) wheelFrame = requestAnimationFrame(flushWheel);
       }, { passive: false });
 
+      map.on("render", repositionGlobeLabels);
+
     }
 
     // --- Timeline (D3) ---
@@ -4073,14 +4134,6 @@
       document.querySelectorAll(".story-section[data-layer]").forEach(s => layerObs.observe(s));
     }
 
-    function pulseMapLabel() {
-      const labelStrip = document.querySelector("#mapLabelStrip");
-      if (!labelStrip) return;
-      labelStrip.classList.remove("label-pulse");
-      void labelStrip.offsetWidth;
-      labelStrip.classList.add("label-pulse");
-    }
-
     function setMapLoading(isLoading, label = "map layer") {
       const overlay = document.querySelector("#mapLoadingOverlay");
       if (!overlay) return;
@@ -4191,18 +4244,79 @@
       state.autoSpinFrame = requestAnimationFrame(drift);
     }
 
+    const globeLabelDefs = {
+      combined: [
+        { lng: -135, lat: 2,  text: "Strong signal",       color: "#e8a020" },
+        { lng:  140, lat: 5,  text: "Opposite or weak",    color: "#9ba6ab" }
+      ],
+      sst: [
+        { lng: -145, lat: 2,  text: "Niño 3.4 region",     color: "#c1341e" },
+        { lng:  145, lat: -5, text: "Western Pacific cool", color: "#1d6fa3" }
+      ],
+      precip: [
+        { lng: -150, lat: 4,  text: "Increased rainfall",  color: "#c1341e" },
+        { lng:  128, lat: 0,  text: "Drying — Indonesia",  color: "#1d6fa3" }
+      ],
+      cloud: [
+        { lng: -152, lat: 5,  text: "Cloudier",            color: "#c1341e" },
+        { lng:  122, lat: 4,  text: "Clearer skies",       color: "#1d6fa3" }
+      ],
+      rsut: [
+        { lng: -148, lat: 5,  text: "More reflected",      color: "#c1341e" },
+        { lng:  132, lat: 0,  text: "Less reflected",      color: "#1d6fa3" }
+      ]
+    };
+
+    function updateGlobeLabels(key) {
+      const container = document.querySelector("#globe-labels");
+      if (!container || !state.map) return;
+      container.innerHTML = "";
+      const defs = globeLabelDefs[key] || [];
+      state.globeLabelAnchors = defs;
+      defs.forEach(def => {
+        const el = document.createElement("div");
+        el.className = "globe-label";
+        const dot = document.createElement("span");
+        dot.className = "globe-label-dot";
+        dot.style.background = def.color;
+        el.appendChild(dot);
+        el.appendChild(document.createTextNode(def.text));
+        container.appendChild(el);
+      });
+      repositionGlobeLabels();
+    }
+
+    function repositionGlobeLabels() {
+      const container = document.querySelector("#globe-labels");
+      if (!container || !state.map) return;
+      const anchors = state.globeLabelAnchors || [];
+      const labels = container.querySelectorAll(".globe-label");
+      const mapEl = document.querySelector("#map");
+      const w = mapEl.offsetWidth, h = mapEl.offsetHeight;
+      anchors.forEach((anchor, i) => {
+        const el = labels[i];
+        if (!el) return;
+        const pt = state.map.project([anchor.lng, anchor.lat]);
+        const inBounds = pt.x > 20 && pt.x < w - 20 && pt.y > 20 && pt.y < h - 20;
+        el.style.opacity = inBounds ? "1" : "0";
+        el.style.transform = `translate(calc(${pt.x}px - 50%), calc(${pt.y}px - 50%))`;
+      });
+    }
+
     function setLayer(key) {
       state.layer = key;
       const config = layerConfig[key];
       updateActiveStoryStep(key);
       document.querySelector("#layerTitle").textContent = config.label;
       document.querySelector("#layerDescription").textContent = config.description;
-      document.querySelector("#layerNote").textContent = config.note;
-      const labelEl = document.querySelector("#mapLabelText");
-      if (labelEl) labelEl.textContent = config.label;
+      const noteTip = document.querySelector("#layer-note-tooltip");
+      if (noteTip) {
+        noteTip.textContent = config.note;
+        noteTip.classList.toggle("is-visible", key === "cloud");
+      }
       const dockLabelEl = document.querySelector("#dockLayerName");
       if (dockLabelEl) dockLabelEl.textContent = config.label;
-      pulseMapLabel();
+      updateGlobeLabels(key);
       const legendLabels = getLegendLabels(key);
       document.querySelector("#legendMin").textContent = legendLabels.min;
       document.querySelector("#legendMid").textContent = legendLabels.mid;
@@ -4269,15 +4383,18 @@
         isNowMinimized ? "Expand layer controls" : "Minimize layer controls");
     });
 
-    document.querySelector("#timelineToggle").addEventListener("click", (e) => {
-      const btn = e.currentTarget;
-      const footer = document.querySelector(".viz-footer");
-      const isVisible = footer.classList.toggle("tf-visible");
-      const panel = btn.closest(".viz-panel");
-      if (panel) panel.classList.toggle("timeline-open", isVisible);
-      btn.textContent = isVisible ? "Hide Nino 3.4 timeline" : "Show Nino 3.4 timeline";
-      btn.setAttribute("aria-pressed", String(isVisible));
-    });
+    const timelineToggleBtn = document.querySelector("#timelineToggle");
+    if (timelineToggleBtn) {
+      timelineToggleBtn.addEventListener("click", (e) => {
+        const btn = e.currentTarget;
+        const footer = document.querySelector(".viz-footer");
+        const isVisible = footer.classList.toggle("tf-visible");
+        const panel = btn.closest(".viz-panel");
+        if (panel) panel.classList.toggle("timeline-open", isVisible);
+        btn.textContent = isVisible ? "Hide Nino 3.4 timeline" : "Show Nino 3.4 timeline";
+        btn.setAttribute("aria-pressed", String(isVisible));
+      });
+    }
 
     window.addEventListener("resize", () => {
       drawTimeline();
@@ -4493,6 +4610,7 @@
           initMapLayers(data);
           setupMapEvents();
           prebuildRemainingLayers();
+          updateGlobeLabels(state.layer);
           // Enable scroll zoom while hovering over the globe panel
           const storyRight = document.getElementById("storyRight");
           if (storyRight) {
