@@ -2620,6 +2620,46 @@
       .section-scroll-cue { animation: none; opacity: 0.45; }
     }
 
+    /* ══════════════════════════════════════════════════════
+       SECTION NAVIGATION BUTTONS — replaces scroll cue
+       ══════════════════════════════════════════════════════ */
+
+    .section-nav {
+      display: flex;
+      gap: 10px;
+      margin-top: 28px;
+      flex-wrap: wrap;
+    }
+
+    .section-nav-btn {
+      padding: 10px 22px;
+      border: 1px solid rgba(232, 160, 32, 0.45);
+      border-radius: 8px;
+      background: rgba(232, 160, 32, 0.1);
+      color: #e8a020;
+      font-size: 0.86rem;
+      font-weight: 720;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s, opacity 0.2s, transform 0.15s;
+    }
+
+    .section-nav-btn:hover:not(:disabled) {
+      background: rgba(232, 160, 32, 0.22);
+      border-color: rgba(232, 160, 32, 0.75);
+      transform: translateY(-1px);
+    }
+
+    .section-nav-btn:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    .section-nav-btn:disabled {
+      opacity: 0.22;
+      cursor: default;
+      pointer-events: none;
+    }
+
     /* Hide globe entry overlay – globe is always visible in scrollytelling mode */
     .scrollytelling-layout .globe-entry-overlay {
       display: none;
@@ -2809,8 +2849,11 @@
         <h2 id="mapIntroTitle">El Nino starts in the ocean, but it does not stay there.</h2>
         <p class="article-intro-body">The map is a composite showing the typical Pacific-wide pattern across 1950–2014. Start with the El Nino Fingerprint, then peel apart the layers to see how ocean warming lines up with rainfall, clouds, and reflected sunlight.</p>
         <p class="article-data-note">Dataset: CESM2 historical climate model output from 1950–2014, comparing El Nino-like months against neutral months.</p>
-        <p class="intro-transition">Scroll through the sections on the left — each one loads the corresponding data layer on the globe.</p>
-        <div class="section-scroll-cue" aria-hidden="true">Scroll to explore<span class="cue-chevron"></span></div>
+        <p class="intro-transition">Click <strong>Next</strong> below to step through each layer — the globe updates automatically.</p>
+        <nav class="section-nav" aria-label="Section navigation">
+          <button class="section-nav-btn section-nav-prev" type="button" aria-label="Previous section" disabled>&#8592; Back</button>
+          <button class="section-nav-btn section-nav-next" type="button" aria-label="Next section">Next &#8594;</button>
+        </nav>
       </section>
 
       <!-- 2. Facts -->
@@ -2820,7 +2863,10 @@
           <p>Each layer compares El Nino-like months against neutral months in CESM2 historical data.</p>
         </div>
         <div class="facts" id="facts"></div>
-        <div class="section-scroll-cue" aria-hidden="true">Scroll to explore<span class="cue-chevron"></span></div>
+        <nav class="section-nav" aria-label="Section navigation">
+          <button class="section-nav-btn section-nav-prev" type="button" aria-label="Previous section">&#8592; Back</button>
+          <button class="section-nav-btn section-nav-next" type="button" aria-label="Next section">Next &#8594;</button>
+        </nav>
       </section>
 
       <!-- 3. El Nino Fingerprint (combined) -->
@@ -2833,7 +2879,10 @@
         <h2>The whole pattern appears first.</h2>
         <p>The fingerprint combines ocean warming, rainfall, clouds, and reflected sunlight into one normalized index. Strong positive areas show where several El Nino signals line up across the Pacific basin.</p>
         <p>The Regions overlay is enabled on the globe so you can see the West, Central, and East Pacific response zones side by side.</p>
-        <div class="section-scroll-cue" aria-hidden="true">Scroll to explore<span class="cue-chevron"></span></div>
+        <nav class="section-nav" aria-label="Section navigation">
+          <button class="section-nav-btn section-nav-prev" type="button" aria-label="Previous section">&#8592; Back</button>
+          <button class="section-nav-btn section-nav-next" type="button" aria-label="Next section">Next &#8594;</button>
+        </nav>
       </section>
 
       <!-- 4. SST Warming -->
@@ -2846,7 +2895,10 @@
         <h2>The ocean starts the chain.</h2>
         <p>Sea-surface temperature rises across the tropical Pacific. This warm water is the trigger that reorganizes the atmosphere above it.</p>
         <p>The Nino 3.4 box (5°N–5°S, 170°W–120°W) is the monitoring region scientists use to declare an El Nino event when it exceeds +0.5 °C.</p>
-        <div class="section-scroll-cue" aria-hidden="true">Scroll to explore<span class="cue-chevron"></span></div>
+        <nav class="section-nav" aria-label="Section navigation">
+          <button class="section-nav-btn section-nav-prev" type="button" aria-label="Previous section">&#8592; Back</button>
+          <button class="section-nav-btn section-nav-next" type="button" aria-label="Next section">Next &#8594;</button>
+        </nav>
       </section>
 
       <!-- 5. Rainfall Shift -->
@@ -2859,7 +2911,10 @@
         <h2>Rain does not just increase everywhere.</h2>
         <p>El Nino shifts rainfall eastward across the Pacific. Some regions become wetter while others dry out — which is why the same event can mean floods in one place and drought in another.</p>
         <p>Red areas received more rain during El Nino-like months; blue areas dried out.</p>
-        <div class="section-scroll-cue" aria-hidden="true">Scroll to explore<span class="cue-chevron"></span></div>
+        <nav class="section-nav" aria-label="Section navigation">
+          <button class="section-nav-btn section-nav-prev" type="button" aria-label="Previous section">&#8592; Back</button>
+          <button class="section-nav-btn section-nav-next" type="button" aria-label="Next section">Next &#8594;</button>
+        </nav>
       </section>
 
       <!-- 6. Cloud Cover -->
@@ -2872,7 +2927,10 @@
         <h2>Storm clouds follow the warm water.</h2>
         <p>Cloud cover changes as tropical convection moves. The atmosphere responds to the ocean pattern instead of staying fixed in place.</p>
         <p>Positive values (cloudier) in the central Pacific and negative values (clearer) near Indonesia show how dramatically the convective zone migrates.</p>
-        <div class="section-scroll-cue" aria-hidden="true">Scroll to explore<span class="cue-chevron"></span></div>
+        <nav class="section-nav" aria-label="Section navigation">
+          <button class="section-nav-btn section-nav-prev" type="button" aria-label="Previous section">&#8592; Back</button>
+          <button class="section-nav-btn section-nav-next" type="button" aria-label="Next section">Next &#8594;</button>
+        </nav>
       </section>
 
       <!-- 7. Radiation (rsut) -->
@@ -2885,7 +2943,10 @@
         <h2>Even reflected sunlight changes.</h2>
         <p>Clouds affect how much shortwave radiation leaves the top of the atmosphere. El Nino changes the Pacific energy balance, not only ocean temperature.</p>
         <p>Where clouds increase, more sunlight bounces back to space. The pattern closely mirrors cloud cover, confirming the tight coupling between clouds and reflected energy.</p>
-        <div class="section-scroll-cue" aria-hidden="true">Scroll to explore<span class="cue-chevron"></span></div>
+        <nav class="section-nav" aria-label="Section navigation">
+          <button class="section-nav-btn section-nav-prev" type="button" aria-label="Previous section">&#8592; Back</button>
+          <button class="section-nav-btn section-nav-next" type="button" aria-label="Next section" disabled>Next &#8594;</button>
+        </nav>
       </section>
 
     </div><!-- /.story-left -->
@@ -4041,67 +4102,96 @@
 
     function setupScrollytellingObserver() {
       if (!("IntersectionObserver" in window)) {
-        document.querySelectorAll(".story-section").forEach(s => {
+        document.querySelectorAll(".story-section, .standalone-section").forEach(s => {
           s.classList.add("is-visible");
         });
         return;
       }
 
-      // ── Entrance animation: show section when it enters the viewport ──
+      // ── Entrance animation: fade section in when it enters the viewport ──
       const revealObs = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
           entry.target.classList.toggle("is-visible", entry.isIntersecting);
         });
       }, { threshold: 0.10 });
 
-      // ── Layer trigger: fire when 38% of a data section is visible ──
-      const layerObs = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (!entry.isIntersecting) return;
-
-          const el = entry.target;
-          document.querySelectorAll(".story-section.is-active").forEach(s => s.classList.remove("is-active"));
-          el.classList.add("is-active");
-
-          const { layer, highlight, cameraLng, cameraLat, cameraZoom } = el.dataset;
-
-          if (layer && layer !== state.layer) setLayer(layer);
-
-          if (state.map && cameraLng != null) {
-            state.map.flyTo({
-              center: [+cameraLng, +cameraLat],
-              zoom: +cameraZoom,
-              duration: 1400,
-              essential: true
-            });
-          }
-
-          const wantNino = highlight === "nino";
-          const wantRegions = highlight === "regions";
-
-          if (wantNino !== state.showNinoBox) {
-            state.showNinoBox = wantNino;
-            document.querySelector("#ninoBoxBtn").setAttribute("aria-pressed", String(wantNino));
-            setOverlayVisibility("layer-nino-box-fill", wantNino);
-            setOverlayVisibility("layer-nino-box", wantNino);
-            setOverlayVisibility("layer-nino-box-label", wantNino);
-            if (wantNino) updateNinoBoxFill(state.layer);
-          }
-
-          if (wantRegions !== state.showRegions) {
-            state.showRegions = wantRegions;
-            document.querySelector("#regionsBtn").setAttribute("aria-pressed", String(wantRegions));
-            setOverlayVisibility("layer-region-fill", wantRegions);
-            setOverlayVisibility("layer-regions", wantRegions);
-            setOverlayVisibility("layer-region-labels", wantRegions);
-            if (wantRegions) updateRegionFill(state.layer);
-          }
-        });
-      }, { threshold: 0.38 });
-
       document.querySelectorAll(".story-section").forEach(s => revealObs.observe(s));
       document.querySelectorAll(".standalone-section").forEach(s => revealObs.observe(s));
-      document.querySelectorAll(".story-section[data-layer]").forEach(s => layerObs.observe(s));
+    }
+
+    function setupSectionNav() {
+      const SECTION_ORDER = [
+        "section-intro", "section-facts", "section-combined",
+        "section-sst", "section-precip", "section-cloud", "section-rsut"
+      ];
+
+      function activateSection(section) {
+        document.querySelectorAll(".story-section.is-active").forEach(s => s.classList.remove("is-active"));
+        section.classList.add("is-active");
+        section.classList.add("is-visible");
+
+        const { layer, highlight, cameraLng, cameraLat, cameraZoom } = section.dataset;
+
+        if (layer && layer !== state.layer) setLayer(layer);
+
+        if (state.map && cameraLng != null) {
+          state.map.flyTo({
+            center: [+cameraLng, +cameraLat],
+            zoom: +cameraZoom,
+            duration: 1400,
+            essential: true
+          });
+        }
+
+        const wantNino = highlight === "nino";
+        const wantRegions = highlight === "regions";
+
+        if (wantNino !== state.showNinoBox) {
+          state.showNinoBox = wantNino;
+          const ninoBtn = document.querySelector("#ninoBoxBtn");
+          if (ninoBtn) ninoBtn.setAttribute("aria-pressed", String(wantNino));
+          setOverlayVisibility("layer-nino-box-fill", wantNino);
+          setOverlayVisibility("layer-nino-box", wantNino);
+          setOverlayVisibility("layer-nino-box-label", wantNino);
+          if (wantNino) updateNinoBoxFill(state.layer);
+        }
+
+        if (wantRegions !== state.showRegions) {
+          state.showRegions = wantRegions;
+          const regBtn = document.querySelector("#regionsBtn");
+          if (regBtn) regBtn.setAttribute("aria-pressed", String(wantRegions));
+          setOverlayVisibility("layer-region-fill", wantRegions);
+          setOverlayVisibility("layer-region-labels", wantRegions);
+          setOverlayVisibility("layer-regions", wantRegions);
+          if (wantRegions) updateRegionFill(state.layer);
+        }
+
+        section.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
+
+      document.querySelectorAll(".section-nav-next").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const current = btn.closest(".story-section");
+          if (!current) return;
+          const idx = SECTION_ORDER.indexOf(current.id);
+          if (idx >= 0 && idx < SECTION_ORDER.length - 1) {
+            const next = document.getElementById(SECTION_ORDER[idx + 1]);
+            if (next) activateSection(next);
+          }
+        });
+      });
+
+      document.querySelectorAll(".section-nav-prev").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const current = btn.closest(".story-section");
+          if (!current) return;
+          const idx = SECTION_ORDER.indexOf(current.id);
+          if (idx > 0) {
+            const prev = document.getElementById(SECTION_ORDER[idx - 1]);
+            if (prev) activateSection(prev);
+          }
+        });
+      });
     }
 
     function setMapLoading(isLoading, label = "map layer") {
@@ -4557,6 +4647,7 @@
         setLayer("combined");
         drawTimeline();
         enableGameStart();
+        setupSectionNav();
 
         mapboxgl.accessToken = "pk.eyJ1IjoieWFsbDc3NyIsImEiOiJjbXA3ZXIzNjIwMm5zMnNweDkwamtpM3RtIn0.udhgEgCcnM5hGKdL5Mz3Nw";
         state.map = new mapboxgl.Map({
