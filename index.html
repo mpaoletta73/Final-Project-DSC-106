@@ -2815,6 +2815,7 @@
     /* ── Timeline standalone section (below globe) ── */
     .timeline-standalone {
       background: var(--page);
+      color: var(--ink);
       padding: clamp(48px, 7vh, 80px) clamp(24px, 6vw, 80px);
       width: 100%;
       box-sizing: border-box;
@@ -2945,7 +2946,7 @@
         <p>Where clouds increase, more sunlight bounces back to space. The pattern closely mirrors cloud cover, confirming the tight coupling between clouds and reflected energy.</p>
         <nav class="section-nav" aria-label="Section navigation">
           <button class="section-nav-btn section-nav-prev" type="button" aria-label="Previous section">&#8592; Back</button>
-          <button class="section-nav-btn section-nav-next" type="button" aria-label="Next section" disabled>Next &#8594;</button>
+          <button class="section-nav-btn section-nav-next" type="button" aria-label="Continue to timeline">Continue &#8594;</button>
         </nav>
       </section>
 
@@ -4177,6 +4178,9 @@
           if (idx >= 0 && idx < SECTION_ORDER.length - 1) {
             const next = document.getElementById(SECTION_ORDER[idx + 1]);
             if (next) activateSection(next);
+          } else if (idx === SECTION_ORDER.length - 1) {
+            const timelineSection = document.getElementById("section-timeline");
+            if (timelineSection) timelineSection.scrollIntoView({ behavior: "smooth", block: "start" });
           }
         });
       });
