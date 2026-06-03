@@ -451,22 +451,7 @@
     }
 
     .topbar {
-      position: absolute;
-      top: 16px;
-      left: 16px;
-      z-index: 5;
-      display: grid;
-      gap: 8px;
-      margin: 0;
-      width: min(360px, calc(100% - 32px));
-      padding: 16px 17px;
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      background: rgba(23, 32, 39, 0.9);
-      border: 1px solid rgba(232, 160, 32, 0.38);
-      border-radius: 10px;
-      color: #f7f4ec;
-      box-shadow: 0 16px 38px rgba(2, 4, 8, 0.38);
+      display: none;
     }
 
     .topbar .caption-kicker {
@@ -723,23 +708,29 @@
 
     .map-control-dock {
       position: absolute;
-      left: 50%;
-      bottom: 14px;
+      right: 14px;
+      top: 50%;
+      bottom: auto;
+      left: auto;
       z-index: 18;
-      width: min(560px, calc(100% - 180px));
+      width: 160px;
+      max-height: calc(100% - 28px);
+      overflow-y: auto;
       display: grid;
       grid-template-columns: minmax(0, 1fr);
       gap: 8px;
-      align-items: end;
+      align-items: start;
       padding: 9px;
-      transform: translateX(-50%);
+      transform: translateY(-50%);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       background: rgba(23, 32, 39, 0.78);
       border: 1px solid rgba(255, 255, 255, 0.16);
       border-radius: 12px;
       box-shadow: 0 18px 42px rgba(2, 4, 8, 0.42);
+      scrollbar-width: none;
     }
+    .map-control-dock::-webkit-scrollbar { display: none; }
 
     .viz-panel.timeline-open .map-control-dock {
       opacity: 0;
@@ -751,8 +742,8 @@
     }
 
     .map-control-dock .layer-buttons {
-      grid-template-columns: repeat(5, minmax(72px, 1fr));
-      gap: 5px;
+      grid-template-columns: 1fr;
+      gap: 4px;
     }
 
     .map-control-dock .layer-buttons button,
@@ -956,20 +947,7 @@
     }
 
     .map-legend-overlay {
-      position: absolute;
-      top: 182px;
-      left: 16px;
-      z-index: 5;
-      width: min(360px, calc(100% - 32px));
-      min-width: 280px;
-      padding: 9px 11px;
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      background: rgba(23, 32, 39, 0.78);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 10px;
-      box-shadow: 0 16px 34px rgba(2, 4, 8, 0.34);
-      color: #f7f4ec;
+      display: none;
     }
 
     .map-legend-overlay .legend-row {
@@ -995,6 +973,17 @@
       color: rgba(247, 244, 236, 0.66);
       font-size: 0.7rem;
       line-height: 1.32;
+    }
+
+    /* ── Legend inside the right control dock ── */
+    .map-control-dock .legend {
+      border-color: rgba(255, 255, 255, 0.22);
+      height: 12px;
+    }
+    .map-control-dock .legend-labels {
+      font-size: 0.66rem;
+      color: rgba(247, 244, 236, 0.72);
+      gap: 4px;
     }
 
     .scroll-callout {
@@ -1580,10 +1569,7 @@
       }
 
       .topbar {
-        top: 12px;
-        left: 12px;
-        width: min(360px, calc(100% - 24px));
-        padding: 14px 15px;
+        display: none;
       }
 
       .narrative-hook {
@@ -1622,20 +1608,21 @@
       }
 
       .map-control-dock {
-        left: 12px;
         right: 12px;
-        bottom: 12px;
-        width: auto;
+        top: 50%;
+        left: auto;
+        bottom: auto;
+        width: 150px;
+        transform: translateY(-50%);
         grid-template-columns: 1fr;
-        transform: none;
       }
 
       .map-control-dock .layer-buttons {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: 1fr;
       }
 
       .map-control-dock .mini-toggle {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: 1fr;
       }
 
       .map-control-dock .overlay-control {
@@ -1647,12 +1634,7 @@
       }
 
       .map-legend-overlay {
-        top: 174px;
-        left: 12px;
-        right: auto;
-        bottom: auto;
-        width: min(360px, calc(100% - 24px));
-        min-width: 0;
+        display: none;
       }
 
       .story-steps {
@@ -1757,20 +1739,18 @@
       }
 
       .topbar {
-        position: relative;
-        top: auto;
-        left: auto;
-        width: auto;
-        margin: 12px;
+        display: none;
       }
 
       .map-control-dock {
-        position: relative;
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
         left: auto;
-        right: auto;
         bottom: auto;
-        width: auto;
-        margin: 0 12px 12px;
+        width: 144px;
+        margin: 0;
         border-radius: 10px;
       }
 
@@ -1782,13 +1762,7 @@
       }
 
       .map-legend-overlay {
-        position: relative;
-        left: auto;
-        right: auto;
-        bottom: auto;
-        width: auto;
-        margin: 0 12px 12px;
-        transform: none;
+        display: none;
       }
 
       h1 {
@@ -2701,31 +2675,27 @@
       }
     }
 
-    /* ── Overlay toggles — vertical column, top-right of globe ── */
+    /* ── Overlay toggles — inside right control dock ── */
     #overlay-toggles {
-      position: absolute;
-      top: 14px;
-      right: 14px;
-      z-index: 18;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 4px;
     }
 
     #overlay-toggles button {
-      background: rgba(23, 32, 39, 0.82);
-      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.14);
       border-radius: 8px;
       color: #f7f4ec;
       font-size: 0.78rem;
       font-weight: 680;
-      padding: 7px 12px;
+      padding: 7px 9px;
       cursor: pointer;
       white-space: nowrap;
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
       transition: background 120ms ease, border-color 120ms ease;
       min-height: 34px;
+      width: 100%;
+      text-align: left;
     }
 
     #overlay-toggles button:hover {
@@ -2756,19 +2726,19 @@
       display: flex;
       align-items: center;
       gap: 6px;
-      background: rgba(23, 32, 39, 0.84);
+      background: rgba(23, 32, 39, 0.92);
       color: #f7f4ec;
-      border: 1px solid rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.22);
       border-radius: 20px;
       padding: 5px 11px 5px 8px;
       font-size: 0.73rem;
       font-weight: 720;
       letter-spacing: 0.03em;
       white-space: nowrap;
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
-      transform: translate(-50%, -50%);
-      transition: opacity 400ms ease;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      box-shadow: 0 4px 14px rgba(2, 4, 8, 0.4);
+      transition: opacity 500ms ease, transform 500ms ease;
       pointer-events: none;
     }
 
@@ -2952,23 +2922,7 @@
             <strong id="hoverTitle">Hover the Pacific map</strong>
             <span id="hoverText">Hover the colored ocean map for values.</span>
           </div>
-          <div class="map-legend-overlay" aria-label="Current layer color legend">
-            <div class="legend-row">
-              <div>
-                <div class="legend" id="legend"></div>
-                <div class="legend-labels">
-                  <span id="legendMin">Lower</span>
-                  <span id="legendMid">0</span>
-                  <span id="legendMax">Higher</span>
-                </div>
-              </div>
-            </div>
-          </div>
           <div id="layer-note-tooltip" class="layer-note-tip" aria-live="polite"></div>
-          <div id="overlay-toggles" aria-label="Map overlay controls">
-            <button id="ninoBoxBtn" type="button" aria-pressed="false">Nino 3.4 Box</button>
-            <button id="regionsBtn" type="button" aria-pressed="false">Regions</button>
-          </div>
           <div id="globe-labels" aria-hidden="true"></div>
           <div class="map-control-dock" aria-label="Map layer controls">
             <div class="dock-header">
@@ -2979,8 +2933,24 @@
               <span class="label">Layer controls</span>
               <div class="layer-buttons" id="layerButtons"></div>
             </div>
+            <div class="control-group" aria-label="Current layer color legend">
+              <span class="label">Scale</span>
+              <div class="legend" id="legend"></div>
+              <div class="legend-labels">
+                <span id="legendMin">Lower</span>
+                <span id="legendMid">0</span>
+                <span id="legendMax">Higher</span>
+              </div>
+            </div>
+            <div class="control-group">
+              <span class="label">Overlays</span>
+              <div id="overlay-toggles" aria-label="Map overlay controls">
+                <button id="ninoBoxBtn" type="button" aria-pressed="false">Nino 3.4 Box</button>
+                <button id="regionsBtn" type="button" aria-pressed="false">Regions</button>
+              </div>
+            </div>
             <span class="map-instruction map-instruction-dock">
-              <span class="map-instruction-help">Hover the globe to use scroll zoom. Layer buttons switch the data view.</span>
+              <span class="map-instruction-help">Hover to scroll-zoom.</span>
             </span>
           </div>
         </div>
@@ -4273,9 +4243,11 @@
       container.innerHTML = "";
       const defs = globeLabelDefs[key] || [];
       state.globeLabelAnchors = defs;
+      const revealAt = String(Date.now() + 1650);
       defs.forEach(def => {
         const el = document.createElement("div");
         el.className = "globe-label";
+        el.dataset.revealAt = revealAt;
         const dot = document.createElement("span");
         dot.className = "globe-label-dot";
         dot.style.background = def.color;
@@ -4293,13 +4265,16 @@
       const labels = container.querySelectorAll(".globe-label");
       const mapEl = document.querySelector("#map");
       const w = mapEl.offsetWidth, h = mapEl.offsetHeight;
+      const now = Date.now();
       anchors.forEach((anchor, i) => {
         const el = labels[i];
         if (!el) return;
         const pt = state.map.project([anchor.lng, anchor.lat]);
         const inBounds = pt.x > 20 && pt.x < w - 20 && pt.y > 20 && pt.y < h - 20;
-        el.style.opacity = inBounds ? "1" : "0";
-        el.style.transform = `translate(calc(${pt.x}px - 50%), calc(${pt.y}px - 50%))`;
+        const revealed = now >= parseInt(el.dataset.revealAt || "0");
+        const visible = inBounds && revealed;
+        el.style.opacity = visible ? "1" : "0";
+        el.style.transform = `translate(calc(${pt.x}px - 50%), calc(${pt.y}px - 50%)) scale(${visible ? 1 : 0.88})`;
       });
     }
 
