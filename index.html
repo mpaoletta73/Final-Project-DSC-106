@@ -706,142 +706,6 @@
       touch-action: none;
     }
 
-    .map-control-dock {
-      position: absolute;
-      right: 14px;
-      top: 50%;
-      bottom: auto;
-      left: auto;
-      z-index: 18;
-      width: 160px;
-      max-height: calc(100% - 28px);
-      overflow-y: auto;
-      display: grid;
-      grid-template-columns: minmax(0, 1fr);
-      gap: 8px;
-      align-items: start;
-      padding: 9px;
-      transform: translateY(-50%);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      background: rgba(23, 32, 39, 0.78);
-      border: 1px solid rgba(255, 255, 255, 0.16);
-      border-radius: 12px;
-      box-shadow: 0 18px 42px rgba(2, 4, 8, 0.42);
-      scrollbar-width: none;
-    }
-    .map-control-dock::-webkit-scrollbar { display: none; }
-
-    .viz-panel.timeline-open .map-control-dock {
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    .map-control-dock .label {
-      color: rgba(247, 244, 236, 0.7);
-    }
-
-    .map-control-dock .layer-buttons {
-      grid-template-columns: 1fr;
-      gap: 4px;
-    }
-
-    .map-control-dock .layer-buttons button,
-    .map-control-dock .mini-toggle button {
-      background: rgba(255, 255, 255, 0.1);
-      border-color: rgba(255, 255, 255, 0.14);
-      color: #f7f4ec;
-      box-shadow: none;
-      min-height: 34px;
-      padding: 7px 9px;
-      text-align: center;
-      font-size: 0.82rem;
-      line-height: 1.1;
-    }
-
-    .map-control-dock .layer-buttons button:hover,
-    .map-control-dock .mini-toggle button:hover {
-      background: rgba(255, 255, 255, 0.16);
-      border-color: rgba(255, 255, 255, 0.3);
-    }
-
-    .map-control-dock .layer-buttons button[aria-pressed="true"] {
-      background: #e8a020;
-      border-color: #e8a020;
-      color: #172027;
-      box-shadow: 0 0 0 2px rgba(232, 160, 32, 0.28), 0 10px 24px rgba(2, 4, 8, 0.22);
-    }
-
-    .map-control-dock .overlay-control {
-      min-width: 162px;
-    }
-
-    .map-control-dock .mini-toggle {
-      grid-template-columns: repeat(2, max-content);
-      gap: 5px;
-    }
-
-    .dock-header {
-      grid-column: 1 / -1;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      margin-bottom: 4px;
-    }
-
-    .map-control-dock.is-minimized .dock-header {
-      margin-bottom: 0;
-    }
-
-    .dock-layer-name {
-      color: rgba(247, 244, 236, 0.85);
-      font-size: 0.82rem;
-      font-weight: 700;
-      flex: 1;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .dock-toggle-btn {
-      background: rgba(255, 255, 255, 0.12);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 6px;
-      color: #f7f4ec;
-      width: 28px;
-      height: 28px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.9rem;
-      flex-shrink: 0;
-      line-height: 1;
-      transition: background 0.15s, transform 0.2s;
-    }
-
-    .dock-toggle-btn:hover {
-      background: rgba(255, 255, 255, 0.22);
-    }
-
-    .map-control-dock.is-minimized .dock-toggle-btn {
-      transform: rotate(180deg);
-    }
-
-    .map-control-dock.is-minimized .control-group,
-    .map-control-dock.is-minimized .map-instruction-dock {
-      display: none;
-    }
-
-    .map-instruction-dock {
-      grid-column: 1 / -1;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px 12px;
-      align-items: center;
-    }
-
     .scrolly-exhibit .map-instruction {
       display: flex;
       margin-top: 0;
@@ -973,17 +837,6 @@
       color: rgba(247, 244, 236, 0.66);
       font-size: 0.7rem;
       line-height: 1.32;
-    }
-
-    /* ── Legend inside the right control dock ── */
-    .map-control-dock .legend {
-      border-color: rgba(255, 255, 255, 0.22);
-      height: 12px;
-    }
-    .map-control-dock .legend-labels {
-      font-size: 0.66rem;
-      color: rgba(247, 244, 236, 0.72);
-      gap: 4px;
     }
 
     .scroll-callout {
@@ -1607,28 +1460,6 @@
         z-index: 1;
       }
 
-      .map-control-dock {
-        right: 12px;
-        top: 50%;
-        left: auto;
-        bottom: auto;
-        width: 150px;
-        transform: translateY(-50%);
-        grid-template-columns: 1fr;
-      }
-
-      .map-control-dock .layer-buttons {
-        grid-template-columns: 1fr;
-      }
-
-      .map-control-dock .mini-toggle {
-        grid-template-columns: 1fr;
-      }
-
-      .map-control-dock .overlay-control {
-        min-width: 0;
-      }
-
       .scrolly-exhibit .map-label-strip {
         display: none;
       }
@@ -1740,18 +1571,6 @@
 
       .topbar {
         display: none;
-      }
-
-      .map-control-dock {
-        position: absolute;
-        right: 10px;
-        top: 50%;
-        transform: translateY(-50%);
-        left: auto;
-        bottom: auto;
-        width: 144px;
-        margin: 0;
-        border-radius: 10px;
       }
 
       .map-readout {
@@ -2542,7 +2361,6 @@
       justify-content: center;
       padding: clamp(60px, 8vh, 100px) clamp(40px, 8vw, 120px);
       color: #f7f4ec;
-      scroll-snap-align: start;
       opacity: 0;
       transform: translateY(32px);
       transition:
@@ -2716,40 +2534,6 @@
     }
 
     /* ── Overlay toggles — inside right control dock ── */
-    #overlay-toggles {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    #overlay-toggles button {
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.14);
-      border-radius: 8px;
-      color: #f7f4ec;
-      font-size: 0.78rem;
-      font-weight: 680;
-      padding: 7px 9px;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: background 120ms ease, border-color 120ms ease;
-      min-height: 34px;
-      width: 100%;
-      text-align: left;
-    }
-
-    #overlay-toggles button:hover {
-      background: rgba(255, 255, 255, 0.16);
-      border-color: rgba(255, 255, 255, 0.3);
-    }
-
-    #overlay-toggles button[aria-pressed="true"] {
-      background: #1d6fa3;
-      border-color: #1d6fa3;
-      color: #f7f4ec;
-      box-shadow: 0 0 0 2px rgba(29, 111, 163, 0.35);
-    }
-
     /* ── Globe geographic labels ── */
     #globe-labels {
       position: absolute;
@@ -2766,27 +2550,73 @@
       display: flex;
       align-items: center;
       gap: 6px;
-      background: rgba(23, 32, 39, 0.92);
+      background: rgba(14, 22, 30, 0.94);
       color: #f7f4ec;
-      border: 1px solid rgba(255, 255, 255, 0.22);
-      border-radius: 20px;
-      padding: 5px 11px 5px 8px;
-      font-size: 0.73rem;
+      border: 1px solid rgba(255, 255, 255, 0.26);
+      border-radius: 8px;
+      padding: 6px 12px 6px 9px;
+      font-size: 0.74rem;
       font-weight: 720;
       letter-spacing: 0.03em;
       white-space: nowrap;
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      box-shadow: 0 4px 14px rgba(2, 4, 8, 0.4);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: 0 6px 20px rgba(2, 4, 8, 0.5);
       transition: opacity 500ms ease, transform 500ms ease;
       pointer-events: none;
     }
 
+    /* Directional arrow using ::after pseudo-element */
+    .globe-label::after {
+      content: "";
+      position: absolute;
+      width: 0;
+      height: 0;
+      border: 6px solid transparent;
+    }
+
+    .globe-label[data-side="bottom"]::after {
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border-top-color: rgba(14, 22, 30, 0.94);
+      border-bottom: none;
+      margin-top: -1px;
+    }
+
+    .globe-label[data-side="top"]::after {
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border-bottom-color: rgba(14, 22, 30, 0.94);
+      border-top: none;
+      margin-bottom: -1px;
+    }
+
+    .globe-label[data-side="right"]::after {
+      left: 100%;
+      top: 50%;
+      transform: translateY(-50%);
+      border-left-color: rgba(14, 22, 30, 0.94);
+      border-right: none;
+      margin-left: -1px;
+    }
+
+    .globe-label[data-side="left"]::after {
+      right: 100%;
+      top: 50%;
+      transform: translateY(-50%);
+      border-right-color: rgba(14, 22, 30, 0.94);
+      border-left: none;
+      margin-right: -1px;
+    }
+
     .globe-label-dot {
-      width: 7px;
-      height: 7px;
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
       flex-shrink: 0;
+      box-shadow: 0 0 0 2px rgba(255,255,255,0.15);
     }
 
     /* ── Layer note scroll tooltip ── */
@@ -2825,6 +2655,62 @@
       max-width: 1060px;
       margin: 0 auto;
     }
+
+    .timeline-stat-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin: 20px 0 8px;
+    }
+
+    .timeline-stat-card {
+      border-left: 3px solid #c1341e;
+      padding: 10px 0 10px 14px;
+    }
+
+    .timeline-stat-card--neutral {
+      border-left-color: #9ba6ab;
+    }
+
+    .timeline-stat-card--nina {
+      border-left-color: #1d6fa3;
+    }
+
+    .timeline-stat-card strong {
+      display: block;
+      font-size: clamp(1.6rem, 2.8vw, 2.4rem);
+      font-weight: 850;
+      line-height: 1;
+      color: var(--ink);
+    }
+
+    .timeline-stat-card span {
+      display: block;
+      margin-top: 5px;
+      font-size: 0.82rem;
+      color: var(--muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+    }
+
+    .timeline-context-text {
+      margin: 0 0 8px;
+      color: var(--muted);
+      font-size: 0.96rem;
+      line-height: 1.65;
+      max-width: 760px;
+    }
+
+    @media (max-width: 600px) {
+      .timeline-stat-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .timeline-standalone .section-scroll-cue {
+      color: rgba(60, 50, 30, 0.4);
+    }
   </style>
 </head>
 <body>
@@ -2845,7 +2731,9 @@
     <div class="story-left">
 
       <!-- 1. Intro -->
-      <section class="story-section" id="section-intro" aria-labelledby="mapIntroTitle">
+      <section class="story-section" id="section-intro"
+        data-camera-lng="-160" data-camera-lat="5" data-camera-zoom="1.8"
+        aria-labelledby="mapIntroTitle">
         <p class="article-kicker">The Pacific pattern</p>
         <h2 id="mapIntroTitle">El Nino starts in the ocean, but it does not stay there.</h2>
         <p class="article-intro-body">The map is a composite showing the typical Pacific-wide pattern across 1950–2014. Start with the El Nino Fingerprint, then peel apart the layers to see how ocean warming lines up with rainfall, clouds, and reflected sunlight.</p>
@@ -2858,7 +2746,9 @@
       </section>
 
       <!-- 2. Facts -->
-      <section class="story-section" id="section-facts" aria-label="Data summary">
+      <section class="story-section" id="section-facts"
+        data-camera-lng="-80" data-camera-lat="-3" data-camera-zoom="2.8"
+        aria-label="Data summary">
         <div class="facts-strip-heading">
           <h3>The comparison behind the map</h3>
           <p>Each layer compares El Nino-like months against neutral months in CESM2 historical data.</p>
@@ -2873,13 +2763,12 @@
       <!-- 3. El Nino Fingerprint (combined) -->
       <section class="story-section" id="section-combined"
         data-layer="combined"
-        data-highlight="regions"
-        data-camera-lng="-165" data-camera-lat="0" data-camera-zoom="2.05"
+        data-camera-lng="-178" data-camera-lat="0" data-camera-zoom="2.0"
         aria-label="El Nino Fingerprint layer">
         <p class="story-kicker">Fingerprint</p>
         <h2>The whole pattern appears first.</h2>
         <p>The fingerprint combines ocean warming, rainfall, clouds, and reflected sunlight into one normalized index. Strong positive areas show where several El Nino signals line up across the Pacific basin.</p>
-        <p>The Regions overlay is enabled on the globe so you can see the West, Central, and East Pacific response zones side by side.</p>
+        <p>The eastern and central Pacific light up in unison — a stark contrast to the weaker or opposite signal in the west.</p>
         <nav class="section-nav" aria-label="Section navigation">
           <button class="section-nav-btn section-nav-prev" type="button" aria-label="Previous section">&#8592; Back</button>
           <button class="section-nav-btn section-nav-next" type="button" aria-label="Next section">Next &#8594;</button>
@@ -2889,13 +2778,12 @@
       <!-- 4. SST Warming -->
       <section class="story-section" id="section-sst"
         data-layer="sst"
-        data-highlight="nino"
-        data-camera-lng="-150" data-camera-lat="0" data-camera-zoom="2.35"
+        data-camera-lng="-120" data-camera-lat="-2" data-camera-zoom="3.0"
         aria-label="SST Warming layer">
         <p class="story-kicker">SST Warming</p>
         <h2>The ocean starts the chain.</h2>
         <p>Sea-surface temperature rises across the tropical Pacific. This warm water is the trigger that reorganizes the atmosphere above it.</p>
-        <p>The Nino 3.4 box (5°N–5°S, 170°W–120°W) is the monitoring region scientists use to declare an El Nino event when it exceeds +0.5 °C.</p>
+        <p>The Niño 3.4 region (5°N–5°S, 170°W–120°W) is the key monitoring zone — scientists declare an El Niño event when warming there exceeds +0.5 °C for several consecutive months.</p>
         <nav class="section-nav" aria-label="Section navigation">
           <button class="section-nav-btn section-nav-prev" type="button" aria-label="Previous section">&#8592; Back</button>
           <button class="section-nav-btn section-nav-next" type="button" aria-label="Next section">Next &#8594;</button>
@@ -2905,8 +2793,7 @@
       <!-- 5. Rainfall Shift -->
       <section class="story-section" id="section-precip"
         data-layer="precip"
-        data-highlight="regions"
-        data-camera-lng="170" data-camera-lat="-5" data-camera-zoom="2.45"
+        data-camera-lng="128" data-camera-lat="-3" data-camera-zoom="3.2"
         aria-label="Rainfall Shift layer">
         <p class="story-kicker">Rainfall Shift</p>
         <h2>Rain does not just increase everywhere.</h2>
@@ -2921,8 +2808,7 @@
       <!-- 6. Cloud Cover -->
       <section class="story-section" id="section-cloud"
         data-layer="cloud"
-        data-highlight="regions"
-        data-camera-lng="-175" data-camera-lat="0" data-camera-zoom="2.35"
+        data-camera-lng="-165" data-camera-lat="8" data-camera-zoom="2.6"
         aria-label="Cloud Cover layer">
         <p class="story-kicker">Cloud Cover</p>
         <h2>Storm clouds follow the warm water.</h2>
@@ -2937,8 +2823,7 @@
       <!-- 7. Radiation (rsut) -->
       <section class="story-section" id="section-rsut"
         data-layer="rsut"
-        data-highlight="regions"
-        data-camera-lng="-160" data-camera-lat="0" data-camera-zoom="2.25"
+        data-camera-lng="-150" data-camera-lat="-12" data-camera-zoom="2.8"
         aria-label="Outgoing Radiation layer">
         <p class="story-kicker">Radiation</p>
         <h2>Even reflected sunlight changes.</h2>
@@ -2986,35 +2871,6 @@
           </div>
           <div id="layer-note-tooltip" class="layer-note-tip" aria-live="polite"></div>
           <div id="globe-labels" aria-hidden="true"></div>
-          <div class="map-control-dock" aria-label="Map layer controls">
-            <div class="dock-header">
-              <span class="dock-layer-name" id="dockLayerName">El Nino Fingerprint</span>
-              <button class="dock-toggle-btn" id="dockToggleBtn" type="button" title="Minimize controls" aria-label="Minimize layer controls">&#x25B2;</button>
-            </div>
-            <div class="control-group">
-              <span class="label">Layer controls</span>
-              <div class="layer-buttons" id="layerButtons"></div>
-            </div>
-            <div class="control-group" aria-label="Current layer color legend">
-              <span class="label">Scale</span>
-              <div class="legend" id="legend"></div>
-              <div class="legend-labels">
-                <span id="legendMin">Lower</span>
-                <span id="legendMid">0</span>
-                <span id="legendMax">Higher</span>
-              </div>
-            </div>
-            <div class="control-group">
-              <span class="label">Overlays</span>
-              <div id="overlay-toggles" aria-label="Map overlay controls">
-                <button id="ninoBoxBtn" type="button" aria-pressed="false">Nino 3.4 Box</button>
-                <button id="regionsBtn" type="button" aria-pressed="false">Regions</button>
-              </div>
-            </div>
-            <span class="map-instruction map-instruction-dock">
-              <span class="map-instruction-help">Hover to scroll-zoom.</span>
-            </span>
-          </div>
         </div>
       </section>
     </div><!-- /.story-right -->
@@ -3031,6 +2887,27 @@
         </div>
         <p class="timeline-rule-card"><strong>+0.5 °C threshold</strong><span>Months above this line become the El Nino-like group used in the map.</span></p>
       </div>
+      <div class="timeline-stat-row" id="timelineStatRow">
+        <div class="timeline-stat-card">
+          <strong id="statElNino">—</strong>
+          <span>El Niño-like months</span>
+        </div>
+        <div class="timeline-stat-card timeline-stat-card--neutral">
+          <strong id="statNeutral">—</strong>
+          <span>Neutral months</span>
+        </div>
+        <div class="timeline-stat-card timeline-stat-card--nina">
+          <strong id="statLaNina">—</strong>
+          <span>La Niña-like months</span>
+        </div>
+      </div>
+      <p class="timeline-context-text">
+        The Niño 3.4 region (5°N–5°S, 170°W–120°W) is the standard benchmark for ENSO.
+        When its monthly sea-surface temperature anomaly stays above +0.5 °C, that month
+        is counted as El Niño-like in this analysis. Months below −0.5 °C are La Niña-like;
+        everything in between is Neutral. The 65-year record below shows how frequently
+        each phase has appeared since 1950.
+      </p>
       <div class="viz-footer tf-visible">
         <div class="timeline-story">
           <p>The map compares two groups of months. This timeline shows how those groups are chosen from the Nino 3.4 sea-surface temperature anomaly record, month by month, from 1950–2014.</p>
@@ -3047,6 +2924,7 @@
       </div>
       <canvas id="timelineCanvas" hidden aria-hidden="true"></canvas>
     </div>
+    <div class="section-scroll-cue" aria-hidden="true">Scroll to explore<span class="cue-chevron"></span></div>
   </section>
 
   <!-- 9. Quiz — standalone full-width section, no globe -->
@@ -3119,7 +2997,7 @@
         ],
         correctIndex: 1,
         explanation: "The central and eastern tropical Pacific is ground zero for El Niño warming. The Niño 3.4 region (5°N–5°S, 170°W–120°W) is the key monitoring zone — when it exceeds +0.5°C above average, scientists declare an El Niño event.",
-        mapHint: "On the map: Switch to SST Warming and toggle the Niño 3.4 Box to see the exact monitoring region light up red.",
+        mapHint: "On the map: Switch to SST Warming and look for the warming band across the central and eastern tropical Pacific — the Niño 3.4 region is the red-shaded zone between 5°N and 5°S.",
         highlight: "nino"
       },
       {
@@ -3189,7 +3067,7 @@
         ],
         correctIndex: 1,
         explanation: "El Niño is one of the most predictable climate events on Earth — often forecastable 6–9 months ahead. That lead time is lifesaving: farmers in sub-Saharan Africa adjust planting schedules, flood authorities in Ecuador pre-position relief supplies, and fire managers in California extend burn bans. The CESM2 model you explored here feeds directly into those real-world forecasts.",
-        mapHint: "On the map: Switch to SST Warming and toggle the Niño 3.4 Box — this is the exact region scientists monitor to issue those forecasts.",
+        mapHint: "On the map: Switch to SST Warming — the central band of red across the tropical Pacific is the Niño 3.4 region scientists monitor to issue those forecasts.",
         highlight: "nino"
       }
     ];
@@ -3266,8 +3144,6 @@
       data: null,
       map: null,
       layer: "combined",
-      showNinoBox: false,
-      showRegions: false,
       selectedTimelineIndex: null,
       lookups: {},
       gridInfo: {},
@@ -3443,67 +3319,6 @@
       };
     }
 
-    function buildNinoBoxGeoJSON(normValue = 0) {
-      return {
-        type: "FeatureCollection",
-        features: [
-          {
-            type: "Feature",
-            geometry: { type: "Polygon", coordinates: [[[190, -5], [240, -5], [240, 5], [190, 5], [190, -5]]] },
-            properties: { label: "Nino 3.4", normValue }
-          },
-          {
-            type: "Feature",
-            geometry: { type: "Point", coordinates: [191, 6] },
-            properties: { label: "Nino 3.4", normValue }
-          }
-        ]
-      };
-    }
-
-    function updateNinoBoxFill(layerKey) {
-      if (!state.map || !state.data) return;
-      const config = layerConfig[layerKey];
-      const key = config.key;
-      const [rMin, rMax] = config.range;
-      const records = state.data.layers[layerKey].filter(r =>
-        r.lon >= 190 && r.lon <= 240 && r.lat >= -5 && r.lat <= 5 &&
-        r[key] !== null && !Number.isNaN(r[key])
-      );
-      const mean = records.length > 0
-        ? records.reduce((s, r) => s + r[key], 0) / records.length
-        : 0;
-      const normValue = mean < 0
-        ? Math.max(-1, mean / Math.abs(rMin))
-        : Math.min(1, mean / rMax);
-      const src = state.map.getSource("src-nino-box");
-      if (src) src.setData(buildNinoBoxGeoJSON(normValue));
-    }
-
-    const REGION_DEFS = [
-      { label: "West",    lon1: 120, lon2: 170, regionKey: "West Pacific" },
-      { label: "Central", lon1: 170, lon2: 220, regionKey: "Central Pacific" },
-      { label: "East",    lon1: 220, lon2: 280, regionKey: "East Pacific" }
-    ];
-
-    function buildRegionsGeoJSON(normValues) {
-      const features = [];
-      for (const { label, lon1, lon2, regionKey } of REGION_DEFS) {
-        const normValue = normValues ? (normValues[regionKey] || 0) : 0;
-        features.push({
-          type: "Feature",
-          geometry: { type: "Polygon", coordinates: [[[lon1, -15], [lon2, -15], [lon2, 15], [lon1, 15], [lon1, -15]]] },
-          properties: { label, normValue }
-        });
-        features.push({
-          type: "Feature",
-          geometry: { type: "Point", coordinates: [lon1 + 3, -13] },
-          properties: { label, normValue }
-        });
-      }
-      return { type: "FeatureCollection", features };
-    }
-
     // --- Mapbox layer management ---
 
     function addRasterLayer(key) {
@@ -3548,8 +3363,6 @@
         }
         addRasterLayer(pending.shift());
         setMapLayer(state.layer);
-        updateRegionFill(state.layer);
-        updateNinoBoxFill(state.layer);
         if (pending.length) schedule(buildNext);
       };
 
@@ -3570,91 +3383,6 @@
         paint: { "background-color": "#000000", "background-opacity": 0.42 }
       });
 
-      // Nino 3.4 box overlay
-      map.addSource("src-nino-box", { type: "geojson", data: buildNinoBoxGeoJSON() });
-      map.addLayer({
-        id: "layer-nino-box-fill",
-        type: "fill",
-        source: "src-nino-box",
-        slot: "top",
-        filter: ["==", ["geometry-type"], "Polygon"],
-        layout: { visibility: state.showNinoBox ? "visible" : "none" },
-        paint: {
-          "fill-color": ["case", [">", ["get", "normValue"], 0], "#e82010", "#1558a0"],
-          "fill-opacity": ["interpolate", ["linear"], ["abs", ["get", "normValue"]], 0, 0, 0.3, 0.35, 1, 0.72]
-        }
-      });
-      map.addLayer({
-        id: "layer-nino-box",
-        type: "line",
-        source: "src-nino-box",
-        slot: "top",
-        filter: ["==", ["geometry-type"], "Polygon"],
-        layout: { visibility: state.showNinoBox ? "visible" : "none" },
-        paint: { "line-color": "rgba(255,255,255,0.75)", "line-width": 1.5, "line-dasharray": [5, 3] }
-      });
-      map.addLayer({
-        id: "layer-nino-box-label",
-        type: "symbol",
-        source: "src-nino-box",
-        slot: "top",
-        filter: ["==", ["geometry-type"], "Point"],
-        layout: {
-          visibility: state.showNinoBox ? "visible" : "none",
-          "text-field": ["get", "label"],
-          "text-size": 12,
-          "text-font": ["DIN Offc Pro Bold", "Arial Unicode MS Bold"],
-          "text-anchor": "bottom-left"
-        },
-        paint: { "text-color": "rgba(255,255,255,0.50)", "text-halo-color": "rgba(0,0,0,0.25)", "text-halo-width": 1 }
-      });
-
-      // Region boundary overlays
-      map.addSource("src-regions", { type: "geojson", data: buildRegionsGeoJSON(null) });
-      map.addLayer({
-        id: "layer-region-fill",
-        type: "fill",
-        source: "src-regions",
-        slot: "top",
-        filter: ["==", ["geometry-type"], "Polygon"],
-        layout: { visibility: state.showRegions ? "visible" : "none" },
-        paint: {
-          "fill-color": ["case",
-            [">", ["get", "normValue"], 0], "#e82010",
-            "#1558a0"
-          ],
-          "fill-opacity": ["interpolate", ["linear"], ["abs", ["get", "normValue"]], 0, 0, 0.3, 0.35, 1, 0.72]
-        }
-      });
-      map.addLayer({
-        id: "layer-regions",
-        type: "line",
-        source: "src-regions",
-        slot: "top",
-        filter: ["==", ["geometry-type"], "Polygon"],
-        layout: { visibility: state.showRegions ? "visible" : "none" },
-        paint: { "line-color": "rgba(255,255,255,0.80)", "line-width": 1.5, "line-dasharray": [4, 4] }
-      });
-      map.addLayer({
-        id: "layer-region-labels",
-        type: "symbol",
-        source: "src-regions",
-        slot: "top",
-        filter: ["==", ["geometry-type"], "Point"],
-        layout: {
-          visibility: state.showRegions ? "visible" : "none",
-          "text-field": ["get", "label"],
-          "text-size": 11,
-          "text-font": ["DIN Offc Pro Bold", "Arial Unicode MS Bold"],
-          "text-anchor": "top-left",
-          "text-offset": [0.3, 0.3]
-        },
-        paint: { "text-color": "rgba(255,255,255,0.65)", "text-halo-color": "rgba(0,0,0,0.4)", "text-halo-width": 1.5 }
-      });
-
-      // Populate fills with real data values now that layers exist
-      updateRegionFill(state.layer);
-      updateNinoBoxFill(state.layer);
     }
 
     function setMapLayer(key) {
@@ -3662,27 +3390,6 @@
       state.builtLayers.forEach(k => {
         state.map.setLayoutProperty("layer-raster-" + k, "visibility", k === key ? "visible" : "none");
       });
-    }
-
-    function setOverlayVisibility(layerId, visible) {
-      if (!state.map || !state.map.isStyleLoaded() || !state.map.getLayer(layerId)) return;
-      state.map.setLayoutProperty(layerId, "visibility", visible ? "visible" : "none");
-    }
-
-    function updateRegionFill(layerKey) {
-      if (!state.map || !state.data) return;
-      const config = layerConfig[layerKey];
-      const key = config.key;
-      const [rMin, rMax] = config.range;
-      const normValues = {};
-      state.data.regional.forEach(r => {
-        const raw = r[key];
-        normValues[r.region] = raw < 0
-          ? Math.max(-1, raw / Math.abs(rMin))
-          : Math.min(1, raw / rMax);
-      });
-      const src = state.map.getSource("src-regions");
-      if (src) src.setData(buildRegionsGeoJSON(normValues));
     }
 
     function resetReadout() {
@@ -4056,20 +3763,6 @@
       return labels[key] || layerConfig[key].label;
     }
 
-    function renderControls() {
-      const box = document.querySelector("#layerButtons");
-      box.innerHTML = "";
-      Object.entries(layerConfig).forEach(([key, config]) => {
-        const button = document.createElement("button");
-        button.type = "button";
-        button.innerHTML = `<span class="layer-button-label">${getLayerButtonLabel(key)}</span>`;
-        button.setAttribute("aria-label", config.label);
-        button.setAttribute("aria-pressed", String(key === state.layer));
-        button.addEventListener("click", () => setLayer(key));
-        box.appendChild(button);
-      });
-    }
-
     function renderFacts() {
       const meta = state.data.meta;
       document.querySelector("#facts").innerHTML = `
@@ -4078,6 +3771,11 @@
         <div class="fact"><strong>${meta.nino34_threshold_c} °C</strong><span>Nino 3.4 threshold</span></div>
         <div class="fact fact-period"><strong>${meta.years}</strong><span>CESM2 historical period</span></div>
       `;
+      const totalMonths = 780; // 65 years × 12 months (1950–2014)
+      const laNinaMonths = totalMonths - meta.el_nino_months - meta.neutral_months;
+      document.getElementById("statElNino").textContent = meta.el_nino_months;
+      document.getElementById("statNeutral").textContent = meta.neutral_months;
+      document.getElementById("statLaNina").textContent = laNinaMonths > 0 ? laNinaMonths : meta.el_nino_months;
     }
 
     function setupNarrativeReveals() {
@@ -4131,40 +3829,23 @@
         section.classList.add("is-active");
         section.classList.add("is-visible");
 
-        const { layer, highlight, cameraLng, cameraLat, cameraZoom } = section.dataset;
+        const { layer, cameraLng, cameraLat, cameraZoom } = section.dataset;
 
-        if (layer && layer !== state.layer) setLayer(layer);
+        if (layer && layer !== state.layer) {
+          setLayer(layer);
+        } else if (!layer) {
+          // Sections without a data layer (intro, facts) still show their own labels
+          updateGlobeLabels(section.id.replace("section-", ""));
+        }
 
         if (state.map && cameraLng != null) {
+          state.storyCameraUntil = Date.now() + 2200;
           state.map.flyTo({
             center: [+cameraLng, +cameraLat],
             zoom: +cameraZoom,
             duration: 1400,
             essential: true
           });
-        }
-
-        const wantNino = highlight === "nino";
-        const wantRegions = highlight === "regions";
-
-        if (wantNino !== state.showNinoBox) {
-          state.showNinoBox = wantNino;
-          const ninoBtn = document.querySelector("#ninoBoxBtn");
-          if (ninoBtn) ninoBtn.setAttribute("aria-pressed", String(wantNino));
-          setOverlayVisibility("layer-nino-box-fill", wantNino);
-          setOverlayVisibility("layer-nino-box", wantNino);
-          setOverlayVisibility("layer-nino-box-label", wantNino);
-          if (wantNino) updateNinoBoxFill(state.layer);
-        }
-
-        if (wantRegions !== state.showRegions) {
-          state.showRegions = wantRegions;
-          const regBtn = document.querySelector("#regionsBtn");
-          if (regBtn) regBtn.setAttribute("aria-pressed", String(wantRegions));
-          setOverlayVisibility("layer-region-fill", wantRegions);
-          setOverlayVisibility("layer-region-labels", wantRegions);
-          setOverlayVisibility("layer-regions", wantRegions);
-          if (wantRegions) updateRegionFill(state.layer);
         }
 
         section.scrollIntoView({ behavior: "smooth", block: "nearest" });
@@ -4236,37 +3917,6 @@
       });
     }
 
-    function getLegendLabels(key) {
-      const labels = {
-        combined: {
-          min: "Opposite/weaker response",
-          mid: "0",
-          max: "Strong aligned fingerprint"
-        },
-        sst: {
-          min: "Cooler",
-          mid: "0 °C",
-          max: "Warmer"
-        },
-        precip: {
-          min: "Drier",
-          mid: "0 mm/day",
-          max: "Wetter"
-        },
-        cloud: {
-          min: "Clearer",
-          mid: "0 percentage points",
-          max: "Cloudier"
-        },
-        rsut: {
-          min: "Less outgoing SW",
-          mid: "0 W/m²",
-          max: "More outgoing SW"
-        }
-      };
-      return labels[key] || { min: "Lower", mid: "0", max: "Higher" };
-    }
-
     function setupGlobeDrift() {
       if (!state.map || state.autoSpinFrame) return;
       const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -4309,25 +3959,33 @@
     }
 
     const globeLabelDefs = {
+      intro: [
+        { lng: -118, lat: 4,  text: "El Niño warming core",   color: "#e8a020", side: "bottom" },
+        { lng:  142, lat: 0,  text: "Pacific basin",          color: "#9ba6ab", side: "bottom" }
+      ],
+      facts: [
+        { lng: -78,  lat: -3, text: "Warm water source",      color: "#e82010", side: "right"  },
+        { lng: -128, lat: 5,  text: "Spreads eastward",       color: "#e8a020", side: "bottom" }
+      ],
       combined: [
-        { lng: -135, lat: 2,  text: "Strong signal",       color: "#e8a020" },
-        { lng:  140, lat: 5,  text: "Opposite or weak",    color: "#9ba6ab" }
+        { lng: -138, lat: 2,  text: "Strong signal",          color: "#e8a020", side: "bottom" },
+        { lng:  138, lat: 5,  text: "Opposite or weak",       color: "#9ba6ab", side: "bottom" }
       ],
       sst: [
-        { lng: -145, lat: 2,  text: "Niño 3.4 region",     color: "#c1341e" },
-        { lng:  145, lat: -5, text: "Western Pacific cool", color: "#1d6fa3" }
+        { lng: -128, lat: 0,  text: "Niño 3.4 core",         color: "#c1341e", side: "bottom" },
+        { lng:  148, lat: -5, text: "Western Pacific cool",   color: "#1d6fa3", side: "bottom" }
       ],
       precip: [
-        { lng: -150, lat: 4,  text: "Increased rainfall",  color: "#c1341e" },
-        { lng:  128, lat: 0,  text: "Drying — Indonesia",  color: "#1d6fa3" }
+        { lng: -148, lat: 4,  text: "Increased rainfall",     color: "#c1341e", side: "right"  },
+        { lng:  128, lat: 0,  text: "Drying — Indonesia",     color: "#1d6fa3", side: "left"   }
       ],
       cloud: [
-        { lng: -152, lat: 5,  text: "Cloudier",            color: "#c1341e" },
-        { lng:  122, lat: 4,  text: "Clearer skies",       color: "#1d6fa3" }
+        { lng: -155, lat: 5,  text: "Cloudier skies",         color: "#c1341e", side: "bottom" },
+        { lng:  122, lat: 4,  text: "Clearer skies",          color: "#1d6fa3", side: "bottom" }
       ],
       rsut: [
-        { lng: -148, lat: 5,  text: "More reflected",      color: "#c1341e" },
-        { lng:  132, lat: 0,  text: "Less reflected",      color: "#1d6fa3" }
+        { lng: -145, lat: 5,  text: "More reflected",         color: "#c1341e", side: "bottom" },
+        { lng:  135, lat: 0,  text: "Less reflected",         color: "#1d6fa3", side: "bottom" }
       ]
     };
 
@@ -4342,6 +4000,7 @@
         const el = document.createElement("div");
         el.className = "globe-label";
         el.dataset.revealAt = revealAt;
+        if (def.side) el.dataset.side = def.side;
         const dot = document.createElement("span");
         dot.className = "globe-label-dot";
         dot.style.background = def.color;
@@ -4383,17 +4042,7 @@
         noteTip.textContent = config.note;
         noteTip.classList.toggle("is-visible", key === "cloud");
       }
-      const dockLabelEl = document.querySelector("#dockLayerName");
-      if (dockLabelEl) dockLabelEl.textContent = config.label;
       updateGlobeLabels(key);
-      const legendLabels = getLegendLabels(key);
-      document.querySelector("#legendMin").textContent = legendLabels.min;
-      document.querySelector("#legendMid").textContent = legendLabels.mid;
-      document.querySelector("#legendMax").textContent = legendLabels.max;
-      [...document.querySelector("#layerButtons").children].forEach((button, i) => {
-        const layerKey = Object.keys(layerConfig)[i];
-        button.setAttribute("aria-pressed", String(layerKey === key));
-      });
 
       if (!state.map || !state.map.isStyleLoaded()) return;
 
@@ -4408,8 +4057,6 @@
               if (state.layer === key) {
                 setMapLayer(key);
                 resetReadout();
-                updateRegionFill(key);
-                updateNinoBoxFill(key);
               }
             } finally {
               setMapLoading(false);
@@ -4419,38 +4066,13 @@
       } else {
         setMapLoading(false);
         setMapLayer(key);
-        updateRegionFill(key);
-        updateNinoBoxFill(key);
       }
     }
 
     // --- Event listeners ---
 
-    document.querySelector("#ninoBoxBtn").addEventListener("click", (event) => {
-      state.showNinoBox = !state.showNinoBox;
-      event.currentTarget.setAttribute("aria-pressed", String(state.showNinoBox));
-      setOverlayVisibility("layer-nino-box-fill", state.showNinoBox);
-      setOverlayVisibility("layer-nino-box", state.showNinoBox);
-      setOverlayVisibility("layer-nino-box-label", state.showNinoBox);
-    });
-
-    document.querySelector("#regionsBtn").addEventListener("click", (event) => {
-      state.showRegions = !state.showRegions;
-      event.currentTarget.setAttribute("aria-pressed", String(state.showRegions));
-      setOverlayVisibility("layer-region-fill", state.showRegions);
-      setOverlayVisibility("layer-regions", state.showRegions);
-      setOverlayVisibility("layer-region-labels", state.showRegions);
-    });
-
     document.querySelector("#globeEnterBtn").addEventListener("click", enterGlobeFocus);
     document.querySelector("#globeExitBtn").addEventListener("click", exitGlobeFocus);
-
-    document.querySelector("#dockToggleBtn").addEventListener("click", () => {
-      const dock = document.querySelector(".map-control-dock");
-      const isNowMinimized = dock.classList.toggle("is-minimized");
-      document.querySelector("#dockToggleBtn").setAttribute("aria-label",
-        isNowMinimized ? "Expand layer controls" : "Minimize layer controls");
-    });
 
     const timelineToggleBtn = document.querySelector("#timelineToggle");
     if (timelineToggleBtn) {
@@ -4553,21 +4175,6 @@
       const q = QUIZ_QUESTIONS[gameState.currentIndex];
       setLayer(q.layer);
 
-      if (q.highlight === "nino" && !state.showNinoBox) {
-        state.showNinoBox = true;
-        document.querySelector("#ninoBoxBtn").setAttribute("aria-pressed", "true");
-        setOverlayVisibility("layer-nino-box-fill", true);
-        setOverlayVisibility("layer-nino-box", true);
-        setOverlayVisibility("layer-nino-box-label", true);
-      }
-      if (q.highlight === "regions" && !state.showRegions) {
-        state.showRegions = true;
-        document.querySelector("#regionsBtn").setAttribute("aria-pressed", "true");
-        setOverlayVisibility("layer-region-fill", true);
-        setOverlayVisibility("layer-regions", true);
-        setOverlayVisibility("layer-region-labels", true);
-      }
-
       document.querySelector("#gameViewMapBtn").textContent = "\u2191 On map now";
 
       // Globe is always visible on the right \u2014 just scroll to the relevant story section
@@ -4646,7 +4253,6 @@
       })
       .then((data) => {
         state.data = data;
-        renderControls();
         renderFacts();
         setLayer("combined");
         drawTimeline();
