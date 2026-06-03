@@ -29,6 +29,7 @@
 
     html {
       scroll-behavior: smooth;
+      scroll-snap-type: y proximity;
     }
 
     body {
@@ -49,6 +50,7 @@
       min-height: 100svh;
       display: grid;
       align-items: center;
+      scroll-snap-align: start;
       overflow: hidden;
       padding: clamp(28px, 4.2vw, 56px) clamp(30px, 5vw, 72px) clamp(72px, 9vh, 96px);
       background:
@@ -2417,6 +2419,7 @@
 
     /* ── Story sections ── */
     .story-section {
+      position: relative;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
@@ -2428,6 +2431,7 @@
       transition:
         opacity 540ms cubic-bezier(0.22, 1, 0.36, 1),
         transform 540ms cubic-bezier(0.22, 1, 0.36, 1);
+      scroll-snap-align: start;
     }
 
     /* Tall sections (timeline, quiz, takeaway) – no forced min-height */
@@ -2580,7 +2584,51 @@
       color: rgba(247, 244, 236, 0.8);
     }
 
-    /* Quiz / game section inside story section */
+    /* Fix two-column layouts that are too cramped inside the narrow 33% story column */
+    .scrollytelling-layout .timeline-section-header,
+    .scrollytelling-layout .timeline-story {
+      grid-template-columns: 1fr;
+      align-items: start;
+    }
+
+    .scrollytelling-layout .timeline-rule-card {
+      min-width: 0;
+    }
+
+    .scrollytelling-layout .timeline-legend {
+      justify-content: flex-start;
+    }
+
+    /* Cap vw-based h2 font size — 3.3vw is ~50px on 1512px screens, too large for a 500px column */
+    .scrollytelling-layout .timeline-section h2 {
+      font-size: clamp(1.35rem, 2vw, 1.85rem);
+    }
+
+    /* ══════════════════════════════════════════════════════
+       STANDALONE SECTIONS — full-width, no globe (quiz & takeaway)
+       ══════════════════════════════════════════════════════ */
+
+    .standalone-section {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: clamp(60px, 8vh, 100px) clamp(40px, 8vw, 120px);
+      color: #f7f4ec;
+      scroll-snap-align: start;
+      opacity: 0;
+      transform: translateY(32px);
+      transition:
+        opacity 540ms cubic-bezier(0.22, 1, 0.36, 1),
+        transform 540ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .standalone-section.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
     #section-quiz {
       background: linear-gradient(180deg, #0d1e2e 0%, #071018 100%);
     }
@@ -2589,11 +2637,61 @@
       color: #e8a020;
       opacity: 1;
       transform: none;
+      margin-bottom: 24px;
     }
 
-    /* Takeaway section inside story section */
     #section-takeaway {
       background: #071018;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .standalone-section {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+      }
+    }
+
+    /* ══════════════════════════════════════════════════════
+       SECTION SCROLL CUE — "Scroll to explore" label + chevron
+       ══════════════════════════════════════════════════════ */
+
+    @keyframes scrollCueBounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); opacity: 0.45; }
+      50%       { transform: translateX(-50%) translateY(7px); opacity: 0.85; }
+    }
+
+    .section-scroll-cue {
+      position: absolute;
+      bottom: 22px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      color: rgba(247, 244, 236, 0.5);
+      font-size: 0.67rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      pointer-events: none;
+      user-select: none;
+      white-space: nowrap;
+      animation: scrollCueBounce 2s ease-in-out infinite;
+    }
+
+    .section-scroll-cue .cue-chevron {
+      width: 13px;
+      height: 13px;
+      border-right: 2px solid currentColor;
+      border-bottom: 2px solid currentColor;
+      transform: rotate(45deg);
+      flex-shrink: 0;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .section-scroll-cue { animation: none; opacity: 0.45; }
     }
 
     /* Hide globe entry overlay – globe is always visible in scrollytelling mode */
@@ -2676,6 +2774,7 @@
         <p class="article-intro-body">The map is a composite showing the typical Pacific-wide pattern across 1950–2014. Start with the El Nino Fingerprint, then peel apart the layers to see how ocean warming lines up with rainfall, clouds, and reflected sunlight.</p>
         <p class="article-data-note">Dataset: CESM2 historical climate model output from 1950–2014, comparing El Nino-like months against neutral months.</p>
         <p class="intro-transition">Scroll through the sections on the left — each one loads the corresponding data layer on the globe.</p>
+        <div class="section-scroll-cue" aria-hidden="true">Scroll to explore<span class="cue-chevron"></span></div>
       </section>
 
       <!-- 2. Facts -->
@@ -2685,6 +2784,7 @@
           <p>Each layer compares El Nino-like months against neutral months in CESM2 historical data.</p>
         </div>
         <div class="facts" id="facts"></div>
+        <div class="section-scroll-cue" aria-hidden="true">Scroll to explore<span class="cue-chevron"></span></div>
       </section>
 
       <!-- 3. El Nino Fingerprint (combined) -->
@@ -2697,6 +2797,7 @@
         <h2>The whole pattern appears first.</h2>
         <p>The fingerprint combines ocean warming, rainfall, clouds, and reflected sunlight into one normalized index. Strong positive areas show where several El Nino signals line up across the Pacific basin.</p>
         <p>The Regions overlay is enabled on the globe so you can see the West, Central, and East Pacific response zones side by side.</p>
+        <div class="section-scroll-cue" aria-hidden="true">Scroll to explore<span class="cue-chevron"></span></div>
       </section>
 
       <!-- 4. SST Warming -->
@@ -2709,6 +2810,7 @@
         <h2>The ocean starts the chain.</h2>
         <p>Sea-surface temperature rises across the tropical Pacific. This warm water is the trigger that reorganizes the atmosphere above it.</p>
         <p>The Nino 3.4 box (5°N–5°S, 170°W–120°W) is the monitoring region scientists use to declare an El Nino event when it exceeds +0.5 °C.</p>
+        <div class="section-scroll-cue" aria-hidden="true">Scroll to explore<span class="cue-chevron"></span></div>
       </section>
 
       <!-- 5. Rainfall Shift -->
@@ -2721,6 +2823,7 @@
         <h2>Rain does not just increase everywhere.</h2>
         <p>El Nino shifts rainfall eastward across the Pacific. Some regions become wetter while others dry out — which is why the same event can mean floods in one place and drought in another.</p>
         <p>Red areas received more rain during El Nino-like months; blue areas dried out.</p>
+        <div class="section-scroll-cue" aria-hidden="true">Scroll to explore<span class="cue-chevron"></span></div>
       </section>
 
       <!-- 6. Cloud Cover -->
@@ -2733,6 +2836,7 @@
         <h2>Storm clouds follow the warm water.</h2>
         <p>Cloud cover changes as tropical convection moves. The atmosphere responds to the ocean pattern instead of staying fixed in place.</p>
         <p>Positive values (cloudier) in the central Pacific and negative values (clearer) near Indonesia show how dramatically the convective zone migrates.</p>
+        <div class="section-scroll-cue" aria-hidden="true">Scroll to explore<span class="cue-chevron"></span></div>
       </section>
 
       <!-- 7. Radiation (rsut) -->
@@ -2745,6 +2849,7 @@
         <h2>Even reflected sunlight changes.</h2>
         <p>Clouds affect how much shortwave radiation leaves the top of the atmosphere. El Nino changes the Pacific energy balance, not only ocean temperature.</p>
         <p>Where clouds increase, more sunlight bounces back to space. The pattern closely mirrors cloud cover, confirming the tight coupling between clouds and reflected energy.</p>
+        <div class="section-scroll-cue" aria-hidden="true">Scroll to explore<span class="cue-chevron"></span></div>
       </section>
 
       <!-- 8. Timeline -->
@@ -2774,57 +2879,7 @@
           <canvas id="timelineCanvas" hidden aria-hidden="true"></canvas>
           <button class="legacy-timeline-control" id="timelineToggle" type="button" aria-pressed="true">Timeline shown below</button>
         </div>
-      </section>
-
-      <!-- 9. Quiz -->
-      <section class="story-section story-section--tall" id="section-quiz" aria-label="Quiz and test">
-        <p class="map-next-cue">Next: test your intuition.</p>
-        <section class="game-section" id="gameSection">
-          <div id="gameIntro">
-            <h2 class="game-intro-header">Test Your El Nino Intuition</h2>
-            <p class="game-intro-text">Now that you have seen the Pacific-wide pattern, test whether your intuition matches the science. Each question will ask you to predict one El Nino effect, then compare your guess against the map layers on the right.</p>
-            <button class="btn-start" id="gameStartBtn" disabled>Loading data…</button>
-          </div>
-          <div class="game-body" id="gameBody" style="display:none">
-            <div class="game-header-row">
-              <span class="game-progress-label" id="gameProgress">Question 1 of 6</span>
-              <div class="progress-track"><div class="progress-bar" id="gameProgressBar" style="width:0%"></div></div>
-              <span class="game-score-label" id="gameScoreLabel">Score: 0</span>
-            </div>
-            <div id="gameCard">
-              <p class="game-question" id="gameQuestion"></p>
-              <div class="game-options" id="gameOptions"></div>
-              <div class="game-feedback" id="gameFeedback" style="display:none">
-                <p class="feedback-verdict" id="feedbackVerdict"></p>
-                <p class="feedback-explanation" id="feedbackExplanation"></p>
-                <p class="feedback-map-hint" id="feedbackMapHint"></p>
-                <div class="game-actions">
-                  <button class="btn-view-map" id="gameViewMapBtn">&#x2191; View on map</button>
-                  <button class="btn-next" id="gameNextBtn">Next Question &#x2192;</button>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="game-results" id="gameResults" style="display:none">
-            <div class="results-inner">
-              <div class="score-ring" id="finalScore"></div>
-              <p id="resultsMessage"></p>
-              <button class="btn-retry" id="gameRetryBtn">Play Again</button>
-            </div>
-          </div>
-        </section>
-      </section>
-
-      <!-- 10. Takeaway -->
-      <section class="story-section story-section--tall" id="section-takeaway" aria-labelledby="takeawayTitle">
-        <section class="takeaway-section">
-          <div>
-            <h2 id="takeawayTitle">What El Nino Actually Teaches Us</h2>
-            <p>El Nino is not one isolated ocean effect. It begins with unusual warming in the tropical Pacific, and that warming lines up with shifts in rainfall, cloud cover, outgoing shortwave radiation, and regional climate patterns.</p>
-            <p>The project succeeds when users can see those variables as one connected Pacific-wide system.</p>
-          </div>
-          <div class="takeaway-stat"><strong>+2 °C</strong><span>Strong El Nino events can exceed about this anomaly in the Nino 3.4 region.</span></div>
-        </section>
+        <div class="section-scroll-cue" aria-hidden="true">Scroll to explore<span class="cue-chevron"></span></div>
       </section>
 
     </div><!-- /.story-left -->
@@ -2903,6 +2958,58 @@
     </div><!-- /.story-right -->
 
   </div><!-- /.scrollytelling-layout -->
+
+  <!-- 9. Quiz — standalone full-width section, no globe -->
+  <section class="standalone-section" id="section-quiz" aria-label="Quiz and test">
+    <p class="map-next-cue">Next: test your intuition.</p>
+    <section class="game-section" id="gameSection">
+      <div id="gameIntro">
+        <h2 class="game-intro-header">Test Your El Nino Intuition</h2>
+        <p class="game-intro-text">Now that you have seen the Pacific-wide pattern, test whether your intuition matches the science. Each question will ask you to predict one El Nino effect, then compare your guess against the map layers.</p>
+        <button class="btn-start" id="gameStartBtn" disabled>Loading data…</button>
+      </div>
+      <div class="game-body" id="gameBody" style="display:none">
+        <div class="game-header-row">
+          <span class="game-progress-label" id="gameProgress">Question 1 of 6</span>
+          <div class="progress-track"><div class="progress-bar" id="gameProgressBar" style="width:0%"></div></div>
+          <span class="game-score-label" id="gameScoreLabel">Score: 0</span>
+        </div>
+        <div id="gameCard">
+          <p class="game-question" id="gameQuestion"></p>
+          <div class="game-options" id="gameOptions"></div>
+          <div class="game-feedback" id="gameFeedback" style="display:none">
+            <p class="feedback-verdict" id="feedbackVerdict"></p>
+            <p class="feedback-explanation" id="feedbackExplanation"></p>
+            <p class="feedback-map-hint" id="feedbackMapHint"></p>
+            <div class="game-actions">
+              <button class="btn-view-map" id="gameViewMapBtn">&#x2191; View on map</button>
+              <button class="btn-next" id="gameNextBtn">Next Question &#x2192;</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="game-results" id="gameResults" style="display:none">
+        <div class="results-inner">
+          <div class="score-ring" id="finalScore"></div>
+          <p id="resultsMessage"></p>
+          <button class="btn-retry" id="gameRetryBtn">Play Again</button>
+        </div>
+      </div>
+    </section>
+    <div class="section-scroll-cue" aria-hidden="true">Scroll to explore<span class="cue-chevron"></span></div>
+  </section>
+
+  <!-- 10. Takeaway — standalone full-width section, no globe -->
+  <section class="standalone-section" id="section-takeaway" aria-labelledby="takeawayTitle">
+    <section class="takeaway-section">
+      <div>
+        <h2 id="takeawayTitle">What El Nino Actually Teaches Us</h2>
+        <p>El Nino is not one isolated ocean effect. It begins with unusual warming in the tropical Pacific, and that warming lines up with shifts in rainfall, cloud cover, outgoing shortwave radiation, and regional climate patterns.</p>
+        <p>The project succeeds when users can see those variables as one connected Pacific-wide system.</p>
+      </div>
+      <div class="takeaway-stat"><strong>+2 °C</strong><span>Strong El Nino events can exceed about this anomaly in the Nino 3.4 region.</span></div>
+    </section>
+  </section>
 
   <div class="back-to-quiz-banner" id="backToQuizBanner" aria-hidden="true">
     <span>Viewing the map</span>
@@ -3962,6 +4069,7 @@
       }, { threshold: 0.38 });
 
       document.querySelectorAll(".story-section").forEach(s => revealObs.observe(s));
+      document.querySelectorAll(".standalone-section").forEach(s => revealObs.observe(s));
       document.querySelectorAll(".story-section[data-layer]").forEach(s => layerObs.observe(s));
     }
 
