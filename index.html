@@ -2558,7 +2558,7 @@
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
       box-shadow: 0 6px 20px rgba(2, 4, 8, 0.5);
-      transition: opacity 500ms ease, transform 500ms ease;
+      transition: opacity 400ms ease;
       pointer-events: auto;
       cursor: pointer;
       max-width: 220px;
@@ -2657,16 +2657,23 @@
     }
 
     .globe-label-click-hint {
-      font-size: 0.58rem;
-      opacity: 0.4;
-      margin-top: 3px;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      font-weight: 600;
+      display: inline-block;
+      font-size: 0.63rem;
+      font-weight: 740;
+      letter-spacing: 0.01em;
+      margin-top: 5px;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: rgba(232, 160, 32, 0.2);
+      border: 1px solid rgba(232, 160, 32, 0.5);
+      color: #f0c060;
+      opacity: 1;
     }
 
     .globe-label--expanded .globe-label-click-hint {
-      display: none;
+      background: rgba(247, 244, 236, 0.12);
+      border-color: rgba(247, 244, 236, 0.3);
+      color: rgba(247, 244, 236, 0.7);
     }
 
     /* ── Drag hint in content section ── */
@@ -2781,12 +2788,21 @@
     }
 
     /* ── Timeline standalone section (below globe) ── */
+    /* ══════════════════════════════════════════════════════
+       TIMELINE STANDALONE — redesigned editorial section
+       ══════════════════════════════════════════════════════ */
+
     .timeline-standalone {
-      background: var(--page);
+      background:
+        radial-gradient(ellipse 70% 50% at 95% 10%, rgba(193, 52, 30, 0.06), transparent),
+        radial-gradient(ellipse 60% 40% at 5% 90%, rgba(29, 111, 163, 0.05), transparent),
+        linear-gradient(180deg, #f0ebe0 0%, var(--page) 30%, #f7f3ea 100%);
       color: var(--ink);
-      padding: clamp(48px, 7vh, 80px) clamp(24px, 6vw, 80px);
+      padding: clamp(56px, 9vh, 100px) clamp(24px, 6vw, 80px) clamp(80px, 12vh, 120px);
       width: 100%;
       box-sizing: border-box;
+      border-top: 1px solid rgba(23, 32, 39, 0.1);
+      border-bottom: 1px solid rgba(23, 32, 39, 0.08);
     }
 
     .timeline-standalone .timeline-section-inner {
@@ -2794,60 +2810,205 @@
       margin: 0 auto;
     }
 
+    /* ── Section title block ── */
+    .timeline-section-title {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+      margin-bottom: 28px;
+      padding-bottom: 22px;
+      border-bottom: 1px solid rgba(23, 32, 39, 0.12);
+    }
+
+    .timeline-section-number {
+      flex-shrink: 0;
+      font-size: clamp(3.5rem, 8vw, 6.5rem);
+      font-weight: 900;
+      line-height: 0.85;
+      letter-spacing: -0.04em;
+      color: transparent;
+      -webkit-text-stroke: 1.5px rgba(23, 32, 39, 0.18);
+      user-select: none;
+      transform: translateY(4px);
+    }
+
+    .timeline-section-title-text {
+      display: grid;
+      gap: 4px;
+    }
+
+    .timeline-section-label {
+      font-size: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+
+    .timeline-section-heading {
+      margin: 0;
+      font-size: clamp(1.55rem, 3.2vw, 2.6rem);
+      font-weight: 850;
+      line-height: 1.0;
+      color: var(--ink);
+      text-wrap: balance;
+    }
+
+    /* ── Section header: kicker + h2 + rule card ── */
+    .timeline-standalone .timeline-section-header {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 20px 32px;
+      align-items: start;
+      margin-bottom: 28px;
+    }
+
+    .timeline-standalone .timeline-kicker {
+      margin: 0 0 7px;
+      color: var(--gold);
+      font-size: 0.73rem;
+      font-weight: 820;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .timeline-standalone #timelineSectionTitle {
+      margin: 0;
+      font-size: clamp(1.55rem, 2.8vw, 2.2rem);
+      font-weight: 830;
+      line-height: 1.08;
+      color: var(--ink);
+    }
+
+    .timeline-standalone .timeline-rule-card {
+      min-width: 200px;
+      max-width: 260px;
+      background: rgba(138, 106, 36, 0.07);
+      border: 1px solid rgba(138, 106, 36, 0.22);
+      border-left: 3px solid var(--gold);
+      border-radius: 8px;
+      padding: 13px 16px;
+      color: #4f5d65;
+      font-size: 0.84rem;
+      line-height: 1.4;
+    }
+
+    .timeline-standalone .timeline-rule-card strong {
+      display: block;
+      color: var(--ink);
+      font-size: 1.05rem;
+      line-height: 1;
+      font-weight: 860;
+      margin-bottom: 5px;
+      white-space: nowrap;
+    }
+
+    .timeline-standalone .timeline-rule-card span {
+      display: block;
+    }
+
+    /* ── Stat row ── */
     .timeline-stat-row {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-      margin: 20px 0 8px;
+      gap: 14px;
+      margin: 0 0 22px;
     }
 
     .timeline-stat-card {
-      border-left: 3px solid #c1341e;
-      padding: 10px 0 10px 14px;
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid rgba(23, 32, 39, 0.09);
+      border-top: 3px solid #c1341e;
+      border-radius: 0 0 8px 8px;
+      padding: 18px 16px 16px;
+      box-shadow: 0 2px 12px rgba(23, 32, 39, 0.06);
+      transition: box-shadow 200ms ease, transform 200ms ease;
+    }
+
+    .timeline-stat-card:hover {
+      box-shadow: 0 6px 22px rgba(23, 32, 39, 0.1);
+      transform: translateY(-2px);
     }
 
     .timeline-stat-card--neutral {
-      border-left-color: #9ba6ab;
+      border-top-color: #9ba6ab;
     }
 
     .timeline-stat-card--nina {
-      border-left-color: #1d6fa3;
+      border-top-color: #1d6fa3;
     }
 
     .timeline-stat-card strong {
       display: block;
-      font-size: clamp(1.6rem, 2.8vw, 2.4rem);
-      font-weight: 850;
+      font-size: clamp(2rem, 3.4vw, 3rem);
+      font-weight: 870;
       line-height: 1;
       color: var(--ink);
+      letter-spacing: -0.02em;
     }
 
     .timeline-stat-card span {
       display: block;
-      margin-top: 5px;
-      font-size: 0.82rem;
+      margin-top: 7px;
+      font-size: 0.76rem;
       color: var(--muted);
-      font-weight: 600;
+      font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.07em;
+      letter-spacing: 0.08em;
     }
 
+    /* ── Context text ── */
     .timeline-context-text {
-      margin: 0 0 8px;
+      margin: 0 0 20px;
       color: var(--muted);
       font-size: 0.96rem;
       line-height: 1.65;
-      max-width: 760px;
+      max-width: 780px;
     }
 
-    @media (max-width: 600px) {
+    /* ── Viz footer inside standalone ── */
+    .timeline-standalone .viz-footer {
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 24px rgba(23, 32, 39, 0.09);
+    }
+
+    @media (max-width: 700px) {
       .timeline-stat-row {
         grid-template-columns: 1fr;
       }
+
+      .timeline-standalone .timeline-section-header {
+        grid-template-columns: 1fr;
+      }
+
+      .timeline-standalone .timeline-rule-card {
+        max-width: none;
+      }
+
+      .timeline-section-number {
+        display: none;
+      }
     }
 
+    /* ── Scroll cue override — visible on cream bg ── */
     .timeline-standalone .section-scroll-cue {
-      color: rgba(60, 50, 30, 0.4);
+      color: rgba(23, 32, 39, 0.42);
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      gap: 8px;
+    }
+
+    .timeline-standalone .section-scroll-cue .cue-chevron {
+      width: 16px;
+      height: 16px;
+      border-right: 2px solid rgba(23, 32, 39, 0.45);
+      border-bottom: 2px solid rgba(23, 32, 39, 0.45);
+    }
+
+    @keyframes scrollCueBounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); opacity: 0.42; }
+      50%       { transform: translateX(-50%) translateY(8px); opacity: 0.75; }
     }
   </style>
 </head>
@@ -3052,6 +3213,16 @@
   <!-- 8b. How we define El Niño-like months — standalone full-width section -->
   <section class="standalone-section timeline-standalone" id="section-timeline" aria-labelledby="timelineSectionTitle">
     <div class="timeline-section-inner">
+
+      <!-- Section title block -->
+      <div class="timeline-section-title" aria-hidden="true">
+        <span class="timeline-section-number">03</span>
+        <div class="timeline-section-title-text">
+          <span class="timeline-section-label">The Methodology</span>
+          <h3 class="timeline-section-heading">Classifying 65 years<br>of Pacific variability</h3>
+        </div>
+      </div>
+
       <div class="timeline-section-header">
         <div>
           <p class="timeline-kicker">Behind the comparison</p>
@@ -4244,6 +4415,7 @@
       const defs = globeLabelDefs[key] || [];
       state.globeLabelAnchors = defs;
       const revealAt = String(Date.now() + 1650);
+      setTimeout(repositionGlobeLabels, 1750);
       startDragHintTimer();
       defs.forEach(def => {
         const el = document.createElement("div");
@@ -4279,12 +4451,13 @@
 
           const clickHint = document.createElement("p");
           clickHint.className = "globe-label-click-hint";
-          clickHint.textContent = "tap for more";
+          clickHint.textContent = "▶ Click to expand";
           body.appendChild(clickHint);
 
           el.addEventListener("click", (e) => {
             e.stopPropagation();
-            el.classList.toggle("globe-label--expanded");
+            const expanded = el.classList.toggle("globe-label--expanded");
+            clickHint.textContent = expanded ? "▼ Click to collapse" : "▶ Click to expand";
             dismissTipHint();
           });
         }
@@ -4303,15 +4476,43 @@
       const mapEl = document.querySelector("#map");
       const w = mapEl.offsetWidth, h = mapEl.offsetHeight;
       const now = Date.now();
+      const GAP = 12; // px between arrow tip and anchor point
+
       anchors.forEach((anchor, i) => {
         const el = labels[i];
         if (!el) return;
         const pt = state.map.project([anchor.lng, anchor.lat]);
-        const inBounds = pt.x > 20 && pt.x < w - 20 && pt.y > 20 && pt.y < h - 20;
+        const inBounds = pt.x > 40 && pt.x < w - 40 && pt.y > 40 && pt.y < h - 40;
         const revealed = now >= parseInt(el.dataset.revealAt || "0");
         const visible = inBounds && revealed;
+
+        let tx, ty;
+        const side = (anchor.side || "bottom");
+        switch (side) {
+          case "bottom": // label body sits above point, arrow points down
+            tx = `calc(${pt.x}px - 50%)`;
+            ty = `calc(${pt.y}px - 100% - ${GAP}px)`;
+            break;
+          case "top": // label body sits below point, arrow points up
+            tx = `calc(${pt.x}px - 50%)`;
+            ty = `calc(${pt.y}px + ${GAP}px)`;
+            break;
+          case "right": // label body sits left of point, arrow points right
+            tx = `calc(${pt.x}px - 100% - ${GAP}px)`;
+            ty = `calc(${pt.y}px - 50%)`;
+            break;
+          case "left": // label body sits right of point, arrow points left
+            tx = `calc(${pt.x}px + ${GAP}px)`;
+            ty = `calc(${pt.y}px - 50%)`;
+            break;
+          default:
+            tx = `calc(${pt.x}px - 50%)`;
+            ty = `calc(${pt.y}px - 50%)`;
+        }
+
         el.style.opacity = visible ? "1" : "0";
-        el.style.transform = `translate(calc(${pt.x}px - 50%), calc(${pt.y}px - 50%)) scale(${visible ? 1 : 0.88})`;
+        el.style.pointerEvents = visible ? "auto" : "none";
+        el.style.transform = `translate(${tx}, ${ty})`;
       });
     }
 
