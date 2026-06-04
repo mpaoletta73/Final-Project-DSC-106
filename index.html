@@ -2132,6 +2132,137 @@
     }
 
     /* ══════════════════════════════════════════════════════
+       QUIZ — 33 / 66 split with embedded globe
+       ══════════════════════════════════════════════════════ */
+
+    .quiz-layout-inner {
+      display: none;
+      width: 100%;
+    }
+
+    #section-quiz.quiz-active .quiz-layout-inner {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      min-height: 100vh;
+    }
+
+    #section-quiz.quiz-active {
+      padding: 0;
+    }
+
+    #section-quiz.quiz-active .map-next-cue {
+      padding: 24px 32px 0;
+    }
+
+    /* Hide the pre-quiz intro card once quiz is active */
+    #section-quiz.quiz-active #gameSection {
+      display: none;
+    }
+
+    .quiz-left-pane {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: clamp(24px, 4vw, 48px) clamp(16px, 3vw, 36px);
+      overflow-y: auto;
+    }
+
+    .quiz-right-pane {
+      position: relative;
+      background: #000;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    body.quiz-mode-active #mapWrap {
+      position: absolute;
+      inset: 0;
+    }
+
+    .quiz-globe-controls {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding: 10px 16px;
+      background: rgba(7, 16, 24, 0.82);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .quiz-layer-label {
+      color: rgba(247, 244, 236, 0.6);
+      font-size: 0.72rem;
+      font-weight: 760;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .quiz-layer-buttons {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .quiz-layer-btn {
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 7px;
+      background: rgba(255, 255, 255, 0.08);
+      color: rgba(247, 244, 236, 0.82);
+      padding: 6px 11px;
+      font: inherit;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 150ms ease, border-color 150ms ease;
+    }
+
+    .quiz-layer-btn:hover {
+      background: rgba(255, 255, 255, 0.14);
+      border-color: rgba(232, 160, 32, 0.5);
+    }
+
+    .quiz-layer-btn[aria-pressed="true"] {
+      background: var(--dark);
+      border-color: #e8a020;
+      color: #f7f4ec;
+      box-shadow: inset 0 2px 0 #e8a020;
+    }
+
+    body.quiz-mode-active .globe-entry-overlay {
+      display: none;
+    }
+
+    body.quiz-mode-active .map-readout {
+      opacity: 1 !important;
+      pointer-events: auto;
+    }
+
+    body.globe-focus-active:not(.quiz-mode-active) {
+      overflow: hidden;
+    }
+
+    @media (max-width: 780px) {
+      #section-quiz.quiz-active .quiz-layout-inner {
+        grid-template-columns: 1fr;
+      }
+
+      .quiz-right-pane {
+        min-height: 55vh;
+        height: 55vh;
+        order: -1;
+      }
+    }
+
+    /* ══════════════════════════════════════════════════════
        SCROLLYTELLING LAYOUT — 33 / 66 split
        ══════════════════════════════════════════════════════ */
 
@@ -3297,43 +3428,66 @@
     </div>
   </section>
 
-  <!-- 9. Quiz — standalone full-width section, no globe -->
+  <!-- 9. Quiz — standalone full-width section, transforms to 33/66 when quiz starts -->
   <section class="standalone-section" id="section-quiz" aria-label="Quiz and test">
     <p class="map-next-cue">Next: test your intuition.</p>
+
+    <!-- Pre-quiz intro card — visible until quiz starts, then hidden by CSS -->
     <section class="game-section" id="gameSection">
       <div id="gameIntro">
         <h2 class="game-intro-header">Test Your El Nino Intuition</h2>
         <p class="game-intro-text">Now that you have seen the Pacific-wide pattern, test whether your intuition matches the science. Each question will ask you to predict one El Nino effect, then compare your guess against the map layers.</p>
         <button class="btn-start" id="gameStartBtn" disabled>Loading data…</button>
       </div>
-      <div class="game-body" id="gameBody" style="display:none">
-        <div class="game-header-row">
-          <span class="game-progress-label" id="gameProgress">Question 1 of 6</span>
-          <div class="progress-track"><div class="progress-bar" id="gameProgressBar" style="width:0%"></div></div>
-          <span class="game-score-label" id="gameScoreLabel">Score: 0</span>
-        </div>
-        <div id="gameCard">
-          <p class="game-question" id="gameQuestion"></p>
-          <div class="game-options" id="gameOptions"></div>
-          <div class="game-feedback" id="gameFeedback" style="display:none">
-            <p class="feedback-verdict" id="feedbackVerdict"></p>
-            <p class="feedback-explanation" id="feedbackExplanation"></p>
-            <p class="feedback-map-hint" id="feedbackMapHint"></p>
-            <div class="game-actions">
-              <button class="btn-view-map" id="gameViewMapBtn">&#x2191; View on map</button>
-              <button class="btn-next" id="gameNextBtn">Next Question &#x2192;</button>
+    </section>
+
+    <!-- 33/66 layout — hidden until quiz starts -->
+    <div class="quiz-layout-inner">
+      <div class="quiz-left-pane">
+        <section class="game-section">
+          <div class="game-body" id="gameBody" style="display:none">
+            <div class="game-header-row">
+              <span class="game-progress-label" id="gameProgress">Question 1 of 6</span>
+              <div class="progress-track"><div class="progress-bar" id="gameProgressBar" style="width:0%"></div></div>
+              <span class="game-score-label" id="gameScoreLabel">Score: 0</span>
             </div>
+            <div id="gameCard">
+              <p class="game-question" id="gameQuestion"></p>
+              <div class="game-options" id="gameOptions"></div>
+              <div class="game-feedback" id="gameFeedback" style="display:none">
+                <p class="feedback-verdict" id="feedbackVerdict"></p>
+                <p class="feedback-explanation" id="feedbackExplanation"></p>
+                <p class="feedback-map-hint" id="feedbackMapHint"></p>
+                <div class="game-actions">
+                  <button class="btn-view-map" id="gameViewMapBtn">&#x2191; View on map</button>
+                  <button class="btn-next" id="gameNextBtn">Next Question &#x2192;</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="game-results" id="gameResults" style="display:none">
+            <div class="results-inner">
+              <div class="score-ring" id="finalScore"></div>
+              <p id="resultsMessage"></p>
+              <button class="btn-retry" id="gameRetryBtn">Play Again</button>
+            </div>
+          </div>
+        </section>
+      </div>
+      <div class="quiz-right-pane" id="quizRightPane">
+        <!-- #mapWrap is moved here by JS when quiz starts -->
+        <div class="quiz-globe-controls" id="quizGlobeControls">
+          <span class="quiz-layer-label">Explore layers</span>
+          <div class="quiz-layer-buttons">
+            <button type="button" class="quiz-layer-btn" data-layer="combined" aria-pressed="false">Fingerprint</button>
+            <button type="button" class="quiz-layer-btn" data-layer="sst" aria-pressed="false">SST</button>
+            <button type="button" class="quiz-layer-btn" data-layer="precip" aria-pressed="false">Rain</button>
+            <button type="button" class="quiz-layer-btn" data-layer="cloud" aria-pressed="false">Clouds</button>
+            <button type="button" class="quiz-layer-btn" data-layer="rsut" aria-pressed="false">Radiation</button>
           </div>
         </div>
       </div>
-      <div class="game-results" id="gameResults" style="display:none">
-        <div class="results-inner">
-          <div class="score-ring" id="finalScore"></div>
-          <p id="resultsMessage"></p>
-          <button class="btn-retry" id="gameRetryBtn">Play Again</button>
-        </div>
-      </div>
-    </section>
+    </div>
     <div class="section-scroll-cue" aria-hidden="true">Scroll to explore<span class="cue-chevron"></span></div>
   </section>
 
@@ -3358,6 +3512,7 @@
     const QUIZ_QUESTIONS = [
       {
         layer: "sst",
+        mapFocus: { center: [-120, -2], zoom: 3.0 },
         question: "During an El Niño event, which part of the Pacific Ocean heats up the most?",
         options: [
           "The western Pacific near the Philippines and Indonesia",
@@ -3372,6 +3527,7 @@
       },
       {
         layer: "precip",
+        mapFocus: { center: [128, -3], zoom: 3.0 },
         question: "El Niño warms the central Pacific. What does that do to rainfall across the basin?",
         options: [
           "Rain increases everywhere equally across the Pacific",
@@ -3386,6 +3542,7 @@
       },
       {
         layer: "cloud",
+        mapFocus: { center: [-165, 8], zoom: 2.6 },
         question: "The warm water moves east during El Niño. Where do the tropical storm clouds go?",
         options: [
           "Clouds stay locked in place over Indonesia — they ignore ocean temperature",
@@ -3400,6 +3557,7 @@
       },
       {
         layer: "rsut",
+        mapFocus: { center: [-150, -12], zoom: 2.8 },
         question: "El Niño rearranges clouds across the Pacific. What happens to reflected sunlight as a result?",
         options: [
           "Where clouds increase, more sunlight is reflected back to space",
@@ -3414,6 +3572,7 @@
       },
       {
         layer: "combined",
+        mapFocus: { center: [-178, 0], zoom: 2.0 },
         question: "The El Niño Fingerprint combines SST, rainfall, clouds, and radiation. Where is the signal strongest?",
         options: [
           "Evenly distributed across the entire Pacific basin",
@@ -3428,6 +3587,7 @@
       },
       {
         layer: "sst",
+        mapFocus: { center: [-120, -2], zoom: 3.0 },
         question: "Scientists can forecast El Niño months in advance using models like CESM2. Who benefits most from that lead time?",
         options: [
           "Space agencies tracking orbital decay from increased atmospheric drag",
@@ -3525,7 +3685,10 @@
       storyCameraUntil: 0,
       userInteracting: false,
       calloutTimer: null,
-      globeLabelAnchors: []
+      globeLabelAnchors: [],
+      quizGlobeActive: false,
+      mapWrapOriginalParent: null,
+      quizAbortController: null
     };
 
     const timelineSvg = d3.select("#timelineSvg");
@@ -3724,7 +3887,9 @@
 
       const buildNext = () => {
         if (!pending.length || !state.map || !state.map.isStyleLoaded()) return;
-        const globePanel = document.getElementById("storyRight");
+        const globePanel = state.quizGlobeActive
+          ? document.getElementById("quizRightPane")
+          : document.getElementById("storyRight");
         const rect = globePanel?.getBoundingClientRect();
         const exhibitInView = rect && rect.top < window.innerHeight && rect.bottom > 0;
         if (exhibitInView) {
@@ -3883,7 +4048,7 @@
       let pendingHoverPoint = null;
 
       function updateReadoutFromPoint(point) {
-        if (!state.globeFocus) return;
+        if (!state.globeFocus && !state.quizGlobeActive) return;
         const lngLat = map.unproject(point);
         // Normalize to -180/180 range
         const lon = ((lngLat.lng % 360) + 540) % 360 - 180;
@@ -3899,7 +4064,7 @@
       }
 
       map.on("mousemove", e => {
-        if (!state.globeFocus) return;
+        if (!state.globeFocus && !state.quizGlobeActive) return;
         if (e.originalEvent) positionReadout(e.originalEvent);
         pendingHoverPoint = e.point;
         if (hoverFrame) return;
@@ -3942,7 +4107,7 @@
       };
 
       const queueHoverFromEvent = (event) => {
-        if (!state.globeFocus) return;
+        if (!state.globeFocus && !state.quizGlobeActive) return;
         if (!state.map || !state.map.isStyleLoaded()) return;
         positionReadout(event);
         const rect = state.map.getCanvas().getBoundingClientRect();
@@ -3958,7 +4123,7 @@
       };
 
       mapWrap.addEventListener("mouseenter", () => {
-        if (state.globeFocus) showReadoutHint();
+        if (state.globeFocus || state.quizGlobeActive) showReadoutHint();
       });
       mapWrap.addEventListener("mousemove", queueHoverFromEvent);
       mapWrap.addEventListener("mouseleave", resetReadout);
@@ -4579,6 +4744,8 @@
         setMapLoading(false);
         setMapLayer(key);
       }
+
+      if (state.quizGlobeActive) updateQuizLayerButtons(key);
     }
 
     // --- Event listeners ---
@@ -4609,6 +4776,56 @@
       }
     });
 
+    // --- Quiz Globe Mode ---
+
+    function enterQuizGlobeMode() {
+      if (state.quizGlobeActive) return;
+      const mapWrap = document.getElementById("mapWrap");
+      const quizRightPane = document.getElementById("quizRightPane");
+      const controls = document.getElementById("quizGlobeControls");
+      state.mapWrapOriginalParent = mapWrap.parentElement;
+      quizRightPane.insertBefore(mapWrap, controls);
+      document.getElementById("section-quiz").classList.add("quiz-active");
+      document.body.classList.add("quiz-mode-active");
+      state.quizGlobeActive = true;
+      state.quizAbortController = new AbortController();
+      const sig = { signal: state.quizAbortController.signal };
+      quizRightPane.addEventListener("mouseenter", () => state.map?.scrollZoom.enable(), sig);
+      quizRightPane.addEventListener("mouseleave", () => state.map?.scrollZoom.disable(), sig);
+      requestAnimationFrame(() => setTimeout(() => {
+        state.map?.resize();
+        updateQuizLayerButtons(state.layer);
+      }, 60));
+    }
+
+    function exitQuizGlobeMode() {
+      if (!state.quizGlobeActive) return;
+      const mapWrap = document.getElementById("mapWrap");
+      if (state.mapWrapOriginalParent && mapWrap.parentElement !== state.mapWrapOriginalParent) {
+        state.mapWrapOriginalParent.appendChild(mapWrap);
+        requestAnimationFrame(() => setTimeout(() => state.map?.resize(), 60));
+      }
+      document.getElementById("section-quiz").classList.remove("quiz-active");
+      document.body.classList.remove("quiz-mode-active");
+      state.quizGlobeActive = false;
+      state.quizAbortController?.abort();
+      state.mapWrapOriginalParent = null;
+    }
+
+    function updateQuizLayerButtons(activeLayer) {
+      document.querySelectorAll(".quiz-layer-btn").forEach(btn => {
+        btn.setAttribute("aria-pressed", String(btn.dataset.layer === activeLayer));
+      });
+    }
+
+    function setupQuizLayerButtons() {
+      document.querySelectorAll(".quiz-layer-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          setLayer(btn.dataset.layer);
+        });
+      });
+    }
+
     // --- Quiz Game Logic ---
 
     const gameState = {
@@ -4630,6 +4847,7 @@
       document.querySelector("#gameIntro").style.display = "none";
       document.querySelector("#gameResults").style.display = "none";
       document.querySelector("#gameBody").style.display = "block";
+      enterQuizGlobeMode();
       loadQuestion(0);
     }
 
@@ -4687,15 +4905,17 @@
       const q = QUIZ_QUESTIONS[gameState.currentIndex];
       setLayer(q.layer);
 
+      if (q.mapFocus && state.map) {
+        state.storyCameraUntil = Date.now() + 2200;
+        state.map.flyTo({
+          center: q.mapFocus.center,
+          zoom: q.mapFocus.zoom,
+          duration: 1200,
+          essential: true
+        });
+      }
+
       document.querySelector("#gameViewMapBtn").textContent = "\u2191 On map now";
-
-      // Globe is always visible on the right \u2014 just scroll to the relevant story section
-      const target = document.getElementById(`section-${q.layer}`);
-      if (target) target.scrollIntoView({ behavior: "smooth", block: "center" });
-
-      const banner = document.querySelector("#backToQuizBanner");
-      banner.classList.add("is-visible");
-      banner.setAttribute("aria-hidden", "false");
     }
 
     function backToQuiz() {
@@ -4707,10 +4927,6 @@
     }
 
     function advanceQuestion() {
-      const banner = document.querySelector("#backToQuizBanner");
-      banner.classList.remove("is-visible");
-      banner.setAttribute("aria-hidden", "true");
-
       const nextIndex = gameState.currentIndex + 1;
       if (nextIndex >= QUIZ_QUESTIONS.length) {
         showResults();
@@ -4758,6 +4974,12 @@
     setupNarrativeReveals();
     setupScrollytellingObserver();
 
+    new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (!e.isIntersecting && state.quizGlobeActive) exitQuizGlobeMode();
+      });
+    }, { threshold: 0 }).observe(document.getElementById("section-quiz"));
+
     fetch("data/interactive_el_nino_dashboard.json")
       .then((response) => {
         if (!response.ok) throw new Error("Could not load dashboard data.");
@@ -4769,6 +4991,7 @@
         setLayer("combined");
         drawTimeline();
         enableGameStart();
+        setupQuizLayerButtons();
         setupSectionNav();
 
         mapboxgl.accessToken = "pk.eyJ1IjoieWFsbDc3NyIsImEiOiJjbXA3ZXIzNjIwMm5zMnNweDkwamtpM3RtIn0.udhgEgCcnM5hGKdL5Mz3Nw";
