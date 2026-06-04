@@ -2812,29 +2812,34 @@
 
     /* ── Section title block ── */
     .timeline-section-title {
-      display: flex;
-      align-items: baseline;
-      gap: 16px;
+      display: grid;
+      gap: 10px;
       margin-bottom: 28px;
       padding-bottom: 22px;
       border-bottom: 1px solid rgba(23, 32, 39, 0.12);
+      overflow: hidden;
+    }
+
+    .timeline-section-number-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
 
     .timeline-section-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(23, 32, 39, 0.22);
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      color: var(--muted);
       flex-shrink: 0;
-      font-size: clamp(3.5rem, 8vw, 6.5rem);
-      font-weight: 900;
-      line-height: 0.85;
-      letter-spacing: -0.04em;
-      color: transparent;
-      -webkit-text-stroke: 1.5px rgba(23, 32, 39, 0.18);
       user-select: none;
-      transform: translateY(4px);
-    }
-
-    .timeline-section-title-text {
-      display: grid;
-      gap: 4px;
     }
 
     .timeline-section-label {
@@ -2845,13 +2850,19 @@
       color: var(--gold);
     }
 
+    .timeline-section-title-text {
+      display: grid;
+      gap: 4px;
+    }
+
     .timeline-section-heading {
       margin: 0;
-      font-size: clamp(1.55rem, 3.2vw, 2.6rem);
-      font-weight: 850;
+      font-size: clamp(1.8rem, 3.8vw, 3.2rem);
+      font-weight: 860;
       line-height: 1.0;
       color: var(--ink);
       text-wrap: balance;
+      letter-spacing: -0.02em;
     }
 
     /* ── Section header: kicker + h2 + rule card ── */
@@ -2986,29 +2997,37 @@
         max-width: none;
       }
 
-      .timeline-section-number {
-        display: none;
-      }
     }
 
-    /* ── Scroll cue override — visible on cream bg ── */
+    /* ── Scroll cue override — flow in document, visible on cream bg ── */
     .timeline-standalone .section-scroll-cue {
-      color: rgba(23, 32, 39, 0.42);
+      /* Override absolute positioning so it appears below the chart */
+      position: relative;
+      bottom: auto;
+      left: auto;
+      transform: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      margin-top: 36px;
+      color: rgba(23, 32, 39, 0.52);
       font-size: 0.72rem;
       letter-spacing: 0.12em;
       gap: 8px;
+      animation: timelineScrollCueBounce 2s ease-in-out infinite;
     }
 
     .timeline-standalone .section-scroll-cue .cue-chevron {
       width: 16px;
       height: 16px;
-      border-right: 2px solid rgba(23, 32, 39, 0.45);
-      border-bottom: 2px solid rgba(23, 32, 39, 0.45);
+      border-right: 2px solid rgba(23, 32, 39, 0.5);
+      border-bottom: 2px solid rgba(23, 32, 39, 0.5);
     }
 
-    @keyframes scrollCueBounce {
-      0%, 100% { transform: translateX(-50%) translateY(0); opacity: 0.42; }
-      50%       { transform: translateX(-50%) translateY(8px); opacity: 0.75; }
+    @keyframes timelineScrollCueBounce {
+      0%, 100% { opacity: 0.52; transform: translateY(0); }
+      50%       { opacity: 0.85; transform: translateY(7px); }
     }
   </style>
 </head>
@@ -3215,11 +3234,13 @@
     <div class="timeline-section-inner">
 
       <!-- Section title block -->
-      <div class="timeline-section-title" aria-hidden="true">
-        <span class="timeline-section-number">03</span>
-        <div class="timeline-section-title-text">
+      <div class="timeline-section-title">
+        <div class="timeline-section-number-row">
+          <span class="timeline-section-number" aria-hidden="true">03</span>
           <span class="timeline-section-label">The Methodology</span>
-          <h3 class="timeline-section-heading">Classifying 65 years<br>of Pacific variability</h3>
+        </div>
+        <div class="timeline-section-title-text">
+          <h3 class="timeline-section-heading">Classifying 65 years of Pacific variability</h3>
         </div>
       </div>
 
