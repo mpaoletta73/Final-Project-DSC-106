@@ -4670,13 +4670,22 @@
       const now = Date.now();
       const GAP = 12; // px between arrow tip and anchor point
 
+      const center = state.map.getCenter();
+      const cLat = center.lat * Math.PI / 180;
+      const cLng = center.lng * Math.PI / 180;
+
       anchors.forEach((anchor, i) => {
         const el = labels[i];
         if (!el) return;
         const pt = state.map.project([anchor.lng, anchor.lat]);
         const inBounds = pt.x > 40 && pt.x < w - 40 && pt.y > 40 && pt.y < h - 40;
         const revealed = now >= parseInt(el.dataset.revealAt || "0");
-        const visible = inBounds && revealed;
+        const pLat = anchor.lat * Math.PI / 180;
+        const pLng = anchor.lng * Math.PI / 180;
+        const dot = Math.sin(cLat) * Math.sin(pLat) +
+                    Math.cos(cLat) * Math.cos(pLat) * Math.cos(pLng - cLng);
+        const onFront = dot > 0.05;
+        const visible = inBounds && revealed && onFront;
 
         let tx, ty;
         const side = (anchor.side || "bottom");
