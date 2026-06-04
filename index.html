@@ -2548,22 +2548,20 @@
       top: 0;
       left: 0;
       display: flex;
-      align-items: center;
-      gap: 6px;
+      align-items: flex-start;
+      gap: 7px;
       background: rgba(14, 22, 30, 0.94);
       color: #f7f4ec;
       border: 1px solid rgba(255, 255, 255, 0.26);
       border-radius: 8px;
-      padding: 6px 12px 6px 9px;
-      font-size: 0.74rem;
-      font-weight: 720;
-      letter-spacing: 0.03em;
-      white-space: nowrap;
+      padding: 7px 12px 7px 9px;
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
       box-shadow: 0 6px 20px rgba(2, 4, 8, 0.5);
       transition: opacity 500ms ease, transform 500ms ease;
-      pointer-events: none;
+      pointer-events: auto;
+      cursor: pointer;
+      max-width: 220px;
     }
 
     /* Directional arrow using ::after pseudo-element */
@@ -2616,7 +2614,147 @@
       height: 8px;
       border-radius: 50%;
       flex-shrink: 0;
+      margin-top: 3px;
       box-shadow: 0 0 0 2px rgba(255,255,255,0.15);
+    }
+
+    .globe-label-body {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .globe-label-title {
+      font-size: 0.74rem;
+      font-weight: 720;
+      letter-spacing: 0.03em;
+      margin: 0;
+      line-height: 1.2;
+    }
+
+    .globe-label-desc {
+      font-size: 0.66rem;
+      font-weight: 400;
+      letter-spacing: 0.01em;
+      opacity: 0.65;
+      margin: 0;
+      line-height: 1.35;
+    }
+
+    .globe-label-detail {
+      display: none;
+      font-size: 0.67rem;
+      font-weight: 400;
+      opacity: 0.82;
+      margin-top: 5px;
+      line-height: 1.45;
+      border-top: 1px solid rgba(255,255,255,0.12);
+      padding-top: 5px;
+    }
+
+    .globe-label--expanded .globe-label-detail {
+      display: block;
+    }
+
+    .globe-label-click-hint {
+      font-size: 0.58rem;
+      opacity: 0.4;
+      margin-top: 3px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .globe-label--expanded .globe-label-click-hint {
+      display: none;
+    }
+
+    /* ── Drag hint in content section ── */
+    .globe-interact-note {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.70rem;
+      color: rgba(247, 244, 236, 0.45);
+      margin-top: 14px;
+      margin-bottom: 2px;
+      font-style: italic;
+      letter-spacing: 0.01em;
+    }
+
+    .globe-interact-note svg {
+      flex-shrink: 0;
+      opacity: 0.55;
+    }
+
+    /* ── Globe drag/explore hint ── */
+    .globe-drag-hint {
+      position: absolute;
+      bottom: 60px;
+      left: 14px;
+      z-index: 7;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(14, 22, 30, 0.82);
+      color: rgba(247, 244, 236, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 20px;
+      padding: 5px 11px 5px 8px;
+      font-size: 0.67rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      pointer-events: none;
+      transition: opacity 600ms ease;
+    }
+
+    .globe-drag-hint svg {
+      width: 14px;
+      height: 14px;
+      opacity: 0.7;
+      flex-shrink: 0;
+    }
+
+    .globe-drag-hint.is-hidden {
+      opacity: 0;
+    }
+
+    /* ── Click-to-learn hint ── */
+    .globe-tip-hint {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      z-index: 7;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(14, 22, 30, 0.82);
+      color: rgba(247, 244, 236, 0.70);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 20px;
+      padding: 5px 11px 5px 8px;
+      font-size: 0.64rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      pointer-events: none;
+      transition: opacity 600ms ease;
+    }
+
+    .globe-tip-hint svg {
+      width: 12px;
+      height: 12px;
+      opacity: 0.65;
+      flex-shrink: 0;
+    }
+
+    .globe-tip-hint.is-hidden {
+      opacity: 0;
     }
 
     /* ── Layer note scroll tooltip ── */
@@ -2769,6 +2907,10 @@
         <h2>The whole pattern appears first.</h2>
         <p>The fingerprint combines ocean warming, rainfall, clouds, and reflected sunlight into one normalized index. Strong positive areas show where several El Nino signals line up across the Pacific basin.</p>
         <p>The eastern and central Pacific light up in unison — a stark contrast to the weaker or opposite signal in the west.</p>
+        <p class="globe-interact-note">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M12 2a2 2 0 0 1 2 2v5.5l1.5-1a1.5 1.5 0 0 1 2 2.2L14 14.5A6 6 0 0 1 8 20H6a4 4 0 0 1-4-4v-3a1.5 1.5 0 0 1 3 0V11l3.5-4.5A2 2 0 0 1 12 4V2z"/></svg>
+          You can drag and scroll the globe to explore freely.
+        </p>
         <nav class="section-nav" aria-label="Section navigation">
           <button class="section-nav-btn section-nav-prev" type="button" aria-label="Previous section">&#8592; Back</button>
           <button class="section-nav-btn section-nav-next" type="button" aria-label="Next section">Next &#8594;</button>
@@ -2784,6 +2926,10 @@
         <h2>The ocean starts the chain.</h2>
         <p>Sea-surface temperature rises across the tropical Pacific. This warm water is the trigger that reorganizes the atmosphere above it.</p>
         <p>The Niño 3.4 region (5°N–5°S, 170°W–120°W) is the key monitoring zone — scientists declare an El Niño event when warming there exceeds +0.5 °C for several consecutive months.</p>
+        <p class="globe-interact-note">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M12 2a2 2 0 0 1 2 2v5.5l1.5-1a1.5 1.5 0 0 1 2 2.2L14 14.5A6 6 0 0 1 8 20H6a4 4 0 0 1-4-4v-3a1.5 1.5 0 0 1 3 0V11l3.5-4.5A2 2 0 0 1 12 4V2z"/></svg>
+          You can drag and scroll the globe to explore freely.
+        </p>
         <nav class="section-nav" aria-label="Section navigation">
           <button class="section-nav-btn section-nav-prev" type="button" aria-label="Previous section">&#8592; Back</button>
           <button class="section-nav-btn section-nav-next" type="button" aria-label="Next section">Next &#8594;</button>
@@ -2799,6 +2945,10 @@
         <h2>Rain does not just increase everywhere.</h2>
         <p>El Nino shifts rainfall eastward across the Pacific. Some regions become wetter while others dry out — which is why the same event can mean floods in one place and drought in another.</p>
         <p>Red areas received more rain during El Nino-like months; blue areas dried out.</p>
+        <p class="globe-interact-note">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M12 2a2 2 0 0 1 2 2v5.5l1.5-1a1.5 1.5 0 0 1 2 2.2L14 14.5A6 6 0 0 1 8 20H6a4 4 0 0 1-4-4v-3a1.5 1.5 0 0 1 3 0V11l3.5-4.5A2 2 0 0 1 12 4V2z"/></svg>
+          You can drag and scroll the globe to explore freely.
+        </p>
         <nav class="section-nav" aria-label="Section navigation">
           <button class="section-nav-btn section-nav-prev" type="button" aria-label="Previous section">&#8592; Back</button>
           <button class="section-nav-btn section-nav-next" type="button" aria-label="Next section">Next &#8594;</button>
@@ -2814,6 +2964,10 @@
         <h2>Storm clouds follow the warm water.</h2>
         <p>Cloud cover changes as tropical convection moves. The atmosphere responds to the ocean pattern instead of staying fixed in place.</p>
         <p>Positive values (cloudier) in the central Pacific and negative values (clearer) near Indonesia show how dramatically the convective zone migrates.</p>
+        <p class="globe-interact-note">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M12 2a2 2 0 0 1 2 2v5.5l1.5-1a1.5 1.5 0 0 1 2 2.2L14 14.5A6 6 0 0 1 8 20H6a4 4 0 0 1-4-4v-3a1.5 1.5 0 0 1 3 0V11l3.5-4.5A2 2 0 0 1 12 4V2z"/></svg>
+          You can drag and scroll the globe to explore freely.
+        </p>
         <nav class="section-nav" aria-label="Section navigation">
           <button class="section-nav-btn section-nav-prev" type="button" aria-label="Previous section">&#8592; Back</button>
           <button class="section-nav-btn section-nav-next" type="button" aria-label="Next section">Next &#8594;</button>
@@ -2829,6 +2983,10 @@
         <h2>Even reflected sunlight changes.</h2>
         <p>Clouds affect how much shortwave radiation leaves the top of the atmosphere. El Nino changes the Pacific energy balance, not only ocean temperature.</p>
         <p>Where clouds increase, more sunlight bounces back to space. The pattern closely mirrors cloud cover, confirming the tight coupling between clouds and reflected energy.</p>
+        <p class="globe-interact-note">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M12 2a2 2 0 0 1 2 2v5.5l1.5-1a1.5 1.5 0 0 1 2 2.2L14 14.5A6 6 0 0 1 8 20H6a4 4 0 0 1-4-4v-3a1.5 1.5 0 0 1 3 0V11l3.5-4.5A2 2 0 0 1 12 4V2z"/></svg>
+          You can drag and scroll the globe to explore freely.
+        </p>
         <nav class="section-nav" aria-label="Section navigation">
           <button class="section-nav-btn section-nav-prev" type="button" aria-label="Previous section">&#8592; Back</button>
           <button class="section-nav-btn section-nav-next" type="button" aria-label="Continue to timeline">Continue &#8594;</button>
@@ -2871,6 +3029,20 @@
           </div>
           <div id="layer-note-tooltip" class="layer-note-tip" aria-live="polite"></div>
           <div id="globe-labels" aria-hidden="true"></div>
+          <div class="globe-drag-hint" id="globeDragHint" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2a2 2 0 0 1 2 2v5.5l1.5-1a1.5 1.5 0 0 1 2 2.2L14 14.5A6 6 0 0 1 8 20H6a4 4 0 0 1-4-4v-3a1.5 1.5 0 0 1 3 0V11l3.5-4.5A2 2 0 0 1 12 4V2z"/>
+            </svg>
+            Drag to explore
+          </div>
+          <div class="globe-tip-hint" id="globeTipHint" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            Click labels to learn more
+          </div>
         </div>
       </section>
     </div><!-- /.story-right -->
@@ -3960,34 +4132,110 @@
 
     const globeLabelDefs = {
       intro: [
-        { lng: -118, lat: 4,  text: "El Niño warming core",   color: "#e8a020", side: "bottom" },
-        { lng:  142, lat: 0,  text: "Pacific basin",          color: "#9ba6ab", side: "bottom" }
+        {
+          lng: -118, lat: 4, text: "El Niño warming core", color: "#e8a020", side: "bottom",
+          description: "Where ocean heat builds up during El Niño.",
+          detail: "The central and eastern Pacific accumulate heat over months as trade winds relax, raising surface temps by 2–4 °C above normal. This warmth fuels the atmospheric disruptions felt worldwide."
+        },
+        {
+          lng: 142, lat: 0, text: "Pacific basin", color: "#9ba6ab", side: "bottom",
+          description: "Earth's largest ocean — a global weather engine.",
+          detail: "The Pacific spans 165 million km², nearly a third of Earth's surface. Small temperature shifts here are enough to reorganize jet streams, monsoons, and storm tracks across multiple continents."
+        }
       ],
       facts: [
-        { lng: -78,  lat: -3, text: "Warm water source",      color: "#e82010", side: "right"  },
-        { lng: -128, lat: 5,  text: "Spreads eastward",       color: "#e8a020", side: "bottom" }
+        {
+          lng: -78, lat: -3, text: "Warm water source", color: "#e82010", side: "right",
+          description: "Heat energy stored in the western Pacific.",
+          detail: "Trade winds push warm surface water westward for months. When winds weaken, this reservoir of heat sloshes back east — the trigger for El Niño. The deeper the pool, the stronger the event."
+        },
+        {
+          lng: -128, lat: 5, text: "Spreads eastward", color: "#e8a020", side: "bottom",
+          description: "The signature El Niño migration.",
+          detail: "Warm water moving east along the equator suppresses cold upwelling and eliminates the 'cold tongue.' The tropical rain belt follows the heat, shifting storm systems thousands of miles from their normal positions."
+        }
       ],
       combined: [
-        { lng: -138, lat: 2,  text: "Strong signal",          color: "#e8a020", side: "bottom" },
-        { lng:  138, lat: 5,  text: "Opposite or weak",       color: "#9ba6ab", side: "bottom" }
+        {
+          lng: -138, lat: 2, text: "Strong signal", color: "#e8a020", side: "bottom",
+          description: "Multiple El Niño indicators align here.",
+          detail: "When SST warming, increased rainfall, higher cloud cover, and outgoing radiation changes all point in the same direction, the fingerprint score peaks. This is where the full El Niño footprint is clearest."
+        },
+        {
+          lng: 138, lat: 5, text: "Opposite or weak", color: "#9ba6ab", side: "bottom",
+          description: "Western Pacific responds in reverse.",
+          detail: "As the eastern Pacific warms, the west cools slightly. Less evaporation reduces rainfall and cloud cover there. La Niña is essentially this pattern reversed, with the west warming strongly instead."
+        }
       ],
       sst: [
-        { lng: -128, lat: 0,  text: "Niño 3.4 core",         color: "#c1341e", side: "bottom" },
-        { lng:  148, lat: -5, text: "Western Pacific cool",   color: "#1d6fa3", side: "bottom" }
+        {
+          lng: -128, lat: 0, text: "Niño 3.4 core", color: "#c1341e", side: "bottom",
+          description: "The standard El Niño measurement zone.",
+          detail: "Sea surface temperatures in this 5°N–5°S, 120°W–170°W box define official El Niño thresholds. Anomalies above +0.5 °C for five consecutive months classify as an El Niño event."
+        },
+        {
+          lng: 148, lat: -5, text: "Western Pacific cool", color: "#1d6fa3", side: "bottom",
+          description: "The cold counterpart to eastern warming.",
+          detail: "Warmer east means cooler west. The Walker Circulation — the atmospheric loop connecting the two — weakens and shifts, reducing upwelling in the west and further cooling those waters."
+        }
       ],
       precip: [
-        { lng: -148, lat: 4,  text: "Increased rainfall",     color: "#c1341e", side: "right"  },
-        { lng:  128, lat: 0,  text: "Drying — Indonesia",     color: "#1d6fa3", side: "left"   }
+        {
+          lng: -148, lat: 4, text: "Increased rainfall", color: "#c1341e", side: "right",
+          description: "Rain belt migrates thousands of miles east.",
+          detail: "Convection follows warm water. Central Pacific islands and the Americas' west coast receive flooding rains that normally fall over Indonesia. Flash floods and landslides often accompany strong events."
+        },
+        {
+          lng: 128, lat: 0, text: "Drying — Indonesia", color: "#1d6fa3", side: "left",
+          description: "Drought where monsoon rain is expected.",
+          detail: "Indonesia, Papua New Guinea, and northern Australia face severe drought and wildfire risk as the warm water — and the convective rain — moves away. Crop failures and water shortages follow prolonged dry spells."
+        }
       ],
       cloud: [
-        { lng: -155, lat: 5,  text: "Cloudier skies",         color: "#c1341e", side: "bottom" },
-        { lng:  122, lat: 4,  text: "Clearer skies",          color: "#1d6fa3", side: "bottom" }
+        {
+          lng: -155, lat: 5, text: "Cloudier skies", color: "#c1341e", side: "bottom",
+          description: "Convective clouds rise over warm water.",
+          detail: "Higher sea surface temperatures drive evaporation, which feeds towering cumulonimbus clouds and persistent overcast skies. The extra cloud cover reflects more sunlight and traps outgoing heat below."
+        },
+        {
+          lng: 122, lat: 4, text: "Clearer skies", color: "#1d6fa3", side: "bottom",
+          description: "Subsidence suppresses cloud formation.",
+          detail: "Cooler waters in the west reduce vertical air motion. Skies clear as sinking air warms and dries in descent, dramatically reducing cloud cover and allowing more solar radiation to reach the surface."
+        }
       ],
       rsut: [
-        { lng: -145, lat: 5,  text: "More reflected",         color: "#c1341e", side: "bottom" },
-        { lng:  135, lat: 0,  text: "Less reflected",         color: "#1d6fa3", side: "bottom" }
+        {
+          lng: -145, lat: 5, text: "More reflected", color: "#c1341e", side: "bottom",
+          description: "Thick clouds act as a planetary mirror.",
+          detail: "Dense cloud decks over the warmer eastern Pacific reflect incoming solar radiation back to space before it can heat the surface. This reduces the amount of energy the ocean absorbs in the short term."
+        },
+        {
+          lng: 135, lat: 0, text: "Less reflected", color: "#1d6fa3", side: "bottom",
+          description: "Open skies let sunlight through.",
+          detail: "Reduced cloud cover in the western Pacific means more direct sunlight reaches the ocean surface. The extra energy absorption amplifies the existing temperature contrast between east and west."
+        }
       ]
     };
+
+    let _tipHintDismissed = false;
+    let _dragHintTimer = null;
+
+    function dismissTipHint() {
+      if (_tipHintDismissed) return;
+      _tipHintDismissed = true;
+      const hint = document.querySelector("#globeTipHint");
+      if (hint) hint.classList.add("is-hidden");
+    }
+
+    function startDragHintTimer() {
+      if (_dragHintTimer) clearTimeout(_dragHintTimer);
+      const hint = document.querySelector("#globeDragHint");
+      if (!hint) return;
+      hint.classList.remove("is-hidden");
+      _dragHintTimer = setTimeout(() => {
+        hint.classList.add("is-hidden");
+      }, 6000);
+    }
 
     function updateGlobeLabels(key) {
       const container = document.querySelector("#globe-labels");
@@ -3996,16 +4244,52 @@
       const defs = globeLabelDefs[key] || [];
       state.globeLabelAnchors = defs;
       const revealAt = String(Date.now() + 1650);
+      startDragHintTimer();
       defs.forEach(def => {
         const el = document.createElement("div");
         el.className = "globe-label";
         el.dataset.revealAt = revealAt;
         if (def.side) el.dataset.side = def.side;
+
         const dot = document.createElement("span");
         dot.className = "globe-label-dot";
         dot.style.background = def.color;
         el.appendChild(dot);
-        el.appendChild(document.createTextNode(def.text));
+
+        const body = document.createElement("div");
+        body.className = "globe-label-body";
+
+        const title = document.createElement("p");
+        title.className = "globe-label-title";
+        title.textContent = def.text;
+        body.appendChild(title);
+
+        if (def.description) {
+          const desc = document.createElement("p");
+          desc.className = "globe-label-desc";
+          desc.textContent = def.description;
+          body.appendChild(desc);
+        }
+
+        if (def.detail) {
+          const detail = document.createElement("p");
+          detail.className = "globe-label-detail";
+          detail.textContent = def.detail;
+          body.appendChild(detail);
+
+          const clickHint = document.createElement("p");
+          clickHint.className = "globe-label-click-hint";
+          clickHint.textContent = "tap for more";
+          body.appendChild(clickHint);
+
+          el.addEventListener("click", (e) => {
+            e.stopPropagation();
+            el.classList.toggle("globe-label--expanded");
+            dismissTipHint();
+          });
+        }
+
+        el.appendChild(body);
         container.appendChild(el);
       });
       repositionGlobeLabels();
