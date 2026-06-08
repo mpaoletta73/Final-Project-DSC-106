@@ -3202,7 +3202,7 @@
 
       <!-- 1. Intro -->
       <section class="story-section" id="section-intro"
-        data-camera-lng="-160" data-camera-lat="5" data-camera-zoom="1.8"
+        data-camera-lng="-168" data-camera-lat="3" data-camera-zoom="1.8"
         aria-labelledby="mapIntroTitle">
         <p class="article-kicker">The Pacific pattern</p>
         <h2 id="mapIntroTitle">El Nino starts in the ocean, but it does not stay there.</h2>
@@ -3217,7 +3217,7 @@
 
       <!-- 2. Facts -->
       <section class="story-section" id="section-facts"
-        data-camera-lng="-80" data-camera-lat="-3" data-camera-zoom="2.8"
+        data-camera-lng="-103" data-camera-lat="1" data-camera-zoom="2.6"
         aria-label="Data summary">
         <div class="facts-strip-heading">
           <h3>The comparison behind the map</h3>
@@ -3233,7 +3233,7 @@
       <!-- 3. El Nino Fingerprint (combined) -->
       <section class="story-section" id="section-combined"
         data-layer="combined"
-        data-camera-lng="-178" data-camera-lat="0" data-camera-zoom="2.0"
+        data-camera-lng="180" data-camera-lat="2" data-camera-zoom="1.9"
         aria-label="El Nino Fingerprint layer">
         <p class="story-kicker">Fingerprint</p>
         <h2>The whole pattern appears first.</h2>
@@ -3252,7 +3252,7 @@
       <!-- 4. SST Warming -->
       <section class="story-section" id="section-sst"
         data-layer="sst"
-        data-camera-lng="-120" data-camera-lat="-2" data-camera-zoom="3.0"
+        data-camera-lng="-170" data-camera-lat="-2" data-camera-zoom="1.9"
         aria-label="SST Warming layer">
         <p class="story-kicker">SST Warming</p>
         <h2>The ocean starts the chain.</h2>
@@ -3271,7 +3271,7 @@
       <!-- 5. Rainfall Shift -->
       <section class="story-section" id="section-precip"
         data-layer="precip"
-        data-camera-lng="128" data-camera-lat="-3" data-camera-zoom="3.2"
+        data-camera-lng="170" data-camera-lat="2" data-camera-zoom="1.9"
         aria-label="Rainfall Shift layer">
         <p class="story-kicker">Rainfall Shift</p>
         <h2>Rain does not just increase everywhere.</h2>
@@ -3290,7 +3290,7 @@
       <!-- 6. Cloud Cover -->
       <section class="story-section" id="section-cloud"
         data-layer="cloud"
-        data-camera-lng="-165" data-camera-lat="8" data-camera-zoom="2.6"
+        data-camera-lng="163" data-camera-lat="4" data-camera-zoom="1.9"
         aria-label="Cloud Cover layer">
         <p class="story-kicker">Cloud Cover</p>
         <h2>Storm clouds follow the warm water.</h2>
@@ -3309,7 +3309,7 @@
       <!-- 7. Radiation (rsut) -->
       <section class="story-section" id="section-rsut"
         data-layer="rsut"
-        data-camera-lng="-150" data-camera-lat="-12" data-camera-zoom="2.8"
+        data-camera-lng="175" data-camera-lat="2" data-camera-zoom="1.9"
         aria-label="Outgoing Radiation layer">
         <p class="story-kicker">Radiation</p>
         <h2>Even reflected sunlight changes.</h2>
@@ -3527,7 +3527,7 @@
     const QUIZ_QUESTIONS = [
       {
         layer: "sst",
-        mapFocus: { center: [-120, -2], zoom: 3.0 },
+        mapFocus: { center: [-170, -2], zoom: 1.9 },
         question: "During an El Niño event, which part of the Pacific Ocean heats up the most?",
         options: [
           "The western Pacific near the Philippines and Indonesia",
@@ -3542,7 +3542,7 @@
       },
       {
         layer: "precip",
-        mapFocus: { center: [128, -3], zoom: 3.0 },
+        mapFocus: { center: [170, 2], zoom: 1.9 },
         question: "El Niño warms the central Pacific. What does that do to rainfall across the basin?",
         options: [
           "Rain increases everywhere equally across the Pacific",
@@ -3557,7 +3557,7 @@
       },
       {
         layer: "cloud",
-        mapFocus: { center: [-165, 8], zoom: 2.6 },
+        mapFocus: { center: [163, 4], zoom: 1.9 },
         question: "The warm water moves east during El Niño. Where do the tropical storm clouds go?",
         options: [
           "Clouds stay locked in place over Indonesia — they ignore ocean temperature",
@@ -3572,7 +3572,7 @@
       },
       {
         layer: "rsut",
-        mapFocus: { center: [-150, -12], zoom: 2.8 },
+        mapFocus: { center: [175, 2], zoom: 1.9 },
         question: "El Niño rearranges clouds across the Pacific. What happens to reflected sunlight as a result?",
         options: [
           "Where clouds increase, more sunlight is reflected back to space",
@@ -3587,7 +3587,7 @@
       },
       {
         layer: "combined",
-        mapFocus: { center: [-178, 0], zoom: 2.0 },
+        mapFocus: { center: [180, 2], zoom: 1.9 },
         question: "The El Niño Fingerprint combines SST, rainfall, clouds, and radiation. Where is the signal strongest?",
         options: [
           "Evenly distributed across the entire Pacific basin",
@@ -3602,7 +3602,7 @@
       },
       {
         layer: "sst",
-        mapFocus: { center: [-120, -2], zoom: 3.0 },
+        mapFocus: { center: [-170, -2], zoom: 1.9 },
         question: "Scientists can forecast El Niño months in advance using models like CESM2. Who benefits most from that lead time?",
         options: [
           "Space agencies tracking orbital decay from increased atmospheric drag",
@@ -3813,24 +3813,34 @@
 
       const pxPerDeg = 8;
       const fadeDegs = 15;
-      const width = Math.ceil((lonMax - lonMin) * pxPerDeg);
+      const blurPx = Math.round(pxPerDeg * 2.5);
+      // Pad canvas on both sides with wrapped data so the blur has context at the
+      // antimeridian edges and doesn't fade to transparent there (which causes the seam).
+      const padPx = blurPx * 3;
+      const padDeg = padPx / pxPerDeg;
+      const lonSpan = lonMax - lonMin;
+
+      const coreWidth = Math.ceil((lonMax - lonMin) * pxPerDeg);
+      const paddedWidth = coreWidth + 2 * padPx;
       const height = Math.ceil((latMax - latMin) * pxPerDeg);
 
       const cvs = document.createElement("canvas");
-      cvs.width = width;
+      cvs.width = paddedWidth;
       cvs.height = height;
       const ctx = cvs.getContext("2d");
-      const img = ctx.createImageData(width, height);
+      const img = ctx.createImageData(paddedWidth, height);
 
       for (let py = 0; py < height; py++) {
         const lat = latMax - py / pxPerDeg;
-        // Only fade lat edges (poles); no lon fade since data wraps the full globe
         const ey = cosEdge(py, height, fadeDegs * pxPerDeg);
 
-        for (let px = 0; px < width; px++) {
-          const lon = lonMin + px / pxPerDeg;
+        for (let px = 0; px < paddedWidth; px++) {
+          let lon = (lonMin - padDeg) + px / pxPerDeg;
+          // Wrap padding pixels into the valid data range so the blur has real context
+          if (lon < lonMin) lon += lonSpan;
+          else if (lon >= lonMax) lon -= lonSpan;
           const value = bilinearInterp(lookup, lons, lats, lon, lat, lonStep, latStep);
-          const idx = (py * width + px) * 4;
+          const idx = (py * paddedWidth + px) * 4;
 
           if (value !== undefined) {
             const edgeFade = ey;
@@ -3846,12 +3856,18 @@
 
       ctx.putImageData(img, 0, 0);
 
-      const blurred = document.createElement("canvas");
-      blurred.width = width;
-      blurred.height = height;
-      const bCtx = blurred.getContext("2d");
-      bCtx.filter = `blur(${Math.round(pxPerDeg * 2.5)}px)`;
+      const blurredPadded = document.createElement("canvas");
+      blurredPadded.width = paddedWidth;
+      blurredPadded.height = height;
+      const bCtx = blurredPadded.getContext("2d");
+      bCtx.filter = `blur(${blurPx}px)`;
       bCtx.drawImage(cvs, 0, 0);
+
+      // Crop out the padding — edges are now properly blurred without a seam
+      const blurred = document.createElement("canvas");
+      blurred.width = coreWidth;
+      blurred.height = height;
+      blurred.getContext("2d").drawImage(blurredPadded, padPx, 0, coreWidth, height, 0, 0, coreWidth, height);
 
       return { canvas: blurred, lonMin, lonMax, latMin, latMax };
     }
