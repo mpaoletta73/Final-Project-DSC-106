@@ -2583,10 +2583,10 @@
 
     .section-nav-btn {
       padding: 10px 22px;
-      border: 1px solid color-mix(in srgb, var(--layer-accent) 45%, transparent);
+      border: 1px solid rgba(232, 160, 32, 0.45);
       border-radius: 8px;
-      background: color-mix(in srgb, var(--layer-accent) 10%, transparent);
-      color: var(--layer-accent);
+      background: rgba(232, 160, 32, 0.10);
+      color: #e8a020;
       font-size: 0.86rem;
       font-weight: 720;
       letter-spacing: 0.04em;
@@ -2595,9 +2595,16 @@
     }
 
     .section-nav-btn:hover:not(:disabled) {
-      background: color-mix(in srgb, var(--layer-accent) 22%, transparent);
-      border-color: color-mix(in srgb, var(--layer-accent) 75%, transparent);
+      background: rgba(232, 160, 32, 0.22);
+      border-color: rgba(232, 160, 32, 0.75);
       transform: translateY(-1px);
+    }
+
+    .story-section .section-nav {
+      position: absolute;
+      bottom: clamp(28px, 4vh, 48px);
+      left: clamp(28px, 4vw, 52px);
+      margin-top: 0;
     }
 
     .section-nav-btn:active:not(:disabled) {
@@ -4438,7 +4445,7 @@
         const scrollingUp = e.deltaY < 0;
         if (scrollingUp) {
           const firstSection = document.getElementById('section-intro');
-          if (firstSection && firstSection.getBoundingClientRect().top >= -50) {
+          if (firstSection && firstSection.getBoundingClientRect().top >= -150) {
             return;
           }
         }
@@ -4457,7 +4464,7 @@
           const isUp = e.code === 'ArrowUp' || e.code === 'PageUp';
           if (isUp) {
             const firstSection = document.getElementById('section-intro');
-            if (firstSection && firstSection.getBoundingClientRect().top >= -50) {
+            if (firstSection && firstSection.getBoundingClientRect().top >= -150) {
               return;
             }
           }
@@ -4584,7 +4591,7 @@
       ],
       sst: [
         {
-          lng: -128, lat: 0, text: "Niño 3.4 core", color: "#c1341e", side: "bottom",
+          lng: -128, lat: 0, text: "Niño 3.4 core", color: "#dc2020", side: "bottom",
           description: "The standard El Niño measurement zone.",
           detail: "Sea surface temperatures in this 5°N–5°S, 120°W–170°W box define official El Niño thresholds. Anomalies above +0.5 °C for five consecutive months classify as an El Niño event."
         },
@@ -4596,36 +4603,36 @@
       ],
       precip: [
         {
-          lng: -148, lat: 4, text: "Increased rainfall", color: "#c1341e", side: "right",
+          lng: -148, lat: 4, text: "Increased rainfall", color: "#10a060", side: "right",
           description: "Rain belt migrates thousands of miles east.",
           detail: "Convection follows warm water. Central Pacific islands and the Americas' west coast receive flooding rains that normally fall over Indonesia. Flash floods and landslides often accompany strong events."
         },
         {
-          lng: 128, lat: 0, text: "Drying — Indonesia", color: "#1d6fa3", side: "left",
+          lng: 128, lat: 0, text: "Drying — Indonesia", color: "#d2821e", side: "left",
           description: "Drought where monsoon rain is expected.",
           detail: "Indonesia, Papua New Guinea, and northern Australia face severe drought and wildfire risk as the warm water — and the convective rain — moves away. Crop failures and water shortages follow prolonged dry spells."
         }
       ],
       cloud: [
         {
-          lng: -155, lat: 5, text: "Cloudier skies", color: "#c1341e", side: "bottom",
+          lng: -155, lat: 5, text: "Cloudier skies", color: "#8020d0", side: "bottom",
           description: "Convective clouds rise over warm water.",
           detail: "Higher sea surface temperatures drive evaporation, which feeds towering cumulonimbus clouds and persistent overcast skies. The extra cloud cover reflects more sunlight and traps outgoing heat below."
         },
         {
-          lng: 122, lat: 4, text: "Clearer skies", color: "#1d6fa3", side: "bottom",
+          lng: 122, lat: 4, text: "Clearer skies", color: "#c88c14", side: "bottom",
           description: "Subsidence suppresses cloud formation.",
           detail: "Cooler waters in the west reduce vertical air motion. Skies clear as sinking air warms and dries in descent, dramatically reducing cloud cover and allowing more solar radiation to reach the surface."
         }
       ],
       rsut: [
         {
-          lng: -145, lat: 5, text: "More reflected", color: "#c1341e", side: "bottom",
+          lng: -145, lat: 5, text: "More reflected", color: "#cc14b0", side: "bottom",
           description: "Thick clouds act as a planetary mirror.",
           detail: "Dense cloud decks over the warmer eastern Pacific reflect incoming solar radiation back to space before it can heat the surface. This reduces the amount of energy the ocean absorbs in the short term."
         },
         {
-          lng: 135, lat: 0, text: "Less reflected", color: "#1d6fa3", side: "bottom",
+          lng: 135, lat: 0, text: "Less reflected", color: "#8cc80a", side: "bottom",
           description: "Open skies let sunlight through.",
           detail: "Reduced cloud cover in the western Pacific means more direct sunlight reaches the ocean surface. The extra energy absorption amplifies the existing temperature contrast between east and west."
         }
@@ -5090,6 +5097,14 @@
           if (storyRight) {
             storyRight.addEventListener("mouseenter", () => state.map?.scrollZoom.enable());
             storyRight.addEventListener("mouseleave", () => state.map?.scrollZoom.disable());
+            storyRight.addEventListener('wheel', (e) => {
+              if (e.deltaY < 0) {
+                const firstSection = document.getElementById('section-intro');
+                if (firstSection && firstSection.getBoundingClientRect().top >= -150) {
+                  e.stopPropagation();
+                }
+              }
+            }, { capture: true, passive: false });
           }
         });
         state.map.on("style.load", applySpaceFog);
