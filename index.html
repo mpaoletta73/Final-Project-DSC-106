@@ -2644,8 +2644,15 @@
       }
 
       .story-section {
+        height: auto;
         min-height: auto;
-        padding: 36px 20px;
+        overflow: visible;
+        padding: 36px 20px 80px;
+      }
+
+      .story-section .section-nav {
+        position: static;
+        margin-top: 24px;
       }
 
       .story-section .facts {
@@ -4374,6 +4381,35 @@
 
       document.querySelectorAll(".story-section").forEach(s => revealObs.observe(s));
       document.querySelectorAll(".standalone-section").forEach(s => revealObs.observe(s));
+
+      // ── Layer switching: fire when a section scrolls into the center band ──
+      // rootMargin of -40% top/bottom creates a 20%-tall trigger zone in the middle
+      // of the viewport, so layers swap at the natural reading position.
+      const layerObs = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (!entry.isIntersecting) return;
+          const s = entry.target;
+
+          if (s.dataset.layer) {
+            if (s.dataset.layer !== state.layer) setLayer(s.dataset.layer);
+          } else {
+            updateGlobeLabels(s.id.replace("section-", ""));
+          }
+
+          const { cameraLng, cameraLat, cameraZoom } = s.dataset;
+          if (state.map && cameraLng != null && !state.userInteracting) {
+            state.storyCameraUntil = Date.now() + 2200;
+            state.map.flyTo({
+              center: [+cameraLng, +cameraLat],
+              zoom: +cameraZoom,
+              duration: 1400,
+              essential: true
+            });
+          }
+        });
+      }, { rootMargin: "-40% 0px -40% 0px", threshold: 0 });
+
+      document.querySelectorAll(".story-section").forEach(s => layerObs.observe(s));
     }
 
     function setupSectionNav() {
@@ -4434,42 +4470,6 @@
             if (prev) activateSection(prev);
           }
         });
-      });
-    }
-
-    function setupScrollLock() {
-      const layout = document.querySelector('.scrollytelling-layout');
-      if (!layout) return;
-
-      layout.addEventListener('wheel', (e) => {
-        const scrollingUp = e.deltaY < 0;
-        if (scrollingUp) {
-          const firstSection = document.getElementById('section-intro');
-          if (firstSection && firstSection.getBoundingClientRect().top >= -150) {
-            return;
-          }
-        }
-        e.preventDefault();
-      }, { passive: false });
-
-      layout.addEventListener('touchmove', (e) => {
-        e.preventDefault();
-      }, { passive: false });
-
-      const scrollKeys = new Set(['ArrowDown', 'ArrowUp', 'Space', 'PageDown', 'PageUp']);
-      document.addEventListener('keydown', (e) => {
-        if (!scrollKeys.has(e.code)) return;
-        const rect = layout.getBoundingClientRect();
-        if (rect.top < window.innerHeight && rect.bottom > 0) {
-          const isUp = e.code === 'ArrowUp' || e.code === 'PageUp';
-          if (isUp) {
-            const firstSection = document.getElementById('section-intro');
-            if (firstSection && firstSection.getBoundingClientRect().top >= -150) {
-              return;
-            }
-          }
-          e.preventDefault();
-        }
       });
     }
 
@@ -5062,7 +5062,6 @@
         enableGameStart();
         setupQuizLayerButtons();
         setupSectionNav();
-        setupScrollLock();
 
         mapboxgl.accessToken = "pk.eyJ1IjoieWFsbDc3NyIsImEiOiJjbXA3ZXIzNjIwMm5zMnNweDkwamtpM3RtIn0.udhgEgCcnM5hGKdL5Mz3Nw";
         state.map = new mapboxgl.Map({
@@ -5097,14 +5096,6 @@
           if (storyRight) {
             storyRight.addEventListener("mouseenter", () => state.map?.scrollZoom.enable());
             storyRight.addEventListener("mouseleave", () => state.map?.scrollZoom.disable());
-            storyRight.addEventListener('wheel', (e) => {
-              if (e.deltaY < 0) {
-                const firstSection = document.getElementById('section-intro');
-                if (firstSection && firstSection.getBoundingClientRect().top >= -150) {
-                  e.stopPropagation();
-                }
-              }
-            }, { capture: true, passive: false });
           }
         });
         state.map.on("style.load", applySpaceFog);
