@@ -21,6 +21,7 @@
       --gold: #8a6a24;
       --purple: #6d5aa8;
       --shadow: 0 16px 38px rgba(23, 32, 39, 0.13);
+      --layer-accent: #e8a020;
     }
 
     * {
@@ -304,7 +305,7 @@
       background: var(--dark);
       color: #f7f4ec;
       border-color: var(--dark);
-      box-shadow: inset 0 3px 0 #e8a020, 0 8px 20px rgba(23, 32, 39, 0.14);
+      box-shadow: inset 0 3px 0 var(--layer-accent), 0 8px 20px rgba(23, 32, 39, 0.14);
     }
 
     .mini-toggle button[aria-pressed="true"] {
@@ -2232,9 +2233,9 @@
 
     .quiz-layer-btn[aria-pressed="true"] {
       background: var(--dark);
-      border-color: #e8a020;
+      border-color: var(--layer-accent);
       color: #f7f4ec;
-      box-shadow: inset 0 2px 0 #e8a020;
+      box-shadow: inset 0 2px 0 var(--layer-accent);
     }
 
     body.quiz-mode-active .globe-entry-overlay {
@@ -2307,7 +2308,6 @@
       transition:
         opacity 540ms cubic-bezier(0.22, 1, 0.36, 1),
         transform 540ms cubic-bezier(0.22, 1, 0.36, 1);
-      scroll-snap-align: start;
     }
 
     /* Tall sections (timeline, quiz, takeaway) – no forced min-height */
@@ -2329,7 +2329,7 @@
     /* ── Typography inside story sections ── */
     .story-kicker {
       margin: 0 0 10px;
-      color: #e8a020;
+      color: var(--layer-accent);
       font-size: 0.74rem;
       font-weight: 820;
       letter-spacing: 0.1em;
@@ -3614,7 +3614,10 @@
         note: "Index: higher values mean several El Nino effects line up in the same place.",
         minLabel: "Opposite or weaker response",
         maxLabel: "Strong aligned fingerprint",
-        tooltip: "El Nino Fingerprint is a normalized composite index. Positive values mean SST, precipitation, cloud cover, and radiation effects line up strongly; near zero is weak or mixed; negative is opposite or weaker."
+        tooltip: "El Nino Fingerprint is a normalized composite index. Positive values mean SST, precipitation, cloud cover, and radiation effects line up strongly; near zero is weak or mixed; negative is opposite or weaker.",
+        cmapCold: [[0, 240, 255, 0.0], [20, 110, 255, 1.0], [160, 0, 220, 1.0]],
+        cmapWarm: [[255, 210, 0, 0.0], [255, 70, 0, 1.0], [200, 0, 60, 1.0]],
+        accentHex: "#e8a020"
       },
       sst: {
         label: "SST Warming",
@@ -3627,7 +3630,10 @@
         note: "Sea-surface temperature anomaly in °C compared with neutral months.",
         minLabel: "Cooler",
         maxLabel: "Warmer",
-        tooltip: "Sea surface temperature anomaly. Watch the central and eastern Pacific light up red during El Niño years."
+        tooltip: "Sea surface temperature anomaly. Watch the central and eastern Pacific light up red during El Niño years.",
+        cmapCold: [[200, 235, 255, 0.0], [30, 110, 200, 1.0], [0, 40, 130, 1.0]],
+        cmapWarm: [[255, 220, 180, 0.0], [240, 60, 20, 1.0], [170, 0, 0, 1.0]],
+        accentHex: "#dc2020"
       },
       precip: {
         label: "Rainfall Shift",
@@ -3640,7 +3646,10 @@
         note: "Precipitation change in mm/day compared with neutral months.",
         minLabel: "Drier",
         maxLabel: "Wetter",
-        tooltip: "Rain moves eastward, away from Indonesia. This disrupts monsoons across Southeast Asia and Australia."
+        tooltip: "Rain moves eastward, away from Indonesia. This disrupts monsoons across Southeast Asia and Australia.",
+        cmapCold: [[255, 225, 160, 0.0], [210, 130, 30, 1.0], [140, 60, 10, 1.0]],
+        cmapWarm: [[180, 255, 220, 0.0], [0, 170, 100, 1.0], [0, 90, 50, 1.0]],
+        accentHex: "#10a060"
       },
       cloud: {
         label: "Cloud Cover",
@@ -3653,7 +3662,10 @@
         note: "Cloud-cover change in percentage points compared with neutral months.",
         minLabel: "Clearer",
         maxLabel: "Cloudier",
-        tooltip: "Clouds follow the warm water. Positive = cloudier than normal; negative = clearer skies."
+        tooltip: "Clouds follow the warm water. Positive = cloudier than normal; negative = clearer skies.",
+        cmapCold: [[255, 235, 200, 0.0], [200, 140, 20, 1.0], [130, 70, 0, 1.0]],
+        cmapWarm: [[230, 215, 255, 0.0], [130, 50, 220, 1.0], [70, 0, 160, 1.0]],
+        accentHex: "#8020d0"
       },
       rsut: {
         label: "Radiation",
@@ -3666,7 +3678,10 @@
         note: "Outgoing shortwave radiation change in W/m²; higher means more reflected sunlight escapes.",
         minLabel: "Less outgoing SW",
         maxLabel: "More outgoing SW",
-        tooltip: "Outgoing shortwave radiation shows where reflected sunlight escapes. Fewer clouds usually mean more reflected sunlight leaves the Earth system."
+        tooltip: "Outgoing shortwave radiation shows where reflected sunlight escapes. Fewer clouds usually mean more reflected sunlight leaves the Earth system.",
+        cmapCold: [[225, 255, 200, 0.0], [140, 200, 10, 1.0], [70, 120, 0, 1.0]],
+        cmapWarm: [[255, 200, 245, 0.0], [220, 20, 180, 1.0], [130, 0, 120, 1.0]],
+        accentHex: "#cc14b0"
       }
     };
 
@@ -3740,10 +3755,10 @@
       ];
     }
 
-    function valueToRGBA(v, rMin, rMax) {
+    function valueToRGBA(v, rMin, rMax, cmapCold, cmapWarm) {
       const t = v < 0 ? Math.max(-1, v / Math.abs(rMin)) : Math.min(1, v / rMax);
       const absT = Math.abs(t);
-      const stops = t < 0 ? CMAP_COLD : CMAP_WARM;
+      const stops = t < 0 ? cmapCold : cmapWarm;
       const c = absT <= 0.5
         ? lerpStop(stops[0], stops[1], absT / 0.5)
         : lerpStop(stops[1], stops[2], (absT - 0.5) / 0.5);
@@ -3804,7 +3819,7 @@
 
           if (value !== undefined) {
             const edgeFade = ey;
-            const [r, g, b, valueAlpha] = valueToRGBA(value, rMin, rMax);
+            const [r, g, b, valueAlpha] = valueToRGBA(value, rMin, rMax, config.cmapCold, config.cmapWarm);
             const alpha = Math.round(edgeFade * valueAlpha * 255);
             img.data[idx] = r;
             img.data[idx + 1] = g;
@@ -4414,6 +4429,28 @@
       });
     }
 
+    function setupScrollLock() {
+      const layout = document.querySelector('.scrollytelling-layout');
+      if (!layout) return;
+
+      layout.addEventListener('wheel', (e) => {
+        e.preventDefault();
+      }, { passive: false });
+
+      layout.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+      }, { passive: false });
+
+      const scrollKeys = new Set(['ArrowDown', 'ArrowUp', 'Space', 'PageDown', 'PageUp']);
+      document.addEventListener('keydown', (e) => {
+        if (!scrollKeys.has(e.code)) return;
+        const rect = layout.getBoundingClientRect();
+        if (rect.top < window.innerHeight && rect.bottom > 0) {
+          e.preventDefault();
+        }
+      });
+    }
+
     function setMapLoading(isLoading, label = "map layer") {
       const overlay = document.querySelector("#mapLoadingOverlay");
       if (!overlay) return;
@@ -4720,6 +4757,7 @@
     function setLayer(key) {
       state.layer = key;
       const config = layerConfig[key];
+      document.documentElement.style.setProperty('--layer-accent', config.accentHex);
       updateActiveStoryStep(key);
       document.querySelector("#layerTitle").textContent = config.label;
       document.querySelector("#layerDescription").textContent = config.description;
@@ -5002,6 +5040,7 @@
         enableGameStart();
         setupQuizLayerButtons();
         setupSectionNav();
+        setupScrollLock();
 
         mapboxgl.accessToken = "pk.eyJ1IjoieWFsbDc3NyIsImEiOiJjbXA3ZXIzNjIwMm5zMnNweDkwamtpM3RtIn0.udhgEgCcnM5hGKdL5Mz3Nw";
         state.map = new mapboxgl.Map({
