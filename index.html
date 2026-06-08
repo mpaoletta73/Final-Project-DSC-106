@@ -297,7 +297,7 @@
     .layer-buttons button:hover,
     .mini-toggle button:hover {
       background: #ffffff;
-      border-color: rgba(193, 52, 30, 0.22);
+      border-color: color-mix(in srgb, var(--layer-accent) 22%, transparent);
       transform: translateY(-1px);
     }
 
@@ -457,7 +457,7 @@
 
     .topbar .caption-kicker {
       margin: 0;
-      color: #e8a020;
+      color: var(--layer-accent);
       font-size: 0.72rem;
       font-weight: 820;
       letter-spacing: 0.09em;
@@ -896,7 +896,7 @@
 
     .story-step-kicker {
       margin: 0;
-      color: #e8a020;
+      color: var(--layer-accent);
       font-size: 0.72rem;
       font-weight: 820;
       letter-spacing: 0.09em;
@@ -1802,7 +1802,7 @@
 
     .progress-bar {
       height: 100%;
-      background: #e8a020;
+      background: var(--layer-accent);
       border-radius: 999px;
       transition: width 320ms ease;
     }
@@ -2228,7 +2228,7 @@
 
     .quiz-layer-btn:hover {
       background: rgba(255, 255, 255, 0.14);
-      border-color: rgba(232, 160, 32, 0.5);
+      border-color: color-mix(in srgb, var(--layer-accent) 50%, transparent);
     }
 
     .quiz-layer-btn[aria-pressed="true"] {
@@ -2297,7 +2297,8 @@
     /* ── Story sections ── */
     .story-section {
       position: relative;
-      min-height: 100vh;
+      height: 100vh;
+      overflow: hidden;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -2358,7 +2359,7 @@
 
     /* Intro section overrides – keep article-intro-body style but in dark theme */
     .story-section .article-kicker {
-      color: #e8a020;
+      color: var(--layer-accent);
       margin-bottom: 10px;
     }
 
@@ -2582,10 +2583,10 @@
 
     .section-nav-btn {
       padding: 10px 22px;
-      border: 1px solid rgba(232, 160, 32, 0.45);
+      border: 1px solid color-mix(in srgb, var(--layer-accent) 45%, transparent);
       border-radius: 8px;
-      background: rgba(232, 160, 32, 0.1);
-      color: #e8a020;
+      background: color-mix(in srgb, var(--layer-accent) 10%, transparent);
+      color: var(--layer-accent);
       font-size: 0.86rem;
       font-weight: 720;
       letter-spacing: 0.04em;
@@ -2594,8 +2595,8 @@
     }
 
     .section-nav-btn:hover:not(:disabled) {
-      background: rgba(232, 160, 32, 0.22);
-      border-color: rgba(232, 160, 32, 0.75);
+      background: color-mix(in srgb, var(--layer-accent) 22%, transparent);
+      border-color: color-mix(in srgb, var(--layer-accent) 75%, transparent);
       transform: translateY(-1px);
     }
 
@@ -4398,7 +4399,7 @@
           });
         }
 
-        section.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        section.scrollIntoView({ behavior: "smooth", block: "start" });
       }
 
       document.querySelectorAll(".section-nav-next").forEach(btn => {
@@ -4434,6 +4435,13 @@
       if (!layout) return;
 
       layout.addEventListener('wheel', (e) => {
+        const scrollingUp = e.deltaY < 0;
+        if (scrollingUp) {
+          const firstSection = document.getElementById('section-intro');
+          if (firstSection && firstSection.getBoundingClientRect().top >= -50) {
+            return;
+          }
+        }
         e.preventDefault();
       }, { passive: false });
 
@@ -4446,6 +4454,13 @@
         if (!scrollKeys.has(e.code)) return;
         const rect = layout.getBoundingClientRect();
         if (rect.top < window.innerHeight && rect.bottom > 0) {
+          const isUp = e.code === 'ArrowUp' || e.code === 'PageUp';
+          if (isUp) {
+            const firstSection = document.getElementById('section-intro');
+            if (firstSection && firstSection.getBoundingClientRect().top >= -50) {
+              return;
+            }
+          }
           e.preventDefault();
         }
       });
