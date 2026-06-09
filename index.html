@@ -2539,17 +2539,17 @@
 
     .section-scroll-cue {
       position: absolute;
-      bottom: 22px;
+      bottom: 16px;
       left: 50%;
       transform: translateX(-50%);
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 6px;
-      color: rgba(247, 244, 236, 0.5);
-      font-size: 0.67rem;
-      font-weight: 700;
-      letter-spacing: 0.1em;
+      gap: 4px;
+      color: rgba(247, 244, 236, 0.32);
+      font-size: 0.52rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
       text-transform: uppercase;
       pointer-events: none;
       user-select: none;
@@ -2558,10 +2558,10 @@
     }
 
     .section-scroll-cue .cue-chevron {
-      width: 13px;
-      height: 13px;
-      border-right: 2px solid currentColor;
-      border-bottom: 2px solid currentColor;
+      width: 8px;
+      height: 8px;
+      border-right: 1.5px solid currentColor;
+      border-bottom: 1.5px solid currentColor;
       transform: rotate(45deg);
       flex-shrink: 0;
     }
@@ -2578,8 +2578,16 @@
       margin-top: 14px;
     }
 
+    .colorbar-caption {
+      font-size: 0.62rem;
+      font-weight: 600;
+      color: rgba(247, 244, 236, 0.45);
+      letter-spacing: 0.03em;
+      margin-bottom: 5px;
+    }
+
     .colorbar-track {
-      height: 10px;
+      height: 8px;
       border-radius: 999px;
       width: 100%;
     }
@@ -2587,9 +2595,9 @@
     .colorbar-labels {
       display: flex;
       justify-content: space-between;
-      margin-top: 5px;
-      font-size: 0.65rem;
-      color: rgba(247, 244, 236, 0.5);
+      margin-top: 4px;
+      font-size: 0.62rem;
+      color: rgba(247, 244, 236, 0.45);
       font-weight: 600;
       letter-spacing: 0.03em;
     }
@@ -3136,22 +3144,22 @@
       flex-direction: column;
       align-items: center;
       width: 100%;
-      margin-top: 32px;
-      padding-bottom: 8px;
-      color: rgba(23, 32, 39, 0.55);
-      font-size: 0.67rem;
-      font-weight: 700;
-      letter-spacing: 0.12em;
+      margin-top: 24px;
+      padding-bottom: 6px;
+      color: rgba(23, 32, 39, 0.32);
+      font-size: 0.52rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
       text-transform: uppercase;
-      gap: 8px;
+      gap: 4px;
       animation: timelineScrollCueBounce 2s ease-in-out infinite;
     }
 
     .timeline-standalone .section-scroll-cue .cue-chevron {
-      width: 14px;
-      height: 14px;
-      border-right: 2px solid rgba(23, 32, 39, 0.5);
-      border-bottom: 2px solid rgba(23, 32, 39, 0.5);
+      width: 8px;
+      height: 8px;
+      border-right: 1.5px solid rgba(23, 32, 39, 0.35);
+      border-bottom: 1.5px solid rgba(23, 32, 39, 0.35);
     }
 
     @keyframes timelineScrollCueBounce {
@@ -3221,7 +3229,8 @@
           You can drag and scroll the globe to explore freely.
         </p>
         <div class="layer-colorbar" role="img" aria-label="Color scale: purple/blue = below-average fingerprint, orange/red = above-average fingerprint">
-          <div class="colorbar-track" style="background: linear-gradient(90deg, rgb(160,0,220), rgb(20,110,255), #0d1520 50%, rgb(255,70,0), rgb(200,0,60))"></div>
+          <p class="colorbar-caption">Composite El Niño signal — negative (opposite pattern) to positive (strong alignment)</p>
+          <div class="colorbar-track" style="background: linear-gradient(90deg, rgb(140,0,210) 0%, rgb(60,80,230) 28%, rgb(20,30,60) 47%, rgb(20,30,60) 53%, rgb(240,80,20) 72%, rgb(195,0,55) 100%)"></div>
           <div class="colorbar-labels">
             <span>−1 index</span>
             <span>0</span>
@@ -3248,7 +3257,8 @@
           You can drag and scroll the globe to explore freely.
         </p>
         <div class="layer-colorbar" role="img" aria-label="Color scale: blue = cooler ocean, red = warmer ocean">
-          <div class="colorbar-track" style="background: linear-gradient(90deg, rgb(0,40,130), rgb(30,110,200), #0d1520 50%, rgb(240,60,20), rgb(170,0,0))"></div>
+          <p class="colorbar-caption">Sea-surface temperature anomaly — cooler than normal to warmer than normal</p>
+          <div class="colorbar-track" style="background: linear-gradient(90deg, rgb(0,40,130) 0%, rgb(30,100,200) 28%, rgb(12,22,50) 47%, rgb(12,22,50) 53%, rgb(230,60,20) 72%, rgb(165,0,0) 100%)"></div>
           <div class="colorbar-labels">
             <span>−2 °C</span>
             <span>0</span>
@@ -3275,7 +3285,8 @@
           You can drag and scroll the globe to explore freely.
         </p>
         <div class="layer-colorbar" role="img" aria-label="Color scale: brown = drier, green = wetter">
-          <div class="colorbar-track" style="background: linear-gradient(90deg, rgb(140,60,10), rgb(210,130,30), #0d1520 50%, rgb(0,170,100), rgb(0,90,50))"></div>
+          <p class="colorbar-caption">Rainfall anomaly — drier than normal to wetter than normal</p>
+          <div class="colorbar-track" style="background: linear-gradient(90deg, rgb(140,60,10) 0%, rgb(200,120,30) 28%, rgb(12,20,35) 47%, rgb(12,20,35) 53%, rgb(0,160,90) 72%, rgb(0,85,45) 100%)"></div>
           <div class="colorbar-labels">
             <span>−4 mm/day</span>
             <span>0</span>
@@ -3302,7 +3313,8 @@
           You can drag and scroll the globe to explore freely.
         </p>
         <div class="layer-colorbar" role="img" aria-label="Color scale: brown/gold = clearer skies, purple = cloudier">
-          <div class="colorbar-track" style="background: linear-gradient(90deg, rgb(130,70,0), rgb(200,140,20), #0d1520 50%, rgb(130,50,220), rgb(70,0,160))"></div>
+          <p class="colorbar-caption">Cloud cover anomaly — clearer than normal to cloudier than normal</p>
+          <div class="colorbar-track" style="background: linear-gradient(90deg, rgb(130,70,0) 0%, rgb(190,130,20) 28%, rgb(12,20,35) 47%, rgb(12,20,35) 53%, rgb(120,50,210) 72%, rgb(65,0,155) 100%)"></div>
           <div class="colorbar-labels">
             <span>−14 %pts</span>
             <span>0</span>
@@ -3329,7 +3341,8 @@
           You can drag and scroll the globe to explore freely.
         </p>
         <div class="layer-colorbar" role="img" aria-label="Color scale: green = less reflected radiation, magenta = more reflected radiation">
-          <div class="colorbar-track" style="background: linear-gradient(90deg, rgb(70,120,0), rgb(140,200,10), #0d1520 50%, rgb(220,20,180), rgb(130,0,120))"></div>
+          <p class="colorbar-caption">Reflected solar radiation anomaly — less reflected (more absorbed) to more reflected</p>
+          <div class="colorbar-track" style="background: linear-gradient(90deg, rgb(70,120,0) 0%, rgb(130,190,10) 28%, rgb(12,20,35) 47%, rgb(12,20,35) 53%, rgb(210,20,170) 72%, rgb(125,0,115) 100%)"></div>
           <div class="colorbar-labels">
             <span>−24 W/m²</span>
             <span>0</span>
@@ -4572,24 +4585,24 @@
     const globeLabelDefs = {
       intro: [
         {
-          lng: -118, lat: 4, text: "El Niño warming core", color: "#e8a020", side: "bottom",
+          lng: -118, lat: 4, text: "El Niño warming core", color: "#c8d0d4", side: "bottom",
           description: "Where ocean heat builds up during El Niño.",
           detail: "The central and eastern Pacific accumulate heat over months as trade winds relax, raising surface temps by 2–4 °C above normal. This warmth fuels the atmospheric disruptions felt worldwide."
         },
         {
-          lng: 142, lat: 0, text: "Pacific basin", color: "#9ba6ab", side: "bottom",
+          lng: 142, lat: 0, text: "Pacific basin", color: "#c8d0d4", side: "bottom",
           description: "Earth's largest ocean — a global weather engine.",
           detail: "The Pacific spans 165 million km², nearly a third of Earth's surface. Small temperature shifts here are enough to reorganize jet streams, monsoons, and storm tracks across multiple continents."
         }
       ],
       facts: [
         {
-          lng: -78, lat: -3, text: "Warm water source", color: "#e82010", side: "right",
+          lng: -78, lat: -3, text: "Warm water source", color: "#c8d0d4", side: "right",
           description: "Heat energy stored in the western Pacific.",
           detail: "Trade winds push warm surface water westward for months. When winds weaken, this reservoir of heat sloshes back east — the trigger for El Niño. The deeper the pool, the stronger the event."
         },
         {
-          lng: -128, lat: 5, text: "Spreads eastward", color: "#e8a020", side: "bottom",
+          lng: -128, lat: 5, text: "Spreads eastward", color: "#c8d0d4", side: "bottom",
           description: "The signature El Niño migration.",
           detail: "Warm water moving east along the equator suppresses cold upwelling and eliminates the 'cold tongue.' The tropical rain belt follows the heat, shifting storm systems thousands of miles from their normal positions."
         }
