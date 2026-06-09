@@ -2571,50 +2571,27 @@
     }
 
     /* ══════════════════════════════════════════════════════
-       SECTION NAVIGATION BUTTONS — replaces scroll cue
+       LAYER COLOR INTENSITY BAR
        ══════════════════════════════════════════════════════ */
 
-    .section-nav {
+    .layer-colorbar {
+      margin-top: 14px;
+    }
+
+    .colorbar-track {
+      height: 10px;
+      border-radius: 999px;
+      width: 100%;
+    }
+
+    .colorbar-labels {
       display: flex;
-      gap: 10px;
-      margin-top: 28px;
-      flex-wrap: wrap;
-    }
-
-    .section-nav-btn {
-      padding: 10px 22px;
-      border: 1px solid rgba(232, 160, 32, 0.45);
-      border-radius: 8px;
-      background: rgba(232, 160, 32, 0.10);
-      color: #e8a020;
-      font-size: 0.86rem;
-      font-weight: 720;
-      letter-spacing: 0.04em;
-      cursor: pointer;
-      transition: background 0.2s, border-color 0.2s, opacity 0.2s, transform 0.15s;
-    }
-
-    .section-nav-btn:hover:not(:disabled) {
-      background: rgba(232, 160, 32, 0.22);
-      border-color: rgba(232, 160, 32, 0.75);
-      transform: translateY(-1px);
-    }
-
-    .story-section .section-nav {
-      position: absolute;
-      bottom: clamp(28px, 4vh, 48px);
-      left: clamp(28px, 4vw, 52px);
-      margin-top: 0;
-    }
-
-    .section-nav-btn:active:not(:disabled) {
-      transform: translateY(0);
-    }
-
-    .section-nav-btn:disabled {
-      opacity: 0.22;
-      cursor: default;
-      pointer-events: none;
+      justify-content: space-between;
+      margin-top: 5px;
+      font-size: 0.65rem;
+      color: rgba(247, 244, 236, 0.5);
+      font-weight: 600;
+      letter-spacing: 0.03em;
     }
 
     /* Hide globe entry overlay – globe is always visible in scrollytelling mode */
@@ -3208,11 +3185,11 @@
         <h2 id="mapIntroTitle">El Nino starts in the ocean, but it does not stay there.</h2>
         <p class="article-intro-body">The map is a composite showing the typical Pacific-wide pattern across 1950–2014. Start with the El Nino Fingerprint, then peel apart the layers to see how ocean warming lines up with rainfall, clouds, and reflected sunlight.</p>
         <p class="article-data-note">Dataset: CESM2 historical climate model output from 1950–2014, comparing El Nino-like months against neutral months.</p>
-        <p class="intro-transition">Click <strong>Next</strong> below to step through each layer — the globe updates automatically.</p>
-        <nav class="section-nav" aria-label="Section navigation">
-          <button class="section-nav-btn section-nav-prev" type="button" aria-label="Previous section" disabled>&#8592; Back</button>
-          <button class="section-nav-btn section-nav-next" type="button" aria-label="Next section">Next &#8594;</button>
-        </nav>
+        <p class="intro-transition">Scroll down to step through each layer — the globe updates automatically.</p>
+        <p class="section-scroll-cue" aria-hidden="true">
+          <span class="cue-chevron"></span>
+          Scroll to continue
+        </p>
       </section>
 
       <!-- 2. Facts -->
@@ -3224,10 +3201,10 @@
           <p>Each layer compares El Nino-like months against neutral months in CESM2 historical data.</p>
         </div>
         <div class="facts" id="facts"></div>
-        <nav class="section-nav" aria-label="Section navigation">
-          <button class="section-nav-btn section-nav-prev" type="button" aria-label="Previous section">&#8592; Back</button>
-          <button class="section-nav-btn section-nav-next" type="button" aria-label="Next section">Next &#8594;</button>
-        </nav>
+        <p class="section-scroll-cue" aria-hidden="true">
+          <span class="cue-chevron"></span>
+          Scroll to continue
+        </p>
       </section>
 
       <!-- 3. El Nino Fingerprint (combined) -->
@@ -3243,10 +3220,18 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M12 2a2 2 0 0 1 2 2v5.5l1.5-1a1.5 1.5 0 0 1 2 2.2L14 14.5A6 6 0 0 1 8 20H6a4 4 0 0 1-4-4v-3a1.5 1.5 0 0 1 3 0V11l3.5-4.5A2 2 0 0 1 12 4V2z"/></svg>
           You can drag and scroll the globe to explore freely.
         </p>
-        <nav class="section-nav" aria-label="Section navigation">
-          <button class="section-nav-btn section-nav-prev" type="button" aria-label="Previous section">&#8592; Back</button>
-          <button class="section-nav-btn section-nav-next" type="button" aria-label="Next section">Next &#8594;</button>
-        </nav>
+        <div class="layer-colorbar" role="img" aria-label="Color scale: purple/blue = below-average fingerprint, orange/red = above-average fingerprint">
+          <div class="colorbar-track" style="background: linear-gradient(90deg, rgb(160,0,220), rgb(20,110,255), #0d1520 50%, rgb(255,70,0), rgb(200,0,60))"></div>
+          <div class="colorbar-labels">
+            <span>−1 index</span>
+            <span>0</span>
+            <span>+1 index</span>
+          </div>
+        </div>
+        <p class="section-scroll-cue" aria-hidden="true">
+          <span class="cue-chevron"></span>
+          Scroll to continue
+        </p>
       </section>
 
       <!-- 4. SST Warming -->
@@ -3262,10 +3247,18 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M12 2a2 2 0 0 1 2 2v5.5l1.5-1a1.5 1.5 0 0 1 2 2.2L14 14.5A6 6 0 0 1 8 20H6a4 4 0 0 1-4-4v-3a1.5 1.5 0 0 1 3 0V11l3.5-4.5A2 2 0 0 1 12 4V2z"/></svg>
           You can drag and scroll the globe to explore freely.
         </p>
-        <nav class="section-nav" aria-label="Section navigation">
-          <button class="section-nav-btn section-nav-prev" type="button" aria-label="Previous section">&#8592; Back</button>
-          <button class="section-nav-btn section-nav-next" type="button" aria-label="Next section">Next &#8594;</button>
-        </nav>
+        <div class="layer-colorbar" role="img" aria-label="Color scale: blue = cooler ocean, red = warmer ocean">
+          <div class="colorbar-track" style="background: linear-gradient(90deg, rgb(0,40,130), rgb(30,110,200), #0d1520 50%, rgb(240,60,20), rgb(170,0,0))"></div>
+          <div class="colorbar-labels">
+            <span>−2 °C</span>
+            <span>0</span>
+            <span>+2 °C</span>
+          </div>
+        </div>
+        <p class="section-scroll-cue" aria-hidden="true">
+          <span class="cue-chevron"></span>
+          Scroll to continue
+        </p>
       </section>
 
       <!-- 5. Rainfall Shift -->
@@ -3281,10 +3274,18 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M12 2a2 2 0 0 1 2 2v5.5l1.5-1a1.5 1.5 0 0 1 2 2.2L14 14.5A6 6 0 0 1 8 20H6a4 4 0 0 1-4-4v-3a1.5 1.5 0 0 1 3 0V11l3.5-4.5A2 2 0 0 1 12 4V2z"/></svg>
           You can drag and scroll the globe to explore freely.
         </p>
-        <nav class="section-nav" aria-label="Section navigation">
-          <button class="section-nav-btn section-nav-prev" type="button" aria-label="Previous section">&#8592; Back</button>
-          <button class="section-nav-btn section-nav-next" type="button" aria-label="Next section">Next &#8594;</button>
-        </nav>
+        <div class="layer-colorbar" role="img" aria-label="Color scale: brown = drier, green = wetter">
+          <div class="colorbar-track" style="background: linear-gradient(90deg, rgb(140,60,10), rgb(210,130,30), #0d1520 50%, rgb(0,170,100), rgb(0,90,50))"></div>
+          <div class="colorbar-labels">
+            <span>−4 mm/day</span>
+            <span>0</span>
+            <span>+4 mm/day</span>
+          </div>
+        </div>
+        <p class="section-scroll-cue" aria-hidden="true">
+          <span class="cue-chevron"></span>
+          Scroll to continue
+        </p>
       </section>
 
       <!-- 6. Cloud Cover -->
@@ -3300,10 +3301,18 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M12 2a2 2 0 0 1 2 2v5.5l1.5-1a1.5 1.5 0 0 1 2 2.2L14 14.5A6 6 0 0 1 8 20H6a4 4 0 0 1-4-4v-3a1.5 1.5 0 0 1 3 0V11l3.5-4.5A2 2 0 0 1 12 4V2z"/></svg>
           You can drag and scroll the globe to explore freely.
         </p>
-        <nav class="section-nav" aria-label="Section navigation">
-          <button class="section-nav-btn section-nav-prev" type="button" aria-label="Previous section">&#8592; Back</button>
-          <button class="section-nav-btn section-nav-next" type="button" aria-label="Next section">Next &#8594;</button>
-        </nav>
+        <div class="layer-colorbar" role="img" aria-label="Color scale: brown/gold = clearer skies, purple = cloudier">
+          <div class="colorbar-track" style="background: linear-gradient(90deg, rgb(130,70,0), rgb(200,140,20), #0d1520 50%, rgb(130,50,220), rgb(70,0,160))"></div>
+          <div class="colorbar-labels">
+            <span>−14 %pts</span>
+            <span>0</span>
+            <span>+14 %pts</span>
+          </div>
+        </div>
+        <p class="section-scroll-cue" aria-hidden="true">
+          <span class="cue-chevron"></span>
+          Scroll to continue
+        </p>
       </section>
 
       <!-- 7. Radiation (rsut) -->
@@ -3319,10 +3328,18 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M12 2a2 2 0 0 1 2 2v5.5l1.5-1a1.5 1.5 0 0 1 2 2.2L14 14.5A6 6 0 0 1 8 20H6a4 4 0 0 1-4-4v-3a1.5 1.5 0 0 1 3 0V11l3.5-4.5A2 2 0 0 1 12 4V2z"/></svg>
           You can drag and scroll the globe to explore freely.
         </p>
-        <nav class="section-nav" aria-label="Section navigation">
-          <button class="section-nav-btn section-nav-prev" type="button" aria-label="Previous section">&#8592; Back</button>
-          <button class="section-nav-btn section-nav-next" type="button" aria-label="Continue to timeline">Continue &#8594;</button>
-        </nav>
+        <div class="layer-colorbar" role="img" aria-label="Color scale: green = less reflected radiation, magenta = more reflected radiation">
+          <div class="colorbar-track" style="background: linear-gradient(90deg, rgb(70,120,0), rgb(140,200,10), #0d1520 50%, rgb(220,20,180), rgb(130,0,120))"></div>
+          <div class="colorbar-labels">
+            <span>−24 W/m²</span>
+            <span>0</span>
+            <span>+24 W/m²</span>
+          </div>
+        </div>
+        <p class="section-scroll-cue" aria-hidden="true">
+          <span class="cue-chevron"></span>
+          Scroll to continue
+        </p>
       </section>
 
     </div><!-- /.story-left -->
@@ -3788,9 +3805,11 @@
       return (1 - Math.cos(t * Math.PI)) / 2;
     }
 
-    function buildLayerCanvas(layerKey, data) {
+    // canvasLonMin/canvasLonMax define the geographic slice to render (default: full data range).
+    // Uses pad→blur→crop so edges are properly blurred without transparency artifacts.
+    // Wrapping uses full 360° so any sub-range (e.g. a hemisphere) gets context from the other side.
+    function buildLayerCanvas(layerKey, data, canvasLonMin, canvasLonMax) {
       const config = layerConfig[layerKey];
-      // Convert 0-360 lons to -180/180 for Mapbox compatibility; keep all global data
       const records = data.layers[layerKey]
         .filter(r => r[config.key] !== null && !Number.isNaN(r[config.key]))
         .map(r => ({ ...r, lon: r.lon > 180 ? r.lon - 360 : r.lon }));
@@ -3800,25 +3819,24 @@
       const lats = [...new Set(records.map(r => r.lat))].sort((a, b) => a - b);
       const lonStep = lons.length > 1 ? lons[1] - lons[0] : 2;
       const latStep = lats.length > 1 ? lats[1] - lats[0] : 2;
-      const lonMin = lons[0] - lonStep / 2;
-      const lonMax = lons[lons.length - 1] + lonStep / 2;
+      const dataLonMin = lons[0];
+      const dataLonMax = lons[lons.length - 1];
+      const lonMin = canvasLonMin !== undefined ? canvasLonMin : dataLonMin - lonStep / 2;
+      const lonMax = canvasLonMax !== undefined ? canvasLonMax : dataLonMax + lonStep / 2;
       const latMin = lats[0] - latStep / 2;
       const latMax = lats[lats.length - 1] + latStep / 2;
 
-      // Build lookup map using -180/180 keys
       const lookup = new Map();
       records.forEach(r => lookup.set(`${r.lon},${r.lat}`, r[config.key]));
       state.lookups[layerKey] = lookup;
-      state.gridInfo[layerKey] = { lonStep, latStep, lonMin, lonMax, latMin, latMax, lonStart: lons[0], latStart: lats[0] };
+      // gridInfo always uses full data range so hover lookup works on any view
+      state.gridInfo[layerKey] = { lonStep, latStep, lonMin: dataLonMin - lonStep / 2, lonMax: dataLonMax + lonStep / 2, latMin, latMax, lonStart: lons[0], latStart: lats[0] };
 
       const pxPerDeg = 8;
       const fadeDegs = 15;
       const blurPx = Math.round(pxPerDeg * 2.5);
-      // Pad canvas on both sides with wrapped data so the blur has context at the
-      // antimeridian edges and doesn't fade to transparent there (which causes the seam).
       const padPx = blurPx * 3;
       const padDeg = padPx / pxPerDeg;
-      const lonSpan = lonMax - lonMin;
 
       const coreWidth = Math.ceil((lonMax - lonMin) * pxPerDeg);
       const paddedWidth = coreWidth + 2 * padPx;
@@ -3836,16 +3854,15 @@
 
         for (let px = 0; px < paddedWidth; px++) {
           let lon = (lonMin - padDeg) + px / pxPerDeg;
-          // Wrap padding pixels into the valid data range so the blur has real context
-          if (lon < lonMin) lon += lonSpan;
-          else if (lon >= lonMax) lon -= lonSpan;
+          // Wrap into actual data range using full 360° — works for any sub-range canvas
+          while (lon < dataLonMin) lon += 360;
+          while (lon > dataLonMax + lonStep / 2) lon -= 360;
           const value = bilinearInterp(lookup, lons, lats, lon, lat, lonStep, latStep);
           const idx = (py * paddedWidth + px) * 4;
 
           if (value !== undefined) {
-            const edgeFade = ey;
             const [r, g, b, valueAlpha] = valueToRGBA(value, rMin, rMax, config.cmapCold, config.cmapWarm);
-            const alpha = Math.round(edgeFade * valueAlpha * 255);
+            const alpha = Math.round(ey * valueAlpha * 255);
             img.data[idx] = r;
             img.data[idx + 1] = g;
             img.data[idx + 2] = b;
@@ -3863,7 +3880,6 @@
       bCtx.filter = `blur(${blurPx}px)`;
       bCtx.drawImage(cvs, 0, 0);
 
-      // Crop out the padding — edges are now properly blurred without a seam
       const blurred = document.createElement("canvas");
       blurred.width = coreWidth;
       blurred.height = height;
@@ -3901,23 +3917,29 @@
     // --- Mapbox layer management ---
 
     function addRasterLayer(key) {
-      if (state.builtLayers.has(key) || state.map.getSource("src-raster-" + key)) return;
+      if (state.builtLayers.has(key) || state.map.getSource("src-raster-w-" + key)) return;
       const map = state.map;
-      const { canvas, lonMin, lonMax, latMin, latMax } = buildLayerCanvas(key, state.data);
-      map.addSource("src-raster-" + key, {
-        type: "canvas",
-        canvas,
-        coordinates: [[lonMin, latMax], [lonMax, latMax], [lonMax, latMin], [lonMin, latMin]],
-        animate: false
-      });
-      map.addLayer({
-        id: "layer-raster-" + key,
-        type: "raster",
-        source: "src-raster-" + key,
-        slot: "top",
-        layout: { visibility: key === state.layer ? "visible" : "none" },
-        paint: { "raster-opacity": 0.72, "raster-fade-duration": 0, "raster-resampling": "linear", "raster-saturation": 0.2, "raster-contrast": 0.1, "raster-brightness-max": 0.78 }
-      });
+      // Two hemisphere canvases eliminate the antimeridian seam: each source covers ≤180°
+      // so Mapbox never has to stitch a full-globe texture edge on the globe projection.
+      // The join at 0° (Prime Meridian, over Africa) is invisible because both halves
+      // use the same underlying data and blur context.
+      for (const [suffix, cLonMin, cLonMax] of [["w", -180, 0], ["e", 0, 180]]) {
+        const { canvas, lonMin, lonMax, latMin, latMax } = buildLayerCanvas(key, state.data, cLonMin, cLonMax);
+        map.addSource("src-raster-" + suffix + "-" + key, {
+          type: "canvas",
+          canvas,
+          coordinates: [[lonMin, latMax], [lonMax, latMax], [lonMax, latMin], [lonMin, latMin]],
+          animate: false
+        });
+        map.addLayer({
+          id: "layer-raster-" + suffix + "-" + key,
+          type: "raster",
+          source: "src-raster-" + suffix + "-" + key,
+          slot: "top",
+          layout: { visibility: key === state.layer ? "visible" : "none" },
+          paint: { "raster-opacity": 0.72, "raster-fade-duration": 0, "raster-resampling": "linear", "raster-saturation": 0.2, "raster-contrast": 0.1, "raster-brightness-max": 0.78 }
+        });
+      }
       state.builtLayers.add(key);
     }
 
@@ -3969,7 +3991,12 @@
     function setMapLayer(key) {
       if (!state.map) return;
       state.builtLayers.forEach(k => {
-        state.map.setLayoutProperty("layer-raster-" + k, "visibility", k === key ? "visible" : "none");
+        for (const suffix of ["w", "e"]) {
+          const id = "layer-raster-" + suffix + "-" + k;
+          if (state.map.getLayer(id)) {
+            state.map.setLayoutProperty(id, "visibility", k === key ? "visible" : "none");
+          }
+        }
       });
     }
 
@@ -4461,32 +4488,6 @@
         section.scrollIntoView({ behavior: "smooth", block: "start" });
       }
 
-      document.querySelectorAll(".section-nav-next").forEach(btn => {
-        btn.addEventListener("click", () => {
-          const current = btn.closest(".story-section");
-          if (!current) return;
-          const idx = SECTION_ORDER.indexOf(current.id);
-          if (idx >= 0 && idx < SECTION_ORDER.length - 1) {
-            const next = document.getElementById(SECTION_ORDER[idx + 1]);
-            if (next) activateSection(next);
-          } else if (idx === SECTION_ORDER.length - 1) {
-            const timelineSection = document.getElementById("section-timeline");
-            if (timelineSection) timelineSection.scrollIntoView({ behavior: "smooth", block: "start" });
-          }
-        });
-      });
-
-      document.querySelectorAll(".section-nav-prev").forEach(btn => {
-        btn.addEventListener("click", () => {
-          const current = btn.closest(".story-section");
-          if (!current) return;
-          const idx = SECTION_ORDER.indexOf(current.id);
-          if (idx > 0) {
-            const prev = document.getElementById(SECTION_ORDER[idx - 1]);
-            if (prev) activateSection(prev);
-          }
-        });
-      });
     }
 
     function setMapLoading(isLoading, label = "map layer") {
